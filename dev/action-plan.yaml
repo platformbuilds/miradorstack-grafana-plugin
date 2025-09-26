@@ -9,12 +9,8 @@ project:
   estimated_duration: "12 weeks"
   
 team:
-  - role: "Lead Developer"
-    name: "TBD"
-  - role: "UI/UX Developer" 
-    name: "TBD"
-  - role: "Backend Integration Specialist"
-    name: "TBD"
+  - role: "Architect"
+    name: "aarvee11"
 
 phases:
   # ==== PHASE 1: FOUNDATION ====
