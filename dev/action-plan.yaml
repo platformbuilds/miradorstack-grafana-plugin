@@ -11,6 +11,16 @@ project:
 team:
   - role: "Architect"
     name: "aarvee11"
+  - role: "Lead Developer"
+    name: "aarvee11"
+  - role: "Backend Integration Specialist"
+    name: "aarvee11"
+  - role: "UI/UX Developer"
+    name: "aarvee11"
+  - role: "QA Engineer"
+    name: "aarvee11"
+  - role: "DevOps Engineer"
+    name: "aarvee11"
 
 phases:
   # ==== PHASE 1: FOUNDATION ====
@@ -26,6 +36,10 @@ phases:
         status: "pending"
         
       - name: "Basic data source connectivity working"
+        due_date: "Week 2 - Day 5"
+        status: "pending"
+
+      - name: "Phase 1 review & sign-off"
         due_date: "Week 2 - Day 5"
         status: "pending"
     
@@ -80,6 +94,38 @@ phases:
             - "All API interfaces documented"
             - "Type safety enforced across codebase"
 
+        - name: "Define UX and design baselines"
+          description: "Create wireframes and accessibility foundations for core workflows"
+          priority: "medium"
+          estimated_hours: 6
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Create project structure"]
+          deliverables:
+            - "Low-fidelity wireframes for configuration and discover flows"
+            - "Initial design system checklist"
+            - "Accessibility contrast palette proposal"
+          acceptance_criteria:
+            - "Wireframes reviewed with architect and lead developer"
+            - "Design checklist stored in repo"
+            - "Accessibility considerations documented"
+
+        - name: "Establish test strategy and tooling"
+          description: "Define testing approach and configure baseline tooling"
+          priority: "high"
+          estimated_hours: 6
+          status: "pending"
+          assignee: "QA Engineer"
+          dependencies: ["Set up development environment"]
+          deliverables:
+            - "Testing strategy document"
+            - "Jest and Testing Library configuration"
+            - "CI pipeline stub for lint/test"
+          acceptance_criteria:
+            - "npm run test executes successfully"
+            - "Strategy doc approved by architect"
+            - "CI stub runs on pull requests"
+
       # Week 2 Tasks  
       week_2:
         - name: "Implement Mirador Core API client"
@@ -120,7 +166,7 @@ phases:
           estimated_hours: 6
           status: "pending"
           assignee: "UI/UX Developer"
-          dependencies: ["Basic data source implementation"]
+          dependencies: ["Basic data source implementation", "Define UX and design baselines", "Establish test strategy and tooling"]
           deliverables:
             - "ConfigEditor.tsx component"
             - "Bearer token input field"
@@ -129,6 +175,38 @@ phases:
             - "Can configure Mirador Core URL and token"
             - "Test connection button works"
             - "Configuration persists correctly"
+
+        - name: "Initial unit test harness"
+          description: "Author first wave of unit tests covering scaffolding and config"
+          priority: "medium"
+          estimated_hours: 6
+          status: "pending"
+          assignee: "QA Engineer"
+          dependencies: ["Establish test strategy and tooling", "Configuration UI"]
+          deliverables:
+            - "Baseline unit test suites for config components"
+            - "Mock utilities for Mirador API client"
+            - "Coverage reporting integrated with CI"
+          acceptance_criteria:
+            - "Unit tests pass in CI"
+            - "Coverage report generated for core modules"
+            - "Regression tests documented"
+
+        - name: "Phase 1 review checkpoint"
+          description: "Conduct cross-functional review and approve phase exit"
+          priority: "high"
+          estimated_hours: 4
+          status: "pending"
+          assignee: "Architect"
+          dependencies: ["Basic data source implementation", "Configuration UI", "Initial unit test harness"]
+          deliverables:
+            - "Review meeting notes"
+            - "Action items backlog"
+            - "Phase exit approval"
+          acceptance_criteria:
+            - "All critical issues resolved or tracked"
+            - "Stakeholders sign off on phase scope"
+            - "Next phase kickoff scheduled"
 
   # ==== PHASE 2: CORE DATA ACCESS ====
   phase_2:
@@ -145,6 +223,10 @@ phases:
       - name: "All data types (logs, metrics, traces) queryable"
         due_date: "Week 4 - Day 5" 
         status: "pending"
+
+      - name: "Phase 2 review & sign-off"
+        due_date: "Week 4 - Day 5"
+        status: "pending"
     
     tasks:
       # Week 3 Tasks
@@ -155,7 +237,7 @@ phases:
           estimated_hours: 16
           status: "pending"
           assignee: "UI/UX Developer"
-          dependencies: ["Configuration UI"]
+          dependencies: ["Configuration UI", "Define UX and design baselines"]
           deliverables:
             - "LuceneQueryEditor.tsx component"
             - "Syntax highlighting for Lucene queries"
@@ -180,6 +262,22 @@ phases:
             - "Invalid queries show helpful errors"
             - "Valid queries parse correctly"
             - "Query suggestions work"
+
+        - name: "API contract tests"
+          description: "Build automated integration tests against Mirador Core endpoints"
+          priority: "medium"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "QA Engineer"
+          dependencies: ["Implement Mirador Core API client", "Initial unit test harness"]
+          deliverables:
+            - "Contract test suite for logs, metrics, and traces APIs"
+            - "Mock server fixtures for failure scenarios"
+            - "CI job for nightly contract validation"
+          acceptance_criteria:
+            - "Contract tests pass against staging Mirador Core"
+            - "Failures generate actionable CI alerts"
+            - "Test fixtures documented for future endpoints"
 
       # Week 4 Tasks
       week_4:
@@ -231,6 +329,38 @@ phases:
             - "WebSocket reconnection works"
             - "Performance remains smooth"
 
+        - name: "Integration smoke tests"
+          description: "Automate end-to-end smoke tests for core query paths"
+          priority: "high"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "QA Engineer"
+          dependencies: ["Metrics query support", "Traces query support", "API contract tests"]
+          deliverables:
+            - "Smoke test suite covering metrics/logs/traces flows"
+            - "Automated test data seeding script"
+            - "CI gating job for smoke tests"
+          acceptance_criteria:
+            - "Smoke tests pass in CI before merge"
+            - "Failures block deployments until resolved"
+            - "Test data refresh documented"
+
+        - name: "Phase 2 review checkpoint"
+          description: "Hold sign-off review on data access capabilities"
+          priority: "high"
+          estimated_hours: 4
+          status: "pending"
+          assignee: "Architect"
+          dependencies: ["Metrics query support", "Traces query support", "Integration smoke tests"]
+          deliverables:
+            - "Review summary and approval record"
+            - "Captured follow-up tasks"
+            - "Updated roadmap for phase 3"
+          acceptance_criteria:
+            - "Stakeholders agree data access meets requirements"
+            - "Follow-up items assigned"
+            - "Phase 3 kickoff confirmed"
+
   # ==== PHASE 3: ADVANCED LOG EXPLORATION UI ====
   phase_3:
     name: "Advanced Log Exploration UI"
@@ -246,6 +376,10 @@ phases:
       - name: "Field interaction and filtering working"
         due_date: "Week 7 - Day 5"
         status: "pending"
+
+      - name: "Phase 3 review & sign-off"
+        due_date: "Week 7 - Day 5"
+        status: "pending"
     
     tasks:
       # Week 5 Tasks
@@ -256,7 +390,7 @@ phases:
           estimated_hours: 12
           status: "pending"
           assignee: "UI/UX Developer"
-          dependencies: ["WebSocket integration"]
+          dependencies: ["WebSocket integration", "Define UX and design baselines", "Phase 2 review checkpoint"]
           deliverables:
             - "DiscoverPage.tsx with responsive layout"
             - "Time range picker integration"
@@ -281,6 +415,22 @@ phases:
             - "Fields populate from log data"
             - "Field stats calculated correctly"
             - "Fields sortable and searchable"
+
+        - name: "UX heuristic review"
+          description: "Run heuristic evaluation on discover workflow design"
+          priority: "medium"
+          estimated_hours: 6
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Discover page layout", "Field list component"]
+          deliverables:
+            - "Heuristic evaluation report"
+            - "Prioritized UX improvement backlog"
+            - "Updated design annotations"
+          acceptance_criteria:
+            - "Top UX issues documented with severity"
+            - "Backlog tickets created for improvements"
+            - "Design updates shared with team"
 
       # Week 6 Tasks  
       week_6:
@@ -315,6 +465,22 @@ phases:
             - "Histogram shows log distribution over time"
             - "Clicking bars filters time range"
             - "Updates with query changes"
+
+        - name: "UI regression tests"
+          description: "Implement component-level regression tests for Discover UI"
+          priority: "high"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "QA Engineer"
+          dependencies: ["Document table view", "Time histogram visualization", "UX heuristic review"]
+          deliverables:
+            - "Storybook/visual regression baseline"
+            - "Automated UI test scripts"
+            - "Snapshot review workflow"
+          acceptance_criteria:
+            - "Regression suite runs in CI"
+            - "Snapshots reviewed and baselined"
+            - "Visual diffs gated before merge"
 
       # Week 7 Tasks
       week_7:
@@ -366,6 +532,38 @@ phases:
             - "Filter logic works correctly"
             - "Filters persist across sessions"
 
+        - name: "Guided usability testing"
+          description: "Run moderated usability sessions with target users"
+          priority: "medium"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Interactive field filtering", "Field statistics overlay", "UI regression tests"]
+          deliverables:
+            - "Usability session recordings and notes"
+            - "Affinity-mapped feedback"
+            - "Improvement backlog updates"
+          acceptance_criteria:
+            - "At least five users complete tasks"
+            - "Critical issues prioritized for fixes"
+            - "Action plan shared with team"
+
+        - name: "Phase 3 review checkpoint"
+          description: "Review Discover experience and approve move to advanced features"
+          priority: "high"
+          estimated_hours: 4
+          status: "pending"
+          assignee: "Architect"
+          dependencies: ["Advanced filters panel", "Guided usability testing"]
+          deliverables:
+            - "Review findings and approvals"
+            - "UX debt log with owners"
+            - "Sign-off to start phase 4"
+          acceptance_criteria:
+            - "Stakeholders confirm Discover UX readiness"
+            - "Outstanding issues scheduled"
+            - "Phase 4 kickoff planned"
+
   # ==== PHASE 4: ADVANCED FEATURES ====
   phase_4:
     name: "Advanced Features"
@@ -381,6 +579,10 @@ phases:
       - name: "Export and save functionality working"
         due_date: "Week 10 - Day 5"
         status: "pending"
+
+      - name: "Phase 4 review & sign-off"
+        due_date: "Week 10 - Day 5"
+        status: "pending"
     
     tasks:
       # Week 8 Tasks
@@ -391,7 +593,7 @@ phases:
           estimated_hours: 14
           status: "pending"
           assignee: "Backend Integration Specialist"
-          dependencies: ["Advanced filters panel"]
+          dependencies: ["Advanced filters panel", "Phase 3 review checkpoint"]
           deliverables:
             - "Schema API integration"
             - "Field definitions display"
@@ -400,6 +602,22 @@ phases:
             - "Schema definitions load and display"
             - "Field descriptions show in tooltips"
             - "Schema search functionality works"
+
+        - name: "Schema contract and caching tests"
+          description: "Validate schema endpoints and caching strategy"
+          priority: "medium"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "QA Engineer"
+          dependencies: ["Schema browser integration", "API contract tests"]
+          deliverables:
+            - "Automated tests for schema endpoints"
+            - "Cache invalidation scenarios"
+            - "Load test baseline for schema calls"
+          acceptance_criteria:
+            - "Schema tests pass in CI"
+            - "Cache hits monitored with metrics"
+            - "Load test results shared with team"
             
         - name: "Schema editor interface"
           description: "Create UI for editing schema definitions"
@@ -485,6 +703,22 @@ phases:
             - "Panel options configurable"
             - "Panels respond to dashboard time range"
 
+        - name: "Phase 4 review checkpoint"
+          description: "Review advanced features, exports, and panel readiness"
+          priority: "high"
+          estimated_hours: 4
+          status: "pending"
+          assignee: "Architect"
+          dependencies: ["Saved searches", "Panel integration", "Schema contract and caching tests"]
+          deliverables:
+            - "Review approval notes"
+            - "Action items for polish phase"
+            - "Release readiness assessment"
+          acceptance_criteria:
+            - "Stakeholders confirm advanced feature completeness"
+            - "Outstanding tasks prioritized"
+            - "Phase 5 kickoff authorized"
+
   # ==== PHASE 5: POLISH & PERFORMANCE ====
   phase_5:
     name: "Polish & Performance"
@@ -498,6 +732,10 @@ phases:
         status: "pending"
         
       - name: "Plugin ready for production"
+        due_date: "Week 12 - Day 5"
+        status: "pending"
+
+      - name: "Production go/no-go review complete"
         due_date: "Week 12 - Day 5"
         status: "pending"
     
@@ -536,6 +774,54 @@ phases:
             - "Network failures handled gracefully"
             - "Plugin remains stable under errors"
 
+        - name: "Security and compliance audit"
+          description: "Assess authentication, authorization, and data handling"
+          priority: "high"
+          estimated_hours: 12
+          status: "pending"
+          assignee: "DevOps Engineer"
+          dependencies: ["Error handling and resilience"]
+          deliverables:
+            - "Security threat model and mitigation plan"
+            - "Dependency vulnerability scan results"
+            - "Compliance checklist completion"
+          acceptance_criteria:
+            - "All critical vulnerabilities remediated"
+            - "Security findings signed off by architect"
+            - "Compliance requirements documented"
+
+        - name: "Accessibility and localization audit"
+          description: "Validate accessibility and internationalization readiness"
+          priority: "medium"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["UI regression tests", "Security and compliance audit"]
+          deliverables:
+            - "WCAG 2.1 AA audit report"
+            - "Localization checklist and string externalization plan"
+            - "Accessibility fixes backlog"
+          acceptance_criteria:
+            - "Key flows pass accessibility checks"
+            - "Localization blockers documented and sized"
+            - "Follow-up tasks assigned"
+
+        - name: "Operational telemetry instrumentation"
+          description: "Add usage analytics and error telemetry hooks"
+          priority: "medium"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "Backend Integration Specialist"
+          dependencies: ["Error handling and resilience", "Phase 4 review checkpoint"]
+          deliverables:
+            - "Telemetry events catalog"
+            - "Grafana analytics dashboard"
+            - "Alerting rules for critical failures"
+          acceptance_criteria:
+            - "Telemetry events captured in monitoring stack"
+            - "Dashboards reviewed with stakeholders"
+            - "Alerts tested end-to-end"
+
       # Week 12 Tasks
       week_12:
         - name: "Testing and documentation"
@@ -563,13 +849,13 @@ phases:
           dependencies: ["Testing and documentation"]
           deliverables:
             - "Plugin metadata and manifest"
-            - "Build scripts for distribution"
-            - "Installation instructions"
+            - "Versioned build artifacts and checksums"
+            - "Installation and upgrade instructions"
           acceptance_criteria:
             - "Plugin builds without errors"
             - "Installation process documented"
-            - "Plugin ready for Grafana catalog"
-            
+            - "Marketplace submission bundle prepared"
+
         - name: "User acceptance testing"
           description: "Conduct final user testing and feedback collection"
           priority: "medium"
@@ -586,9 +872,57 @@ phases:
             - "Major usability issues resolved"
             - "Plugin meets acceptance criteria"
 
+        - name: "Grafana marketplace submission"
+          description: "Complete submission process for Grafana catalog"
+          priority: "high"
+          estimated_hours: 6
+          status: "pending"
+          assignee: "DevOps Engineer"
+          dependencies: ["Plugin packaging and deployment", "Security and compliance audit"]
+          deliverables:
+            - "Signed plugin package"
+            - "Submission checklist and evidence"
+            - "Vendor profile updates"
+          acceptance_criteria:
+            - "Submission accepted by Grafana review"
+            - "Compliance documentation attached"
+            - "Release notes published"
+
+        - name: "Customer enablement and support playbook"
+          description: "Prepare rollout assets, onboarding, and support guides"
+          priority: "medium"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "Architect"
+          dependencies: ["User acceptance testing", "Grafana marketplace submission"]
+          deliverables:
+            - "Onboarding guide and FAQ"
+            - "Support runbooks and escalation matrix"
+            - "Training session deck"
+          acceptance_criteria:
+            - "Stakeholders sign off on enablement materials"
+            - "Support owners trained"
+            - "Knowledge base updated"
+
+        - name: "Phase 5 review checkpoint"
+          description: "Hold production go/no-go meeting and finalize rollout plan"
+          priority: "high"
+          estimated_hours: 4
+          status: "pending"
+          assignee: "Architect"
+          dependencies: ["Testing and documentation", "Grafana marketplace submission", "Customer enablement and support playbook"]
+          deliverables:
+            - "Go/no-go decision record"
+            - "Launch checklist with owners"
+            - "Post-launch monitoring plan"
+          acceptance_criteria:
+            - "All critical launch blockers closed"
+            - "Monitoring coverage approved"
+            - "Launch date confirmed"
+
 # ==== PROJECT TRACKING ====
 tracking:
-  total_estimated_hours: 286
+  total_estimated_hours: 416
   budget_estimation: "$50,000 - $70,000"
   
   risk_factors:
@@ -596,14 +930,20 @@ tracking:
       probability: "medium"
       impact: "high" 
       mitigation: "Regular API compatibility checks"
+      trigger: "Contract tests fail or Mirador release notes flag breaking changes"
+      contingency: "Pair with Mirador team to patch client within one sprint and update mappings"
     - name: "Grafana plugin API deprecation"
       probability: "low"
       impact: "medium"
       mitigation: "Follow Grafana release notes closely"
+      trigger: "Grafana beta releases introduce API warnings or deprecated interfaces"
+      contingency: "Maintain compatibility branch and run regression tests on beta versions"
     - name: "Performance with large datasets"
       probability: "medium"
       impact: "medium"
       mitigation: "Early performance testing and optimization"
+      trigger: "Benchmark exceeds 2s response time or memory usage >200MB"
+      contingency: "Invest in pagination/aggregation optimizations and allocate spike to performance task force"
 
   success_metrics:
     - "Query response time < 2 seconds for typical queries"
@@ -613,18 +953,18 @@ tracking:
     - "Documentation completeness score > 90%"
 
   weekly_deliverables:
-    week_1: "Project scaffolding and basic structure"
-    week_2: "Working data source with basic connectivity"
-    week_3: "Lucene query editor and validation"
-    week_4: "Full query support (logs, metrics, traces)"
-    week_5: "Discover page layout and field list"
-    week_6: "Document table and time histogram"
-    week_7: "Interactive filtering and field statistics"
-    week_8: "Schema integration and management"
-    week_9: "Export and saved searches functionality"
-    week_10: "Query history and dashboard panels"
-    week_11: "Performance optimization and error handling"
-    week_12: "Testing, documentation, and packaging"
+    week_1: "Scaffolded plugin runs in Grafana dev with CI lint/test green and UX baselines approved"
+    week_2: "Mirador connectivity proven with passing unit harness and Phase 1 review sign-off"
+    week_3: "Lucene builder usable with contract tests automated for core endpoints"
+    week_4: "Logs/metrics/traces queries live with real-time streaming and smoke tests gating merges"
+    week_5: "Discover shell usable end-to-end with heuristic feedback logged"
+    week_6: "High-volume log table + histogram shipped with UI regression suite protecting visuals"
+    week_7: "Interactive filtering validated via usability sessions and Phase 3 review approval"
+    week_8: "Schema browsing/editing live with cache tests green and data governance sign-off"
+    week_9: "Exports and saved searches persist reliably across sessions"
+    week_10: "Query history and dashboard panels production-ready with Phase 4 sign-off"
+    week_11: "Performance, resilience, security, accessibility, and telemetry targets hit"
+    week_12: "Release assets packaged, marketplace submission filed, and go-live support ready"
 
 # ==== RESOURCE REQUIREMENTS ====
 resources:
