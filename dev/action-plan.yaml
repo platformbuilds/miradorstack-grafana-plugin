@@ -1,0 +1,653 @@
+# Mirador Explorer Grafana Plugin - Development Action Tracker
+# Project: Advanced Log Exploration Plugin for Grafana with Mirador Core Backend
+
+project:
+  name: "Mirador Explorer Grafana Plugin"
+  description: "Advanced observability plugin bringing modern log exploration to Grafana"
+  version: "1.0.0"
+  start_date: "2025-01-01"
+  estimated_duration: "12 weeks"
+  
+team:
+  - role: "Lead Developer"
+    name: "TBD"
+  - role: "UI/UX Developer" 
+    name: "TBD"
+  - role: "Backend Integration Specialist"
+    name: "TBD"
+
+phases:
+  # ==== PHASE 1: FOUNDATION ====
+  phase_1:
+    name: "Foundation Setup"
+    duration: "2 weeks"
+    start_week: 1
+    end_week: 2
+    
+    milestones:
+      - name: "Project scaffolding complete"
+        due_date: "Week 1 - Day 3"
+        status: "pending"
+        
+      - name: "Basic data source connectivity working"
+        due_date: "Week 2 - Day 5"
+        status: "pending"
+    
+    tasks:
+      # Week 1 Tasks
+      week_1:
+        - name: "Create project structure"
+          description: "Scaffold main app plugin and data source plugin"
+          priority: "high"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: []
+          deliverables:
+            - "App plugin scaffolded with create-plugin tool"
+            - "Data source plugin scaffolded"
+            - "Basic folder structure organized"
+          acceptance_criteria:
+            - "npm run dev works without errors"
+            - "Plugin loads in Grafana dev environment"
+            - "Basic navigation structure in place"
+            
+        - name: "Set up development environment"
+          description: "Configure Docker, dependencies, and build tools"
+          priority: "high"
+          estimated_hours: 6
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Create project structure"]
+          deliverables:
+            - "docker-compose.yml for local Grafana"
+            - "All npm dependencies installed"
+            - "Development scripts configured"
+          acceptance_criteria:
+            - "Local Grafana runs with plugin loaded"
+            - "Hot reloading works for development"
+            - "Backend builds successfully"
+            
+        - name: "Create TypeScript type definitions"
+          description: "Define interfaces for Mirador Core API integration"
+          priority: "medium"
+          estimated_hours: 4
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Create project structure"]
+          deliverables:
+            - "types.ts with all interface definitions"
+            - "Query types for logs, metrics, traces"
+            - "API response type definitions"
+          acceptance_criteria:
+            - "TypeScript compilation passes"
+            - "All API interfaces documented"
+            - "Type safety enforced across codebase"
+
+      # Week 2 Tasks  
+      week_2:
+        - name: "Implement Mirador Core API client"
+          description: "Create HTTP client for Mirador Core with authentication"
+          priority: "high"
+          estimated_hours: 12
+          status: "pending"
+          assignee: "Backend Integration Specialist"
+          dependencies: ["Create TypeScript type definitions"]
+          deliverables:
+            - "MiradorAPIClient.ts with all endpoints"
+            - "Bearer token authentication"
+            - "Error handling and retry logic"
+          acceptance_criteria:
+            - "Can authenticate with Mirador Core"
+            - "Basic API calls succeed"
+            - "Error responses handled gracefully"
+            
+        - name: "Basic data source implementation"
+          description: "Implement core DataSource class with query method"
+          priority: "high"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Implement Mirador Core API client"]
+          deliverables:
+            - "MiradorDataSource.ts"
+            - "Basic query execution for logs"
+            - "Data transformation logic"
+          acceptance_criteria:
+            - "Data source appears in Grafana"
+            - "Simple log queries return data"
+            - "Data displays in table format"
+            
+        - name: "Configuration UI"
+          description: "Create data source configuration interface"
+          priority: "medium"
+          estimated_hours: 6
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Basic data source implementation"]
+          deliverables:
+            - "ConfigEditor.tsx component"
+            - "Bearer token input field"
+            - "Connection test functionality"
+          acceptance_criteria:
+            - "Can configure Mirador Core URL and token"
+            - "Test connection button works"
+            - "Configuration persists correctly"
+
+  # ==== PHASE 2: CORE DATA ACCESS ====
+  phase_2:
+    name: "Core Data Access"
+    duration: "2 weeks"
+    start_week: 3
+    end_week: 4
+    
+    milestones:
+      - name: "Lucene query builder functional"
+        due_date: "Week 3 - Day 5"
+        status: "pending"
+        
+      - name: "All data types (logs, metrics, traces) queryable"
+        due_date: "Week 4 - Day 5" 
+        status: "pending"
+    
+    tasks:
+      # Week 3 Tasks
+      week_3:
+        - name: "Lucene query editor component"
+          description: "Build visual Lucene query builder with syntax highlighting"
+          priority: "high"
+          estimated_hours: 16
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Configuration UI"]
+          deliverables:
+            - "LuceneQueryEditor.tsx component"
+            - "Syntax highlighting for Lucene queries"
+            - "Auto-completion for fields and operators"
+          acceptance_criteria:
+            - "Visual query builder works"
+            - "Syntax errors highlighted"
+            - "Field suggestions populate"
+            
+        - name: "Query validation and parsing"
+          description: "Implement Lucene query validation and AST parsing"
+          priority: "medium"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Lucene query editor component"]
+          deliverables:
+            - "Query validation logic"
+            - "Lucene AST parser"
+            - "Error message display"
+          acceptance_criteria:
+            - "Invalid queries show helpful errors"
+            - "Valid queries parse correctly"
+            - "Query suggestions work"
+
+      # Week 4 Tasks
+      week_4:
+        - name: "Metrics query support"
+          description: "Add MetricsQL and Lucene-to-PromQL query support"
+          priority: "high"
+          estimated_hours: 12
+          status: "pending"
+          assignee: "Backend Integration Specialist"
+          dependencies: ["Query validation and parsing"]
+          deliverables:
+            - "Metrics query execution in data source"
+            - "Support for both PromQL and Lucene syntax"
+            - "Range query implementation"
+          acceptance_criteria:
+            - "Metrics queries return time series data"
+            - "Both instant and range queries work"
+            - "Query language switcher functional"
+            
+        - name: "Traces query support"
+          description: "Implement traces search with Lucene syntax"
+          priority: "high"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "Backend Integration Specialist"
+          dependencies: ["Metrics query support"]
+          deliverables:
+            - "Traces search functionality"
+            - "Trace data transformation"
+            - "Service and operation filtering"
+          acceptance_criteria:
+            - "Trace searches return results"
+            - "Trace data displays correctly"
+            - "Duration and time filtering works"
+            
+        - name: "WebSocket integration"
+          description: "Add real-time log streaming via WebSocket"
+          priority: "medium"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Query validation and parsing"]
+          deliverables:
+            - "WebSocket connection handling"
+            - "Real-time log updates"
+            - "Connection state management"
+          acceptance_criteria:
+            - "Real-time logs stream correctly"
+            - "WebSocket reconnection works"
+            - "Performance remains smooth"
+
+  # ==== PHASE 3: ADVANCED LOG EXPLORATION UI ====
+  phase_3:
+    name: "Advanced Log Exploration UI"
+    duration: "3 weeks"
+    start_week: 5
+    end_week: 7
+    
+    milestones:
+      - name: "Discover interface MVP complete"
+        due_date: "Week 6 - Day 3"
+        status: "pending"
+        
+      - name: "Field interaction and filtering working"
+        due_date: "Week 7 - Day 5"
+        status: "pending"
+    
+    tasks:
+      # Week 5 Tasks
+      week_5:
+        - name: "Discover page layout"
+          description: "Create main discover page with layout and navigation"
+          priority: "high"
+          estimated_hours: 12
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["WebSocket integration"]
+          deliverables:
+            - "DiscoverPage.tsx with responsive layout"
+            - "Time range picker integration"
+            - "Search bar component"
+          acceptance_criteria:
+            - "Page layout responsive and clean"
+            - "Time picker integrates with Grafana"
+            - "Search functionality works"
+            
+        - name: "Field list component"
+          description: "Build interactive field list sidebar"
+          priority: "high"
+          estimated_hours: 14
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Discover page layout"]
+          deliverables:
+            - "FieldsList.tsx component"
+            - "Field statistics display"
+            - "Field type icons and indicators"
+          acceptance_criteria:
+            - "Fields populate from log data"
+            - "Field stats calculated correctly"
+            - "Fields sortable and searchable"
+
+      # Week 6 Tasks  
+      week_6:
+        - name: "Document table view"
+          description: "Create log documents table with virtual scrolling"
+          priority: "high"
+          estimated_hours: 16
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Field list component"]
+          deliverables:
+            - "DocumentTable.tsx with virtual scrolling"
+            - "Log entry expansion/collapse"
+            - "Field highlighting and formatting"
+          acceptance_criteria:
+            - "Large datasets render smoothly"
+            - "Log entries expand to show details"
+            - "Important fields highlighted"
+            
+        - name: "Time histogram visualization"
+          description: "Add time-based histogram above log table"
+          priority: "medium"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Document table view"]
+          deliverables:
+            - "TimeHistogram.tsx component"
+            - "Integration with logs histogram API"
+            - "Interactive time selection"
+          acceptance_criteria:
+            - "Histogram shows log distribution over time"
+            - "Clicking bars filters time range"
+            - "Updates with query changes"
+
+      # Week 7 Tasks
+      week_7:
+        - name: "Interactive field filtering"
+          description: "Implement click-to-filter field interactions"
+          priority: "high"
+          estimated_hours: 14
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Time histogram visualization"]
+          deliverables:
+            - "Click field values to add filters"
+            - "Filter pills UI component"
+            - "Quick filter actions (include/exclude)"
+          acceptance_criteria:
+            - "Clicking field values creates filters"
+            - "Filters display as removable pills"
+            - "Multiple filters combine correctly"
+            
+        - name: "Field statistics overlay"
+          description: "Add field value distribution popover"
+          priority: "medium"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Interactive field filtering"]
+          deliverables:
+            - "FieldStatsOverlay.tsx component"
+            - "Top values display with percentages"
+            - "Field value search and filtering"
+          acceptance_criteria:
+            - "Field click shows statistics overlay"
+            - "Top values calculated correctly"
+            - "Statistics update with query changes"
+            
+        - name: "Advanced filters panel"
+          description: "Create comprehensive filtering interface"
+          priority: "medium"
+          estimated_hours: 12
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Field statistics overlay"]
+          deliverables:
+            - "FiltersPanel.tsx component"
+            - "Multiple filter types (exists, range, etc.)"
+            - "Filter combination logic (AND/OR)"
+          acceptance_criteria:
+            - "Complex filters can be built visually"
+            - "Filter logic works correctly"
+            - "Filters persist across sessions"
+
+  # ==== PHASE 4: ADVANCED FEATURES ====
+  phase_4:
+    name: "Advanced Features"
+    duration: "3 weeks" 
+    start_week: 8
+    end_week: 10
+    
+    milestones:
+      - name: "Schema integration complete"
+        due_date: "Week 9 - Day 3"
+        status: "pending"
+        
+      - name: "Export and save functionality working"
+        due_date: "Week 10 - Day 5"
+        status: "pending"
+    
+    tasks:
+      # Week 8 Tasks
+      week_8:
+        - name: "Schema browser integration"
+          description: "Add schema definitions display and management"
+          priority: "high"
+          estimated_hours: 14
+          status: "pending"
+          assignee: "Backend Integration Specialist"
+          dependencies: ["Advanced filters panel"]
+          deliverables:
+            - "Schema API integration"
+            - "Field definitions display"
+            - "Metric and trace schema browsing"
+          acceptance_criteria:
+            - "Schema definitions load and display"
+            - "Field descriptions show in tooltips"
+            - "Schema search functionality works"
+            
+        - name: "Schema editor interface"
+          description: "Create UI for editing schema definitions"
+          priority: "medium"
+          estimated_hours: 12
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Schema browser integration"]
+          deliverables:
+            - "SchemaEditor.tsx component"
+            - "Form validation for schema entries"
+            - "Bulk CSV upload interface"
+          acceptance_criteria:
+            - "Schema definitions can be created/edited"
+            - "Form validation prevents errors"
+            - "CSV upload works smoothly"
+
+      # Week 9 Tasks
+      week_9:
+        - name: "Data export functionality"
+          description: "Implement CSV and JSON export for query results"
+          priority: "high"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Schema editor interface"]
+          deliverables:
+            - "Export functionality for logs and traces"
+            - "Format selection (CSV, JSON)"
+            - "Large dataset streaming export"
+          acceptance_criteria:
+            - "Export works for large datasets"
+            - "Multiple format options available"
+            - "Export respects current filters"
+            
+        - name: "Saved searches"
+          description: "Add ability to save and load search configurations"
+          priority: "medium"
+          estimated_hours: 12
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Data export functionality"]
+          deliverables:
+            - "Save search functionality"
+            - "Load saved searches"
+            - "Search organization and management"
+          acceptance_criteria:
+            - "Searches save with all filter state"
+            - "Saved searches easily accessible"
+            - "Search sharing between users works"
+
+      # Week 10 Tasks  
+      week_10:
+        - name: "Query history and favorites"
+          description: "Add query history tracking and favorite queries"
+          priority: "medium"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Saved searches"]
+          deliverables:
+            - "QueryHistory.tsx component"
+            - "Recent queries tracking"
+            - "Favorite queries management"
+          acceptance_criteria:
+            - "Recent queries automatically saved"
+            - "Query history searchable"
+            - "Favorites easily accessible"
+            
+        - name: "Panel integration"
+          description: "Create dedicated panel plugins for dashboards"
+          priority: "high"
+          estimated_hours: 14
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Query history and favorites"]
+          deliverables:
+            - "LogsExplorerPanel.tsx"
+            - "FieldStatsPanel.tsx"
+            - "Panel configuration options"
+          acceptance_criteria:
+            - "Panels work in Grafana dashboards"
+            - "Panel options configurable"
+            - "Panels respond to dashboard time range"
+
+  # ==== PHASE 5: POLISH & PERFORMANCE ====
+  phase_5:
+    name: "Polish & Performance"
+    duration: "2 weeks"
+    start_week: 11
+    end_week: 12
+    
+    milestones:
+      - name: "Performance optimization complete"
+        due_date: "Week 11 - Day 5"
+        status: "pending"
+        
+      - name: "Plugin ready for production"
+        due_date: "Week 12 - Day 5"
+        status: "pending"
+    
+    tasks:
+      # Week 11 Tasks
+      week_11:
+        - name: "Performance optimization"
+          description: "Optimize rendering and data handling performance"
+          priority: "high"
+          estimated_hours: 16
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Panel integration"]
+          deliverables:
+            - "Virtual scrolling optimizations"
+            - "Query result caching improvements"
+            - "Memory usage optimization"
+          acceptance_criteria:
+            - "Large datasets render smoothly (>10k entries)"
+            - "Memory usage stays under 200MB"
+            - "Query response time < 2 seconds"
+            
+        - name: "Error handling and resilience"
+          description: "Implement comprehensive error handling"
+          priority: "high"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "Backend Integration Specialist"
+          dependencies: ["Performance optimization"]
+          deliverables:
+            - "Global error boundary"
+            - "API error handling"
+            - "Network failure recovery"
+          acceptance_criteria:
+            - "Errors display helpful messages"
+            - "Network failures handled gracefully"
+            - "Plugin remains stable under errors"
+
+      # Week 12 Tasks
+      week_12:
+        - name: "Testing and documentation"
+          description: "Complete test coverage and documentation"
+          priority: "high"
+          estimated_hours: 14
+          status: "pending"
+          assignee: "All team members"
+          dependencies: ["Error handling and resilience"]
+          deliverables:
+            - "Unit tests for core components"
+            - "Integration tests for API calls"
+            - "User documentation and README"
+          acceptance_criteria:
+            - "Test coverage > 80%"
+            - "All major user flows tested"
+            - "Documentation complete and clear"
+            
+        - name: "Plugin packaging and deployment"
+          description: "Prepare plugin for distribution"
+          priority: "high"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Testing and documentation"]
+          deliverables:
+            - "Plugin metadata and manifest"
+            - "Build scripts for distribution"
+            - "Installation instructions"
+          acceptance_criteria:
+            - "Plugin builds without errors"
+            - "Installation process documented"
+            - "Plugin ready for Grafana catalog"
+            
+        - name: "User acceptance testing"
+          description: "Conduct final user testing and feedback collection"
+          priority: "medium"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Plugin packaging and deployment"]
+          deliverables:
+            - "User testing session results"
+            - "Feedback incorporation"
+            - "Final UX polish"
+          acceptance_criteria:
+            - "User feedback positive"
+            - "Major usability issues resolved"
+            - "Plugin meets acceptance criteria"
+
+# ==== PROJECT TRACKING ====
+tracking:
+  total_estimated_hours: 286
+  budget_estimation: "$50,000 - $70,000"
+  
+  risk_factors:
+    - name: "Mirador Core API changes"
+      probability: "medium"
+      impact: "high" 
+      mitigation: "Regular API compatibility checks"
+    - name: "Grafana plugin API deprecation"
+      probability: "low"
+      impact: "medium"
+      mitigation: "Follow Grafana release notes closely"
+    - name: "Performance with large datasets"
+      probability: "medium"
+      impact: "medium"
+      mitigation: "Early performance testing and optimization"
+
+  success_metrics:
+    - "Query response time < 2 seconds for typical queries"
+    - "Support for 10,000+ log entries without performance degradation"
+    - "User satisfaction score > 4.5/5"
+    - "Zero critical bugs in production"
+    - "Documentation completeness score > 90%"
+
+  weekly_deliverables:
+    week_1: "Project scaffolding and basic structure"
+    week_2: "Working data source with basic connectivity"
+    week_3: "Lucene query editor and validation"
+    week_4: "Full query support (logs, metrics, traces)"
+    week_5: "Discover page layout and field list"
+    week_6: "Document table and time histogram"
+    week_7: "Interactive filtering and field statistics"
+    week_8: "Schema integration and management"
+    week_9: "Export and saved searches functionality"
+    week_10: "Query history and dashboard panels"
+    week_11: "Performance optimization and error handling"
+    week_12: "Testing, documentation, and packaging"
+
+# ==== RESOURCE REQUIREMENTS ====
+resources:
+  development_tools:
+    - "Node.js 18+ and npm/yarn"
+    - "Docker and docker-compose"
+    - "Visual Studio Code with extensions"
+    - "Mirador Core test instance"
+    - "Grafana development environment"
+    
+  external_dependencies:
+    - "Mirador Core API access"
+    - "Test data for logs, metrics, traces"
+    - "Schema definitions sample data"
+    - "Performance testing datasets"
+    
+  team_skills_required:
+    - "React and TypeScript expertise"
+    - "Grafana plugin development experience"
+    - "REST API integration"
+    - "UI/UX design for data exploration"
+    - "Performance optimization techniques"
