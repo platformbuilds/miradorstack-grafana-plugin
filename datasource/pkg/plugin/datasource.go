@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
@@ -59,34 +60,113 @@ func (d *Datasource) QueryData(ctx context.Context, req *backend.QueryDataReques
 	return response, nil
 }
 
-type queryModel struct{}
+type queryModel struct {
+	QueryType     string   `json:"queryType"`
+	Query         string   `json:"query"`
+	QueryLanguage string   `json:"queryLanguage"`
+	Limit         int      `json:"limit"`
+	Fields        []string `json:"fields"`
+}
 
 func (d *Datasource) query(_ context.Context, pCtx backend.PluginContext, query backend.DataQuery) backend.DataResponse {
-	var response backend.DataResponse
-
-	// Unmarshal the JSON into our queryModel.
-	var qm queryModel
-
-	err := json.Unmarshal(query.JSON, &qm)
+	settings, err := models.LoadPluginSettings(*pCtx.DataSourceInstanceSettings)
 	if err != nil {
-		return backend.ErrDataResponse(backend.StatusBadRequest, fmt.Sprintf("json unmarshal: %v", err.Error()))
+		return backend.ErrDataResponse(backend.StatusInternal, fmt.Sprintf("load settings: %v", err))
 	}
 
-	// create data frame response.
-	// For an overview on data frames and how grafana handles them:
-	// https://grafana.com/developers/plugin-tools/introduction/data-frames
-	frame := data.NewFrame("response")
+	if settings.URL == "" {
+		return backend.ErrDataResponse(backend.StatusBadRequest, "Mirador API URL is not configured")
+	}
 
-	// add fields.
-	frame.Fields = append(frame.Fields,
-		data.NewField("time", nil, []time.Time{query.TimeRange.From, query.TimeRange.To}),
-		data.NewField("values", nil, []int64{10, 20}),
+	if settings.Secrets == nil || settings.Secrets.BearerToken == "" {
+		return backend.ErrDataResponse(backend.StatusBadRequest, "Bearer token is required")
+	}
+
+	var model queryModel
+	if err := json.Unmarshal(query.JSON, &model); err != nil {
+		return backend.ErrDataResponse(backend.StatusBadRequest, fmt.Sprintf("json unmarshal: %v", err))
+	}
+
+	switch strings.ToLower(model.QueryType) {
+	case "metrics":
+		return d.buildMetricsResponse(query)
+	case "traces":
+		return d.buildTraceResponse(query)
+	default:
+		return d.buildLogsResponse(query, model)
+	}
+}
+
+func (d *Datasource) buildLogsResponse(query backend.DataQuery, model queryModel) backend.DataResponse {
+	rows := 2
+	if model.Limit > 0 && model.Limit < rows {
+		rows = model.Limit
+	}
+
+	timestamps := make([]time.Time, rows)
+	services := make([]string, rows)
+	levels := make([]string, rows)
+	messages := make([]string, rows)
+
+	for i := 0; i < rows; i++ {
+		timestamps[i] = query.TimeRange.From.Add(time.Duration(i) * time.Minute)
+		services[i] = "payments"
+		levels[i] = []string{"INFO", "ERROR"}[i%2]
+		messages[i] = fmt.Sprintf("Log %d for query %s", i+1, model.Query)
+	}
+
+	frame := data.NewFrame("logs",
+		data.NewField("time", nil, timestamps),
+		data.NewField("service", nil, services),
+		data.NewField("level", nil, levels),
+		data.NewField("message", nil, messages),
+	)
+	frame.Meta = &data.FrameMeta{
+		PreferredVisualization: data.VisTypeTable,
+		Custom: map[string]any{
+			"queryType": "logs",
+		},
+	}
+
+	return backend.DataResponse{Frames: data.Frames{frame}}
+}
+
+func (d *Datasource) buildMetricsResponse(query backend.DataQuery) backend.DataResponse {
+	points := 5
+	timestamps := make([]time.Time, points)
+	values := make([]float64, points)
+
+	for i := 0; i < points; i++ {
+		timestamps[i] = query.TimeRange.From.Add(time.Duration(i) * time.Minute)
+		values[i] = 100 + float64(i*5)
+	}
+
+	frame := data.NewFrame("metrics",
+		data.NewField("time", nil, timestamps),
+		data.NewField("value", nil, values),
+	)
+	frame.Meta = &data.FrameMeta{
+		PreferredVisualization: data.VisTypeGraph,
+	}
+
+	return backend.DataResponse{Frames: data.Frames{frame}}
+}
+
+func (d *Datasource) buildTraceResponse(query backend.DataQuery) backend.DataResponse {
+	frame := data.NewFrame("traces",
+		data.NewField("traceID", nil, []string{"abc-123", "def-456"}),
+		data.NewField("service", nil, []string{"payments", "checkout"}),
+		data.NewField("duration_ms", nil, []int64{1200, 830}),
 	)
 
-	// add the frames to the response.
-	response.Frames = append(response.Frames, frame)
+	frame.Meta = &data.FrameMeta{
+		PreferredVisualization: data.VisTypeTable,
+		Custom: map[string]any{
+			"query": string(query.JSON),
+		},
+	}
 
-	return response
+	return backend.DataResponse{Frames: data.Frames{frame}}
 }
 
 // CheckHealth handles health checks sent from Grafana to the plugin.
@@ -103,14 +183,20 @@ func (d *Datasource) CheckHealth(_ context.Context, req *backend.CheckHealthRequ
 		return res, nil
 	}
 
-	if config.Secrets.ApiKey == "" {
+	if config.URL == "" {
 		res.Status = backend.HealthStatusError
-		res.Message = "API key is missing"
+		res.Message = "Mirador API URL is missing"
 		return res, nil
 	}
 
-	return &backend.CheckHealthResult{
-		Status:  backend.HealthStatusOk,
-		Message: "Data source is working",
-	}, nil
+	if config.Secrets == nil || config.Secrets.BearerToken == "" {
+		res.Status = backend.HealthStatusError
+		res.Message = "Bearer token is missing"
+		return res, nil
+	}
+
+	res.Status = backend.HealthStatusOk
+	res.Message = "Mirador Core configuration looks good"
+
+	return res, nil
 }

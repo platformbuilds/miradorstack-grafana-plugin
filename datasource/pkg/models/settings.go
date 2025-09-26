@@ -8,12 +8,15 @@ import (
 )
 
 type PluginSettings struct {
-	Path    string                `json:"path"`
-	Secrets *SecretPluginSettings `json:"-"`
+	URL             string                `json:"url"`
+	TenantID        string                `json:"tenantId"`
+	EnableWebSocket bool                  `json:"enableWebSocket"`
+	TimeoutMs       int                   `json:"timeoutMs"`
+	Secrets         *SecretPluginSettings `json:"-"`
 }
 
 type SecretPluginSettings struct {
-	ApiKey string `json:"apiKey"`
+	BearerToken string `json:"bearerToken"`
 }
 
 func LoadPluginSettings(source backend.DataSourceInstanceSettings) (*PluginSettings, error) {
@@ -30,6 +33,6 @@ func LoadPluginSettings(source backend.DataSourceInstanceSettings) (*PluginSetti
 
 func loadSecretPluginSettings(source map[string]string) *SecretPluginSettings {
 	return &SecretPluginSettings{
-		ApiKey: source["apiKey"],
+		BearerToken: source["bearerToken"],
 	}
 }

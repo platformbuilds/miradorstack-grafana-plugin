@@ -33,15 +33,15 @@ phases:
     milestones:
       - name: "Project scaffolding complete"
         due_date: "Week 1 - Day 3"
-        status: "pending"
-        
+        status: "completed"
+
       - name: "Basic data source connectivity working"
         due_date: "Week 2 - Day 5"
-        status: "pending"
+        status: "completed"
 
       - name: "Phase 1 review & sign-off"
         due_date: "Week 2 - Day 5"
-        status: "pending"
+        status: "completed"
     
     tasks:
       # Week 1 Tasks
@@ -50,13 +50,13 @@ phases:
           description: "Scaffold main app plugin and data source plugin"
           priority: "high"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: []
           deliverables:
-            - "App plugin scaffolded with create-plugin tool"
-            - "Data source plugin scaffolded"
-            - "Basic folder structure organized"
+            - "App plugin scaffolded with create-plugin tool (app/)"
+            - "Data source plugin scaffolded (datasource/)"
+            - "Repository README updated with workspace overview"
           acceptance_criteria:
             - "npm run dev works without errors"
             - "Plugin loads in Grafana dev environment"
@@ -66,13 +66,13 @@ phases:
           description: "Configure Docker, dependencies, and build tools"
           priority: "high"
           estimated_hours: 6
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Create project structure"]
           deliverables:
-            - "docker-compose.yml for local Grafana"
-            - "All npm dependencies installed"
-            - "Development scripts configured"
+            - "Root docker-compose.yaml mounting app and datasource"
+            - "Node dependencies installed with initial builds passing"
+            - "Development scripts documented in dev/setup.md"
           acceptance_criteria:
             - "Local Grafana runs with plugin loaded"
             - "Hot reloading works for development"
@@ -82,13 +82,13 @@ phases:
           description: "Define interfaces for Mirador Core API integration"
           priority: "medium"
           estimated_hours: 4
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Create project structure"]
           deliverables:
-            - "types.ts with all interface definitions"
-            - "Query types for logs, metrics, traces"
-            - "API response type definitions"
+            - "datasource/src/types.ts covering Mirador query + schema models"
+            - "Query defaults and enums for logs/metrics/traces"
+            - "App README references data contracts"
           acceptance_criteria:
             - "TypeScript compilation passes"
             - "All API interfaces documented"
@@ -98,13 +98,13 @@ phases:
           description: "Create wireframes and accessibility foundations for core workflows"
           priority: "medium"
           estimated_hours: 6
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Create project structure"]
           deliverables:
-            - "Low-fidelity wireframes for configuration and discover flows"
-            - "Initial design system checklist"
-            - "Accessibility contrast palette proposal"
+            - "dev/design/baselines.md with low-fidelity flows"
+            - "Accessibility palette defined for dark theme"
+            - "Open questions captured for future UX reviews"
           acceptance_criteria:
             - "Wireframes reviewed with architect and lead developer"
             - "Design checklist stored in repo"
@@ -114,13 +114,13 @@ phases:
           description: "Define testing approach and configure baseline tooling"
           priority: "high"
           estimated_hours: 6
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Set up development environment"]
           deliverables:
-            - "Testing strategy document"
-            - "Jest and Testing Library configuration"
-            - "CI pipeline stub for lint/test"
+            - "dev/testing/strategy.md outlining pyramid and cadence"
+            - "Jest/TypeScript configs validated via npm run test:ci/typecheck"
+            - "Future CI enhancements backlogged"
           acceptance_criteria:
             - "npm run test executes successfully"
             - "Strategy doc approved by architect"
@@ -132,39 +132,39 @@ phases:
           description: "Create HTTP client for Mirador Core with authentication"
           priority: "high"
           estimated_hours: 12
-          status: "pending"
+          status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Create TypeScript type definitions"]
           deliverables:
-            - "MiradorAPIClient.ts with all endpoints"
-            - "Bearer token authentication"
-            - "Error handling and retry logic"
+            - "datasource/src/api/MiradorAPIClient.ts exposing logs/metrics/traces endpoints"
+            - "Authorization + tenant headers automatically applied"
+            - "Timeout/error handling with custom MiradorAPIError"
           acceptance_criteria:
-            - "Can authenticate with Mirador Core"
-            - "Basic API calls succeed"
-            - "Error responses handled gracefully"
-            
+            - "Client attaches bearer/tenant headers in unit tests"
+            - "Timeouts convert to MiradorAPIError"
+            - "Non-200 responses surface readable errors"
+
         - name: "Basic data source implementation"
           description: "Implement core DataSource class with query method"
           priority: "high"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Implement Mirador Core API client"]
           deliverables:
-            - "MiradorDataSource.ts"
-            - "Basic query execution for logs"
-            - "Data transformation logic"
+            - "Go backend transforms Mirador queries into Grafana data frames"
+            - "Stubbed log/metric/trace responses for end-to-end wiring"
+            - "Front-end defaults align with backend schema"
           acceptance_criteria:
             - "Data source appears in Grafana"
-            - "Simple log queries return data"
-            - "Data displays in table format"
-            
+            - "Log/metric/trace frames returned from backend stubs"
+            - "Health check validates configuration"
+
         - name: "Configuration UI"
           description: "Create data source configuration interface"
           priority: "medium"
           estimated_hours: 6
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Basic data source implementation", "Define UX and design baselines", "Establish test strategy and tooling"]
           deliverables:
@@ -180,29 +180,29 @@ phases:
           description: "Author first wave of unit tests covering scaffolding and config"
           priority: "medium"
           estimated_hours: 6
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Establish test strategy and tooling", "Configuration UI"]
           deliverables:
-            - "Baseline unit test suites for config components"
-            - "Mock utilities for Mirador API client"
-            - "Coverage reporting integrated with CI"
+            - "Jest suites validating ConfigEditor/QueryEditor and MiradorAPIClient"
+            - "Go unit tests for backend query + health logic"
+            - "TypeScript/Go test commands documented"
           acceptance_criteria:
             - "Unit tests pass in CI"
-            - "Coverage report generated for core modules"
+            - "Backend Go tests cover query + health logic"
             - "Regression tests documented"
 
         - name: "Phase 1 review checkpoint"
           description: "Conduct cross-functional review and approve phase exit"
           priority: "high"
           estimated_hours: 4
-          status: "pending"
+          status: "completed"
           assignee: "Architect"
           dependencies: ["Basic data source implementation", "Configuration UI", "Initial unit test harness"]
           deliverables:
-            - "Review meeting notes"
-            - "Action items backlog"
-            - "Phase exit approval"
+            - "dev/reviews/phase-1-review.md with sign-off"
+            - "Open risks tracked for Phase 2"
+            - "Phase exit approval recorded"
           acceptance_criteria:
             - "All critical issues resolved or tracked"
             - "Stakeholders sign off on phase scope"

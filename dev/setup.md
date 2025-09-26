@@ -1,62 +1,54 @@
-# 1. Create the main app plugin
-npx @grafana/create-plugin@latest
+# Developer Environment Setup
 
-# When prompted, choose:
-# - Plugin type: App
-# - Plugin name: mirador-kibana-explorer
-# - Organization: your-org
-# - Add backend: Yes
-# - Add components: Yes
+This repository already contains the scaffolded Mirador Explorer app plugin (`app/`) and Mirador Core Connector data source (`datasource/`). The steps below describe how to configure a local workstation.
 
-cd your-org-mirador-kibana-explorer-app
+## 1. Install prerequisites
+- Node.js 22+
+- npm 10+
+- Docker Desktop (or compatible engine)
 
-# 2. Install additional dependencies for our use case
-npm install --save \
-  @types/lodash \
-  lodash \
-  react-window \
-  react-window-infinite-loader \
-  fuse.js \
-  date-fns
+## 2. Install dependencies
+```bash
+npm install --prefix app
+npm install --prefix datasource
+```
 
-# 3. Install development dependencies
-npm install --save-dev \
-  @types/react-window \
-  @types/react-window-infinite-loader
+## 3. Build the plugins once
+```bash
+npm run build --prefix app
+npm run build --prefix datasource
+```
 
-# 4. Set up project structure
-mkdir -p src/datasource
-mkdir -p src/panels/discover
-mkdir -p src/panels/fieldstats  
-mkdir -p src/panels/aiinsights
-mkdir -p src/pages
-mkdir -p src/components/QueryBuilder
-mkdir -p src/components/FieldExplorer
-mkdir -p src/components/DataViewer
-mkdir -p src/utils
-mkdir -p src/types
+## 4. Start frontend watchers
+Run each command in its own terminal.
+```bash
+npm run dev --prefix app
+npm run dev --prefix datasource
+```
 
-# 5. Generate the data source plugin separately
-cd ../
-npx @grafana/create-plugin@latest
+The watchers emit their bundles into `app/dist` and `datasource/dist`, which are mounted by Grafana.
 
-# When prompted, choose:
-# - Plugin type: Data source  
-# - Plugin name: mirador-core-datasource
-# - Organization: your-org
-# - Add backend: Yes
+## 5. Launch Grafana
+From the repository root:
+```bash
+docker compose up --build
+```
 
-# 6. Development workflow
-cd your-org-mirador-kibana-explorer-app
+Grafana starts at [http://localhost:3000](http://localhost:3000) with anonymous admin access. The app plugin appears under **Apps → Mirador Explorer** and the data source under **Configuration → Data sources**.
 
-# Install dependencies
-npm install
+## 6. Useful scripts
+| Command | Location | Description |
+|---------|----------|-------------|
+| `npm run test:ci` | `app/`, `datasource/` | Run Jest unit suites |
+| `npm run typecheck` | `app/`, `datasource/` | Static type analysis |
+| `npm run lint` | `app/`, `datasource/` | ESLint + Prettier |
+| `npm run e2e` | `app/`, `datasource/` | Playwright Chromium tests |
+| `go test ./...` | `datasource/` | Backend plugin unit tests |
 
-# Start development server
-npm run dev
+## 7. Environment variables
+Create `.env.development` in each package (optional) to override defaults. Relevant keys:
+- `MIRADOR_BASE_URL`
+- `MIRADOR_TENANT_ID`
+- `MIRADOR_BEARER_TOKEN`
 
-# In another terminal, build backend (if needed)
-mage -v build:backend
-
-# Start Grafana with Docker
-docker compose up
+(Integration with these variables will be wired during Phase 2.)

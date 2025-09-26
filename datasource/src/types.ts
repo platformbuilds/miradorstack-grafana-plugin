@@ -16,9 +16,10 @@ export enum QueryType {
 }
 
 export interface MiradorDataSourceOptions extends DataSourceJsonData {
-  bearerToken: string;
+  url: string;
   tenantId?: string;
   enableWebSocket?: boolean;
+  timeoutMs?: number;
 }
 
 export interface MiradorSecureJsonData {

@@ -50,17 +50,17 @@ export function ConfigEditor(props: Props) {
   };
 
   const onResetBearerToken = () => {
-        onOptionsChange({
-          ...options,
-          secureJsonFields: {
-            ...options.secureJsonFields,
-            bearerToken: false,
-          },
-          secureJsonData: {
-            ...options.secureJsonData,
-            bearerToken: '',
-          },
-        });
+    onOptionsChange({
+      ...options,
+      secureJsonFields: {
+        ...options.secureJsonFields,
+        bearerToken: false,
+      },
+      secureJsonData: {
+        ...options.secureJsonData,
+        bearerToken: '',
+      },
+    });
   };
 
   return (

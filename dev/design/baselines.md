@@ -1,6 +1,6 @@
 # Mirador Explorer – UX & Accessibility Baselines
 
-_Last updated: $(date '+%Y-%m-%d %H:%M %Z')_
+_Last updated: 2025-09-26 15:49 IST_
 
 ## 1. Scope & Personas
 - **Primary persona**: SRE / Observability engineer triaging incidents under time pressure.
