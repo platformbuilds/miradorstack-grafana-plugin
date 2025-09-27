@@ -137,7 +137,7 @@ function createFrame(messages: LiveLogMessage[], refId: string) {
       }
     }
 
-    for (const [name, field] of fieldMap.entries()) {
+    for (const field of fieldMap.values()) {
       if (field.values.length < fieldMap.get('time')!.values.length) {
         field.values.push(undefined);
       }
