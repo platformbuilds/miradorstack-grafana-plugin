@@ -186,12 +186,14 @@ jobs:
       - name: Start Grafana Container
         run: docker run -d --name grafana -p 3000:3000 grafana/grafana:latest
 
-      - name: Ensure Grafana Container is Running
+      - name: Verify Grafana Container
         run: |
-          if ! docker ps --filter "name=grafana" --format "{{.Names}}" | grep -q "grafana"; then
-            echo "Grafana container is not running!";
-            exit 1;
-          fi
+          docker ps --filter "name=grafana" --format "{{.Names}}" | grep -q "grafana" || (echo "Grafana container is not running!" && exit 1)
+
+      - name: Copy Plugins to Grafana
+        run: |
+          docker cp app/dist/. grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-app/
+          docker cp datasource/dist/. grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-datasource/
 
       - name: Start Grafana
         run: |
