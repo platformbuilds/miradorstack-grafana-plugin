@@ -27,7 +27,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
 
@@ -44,13 +44,21 @@ jobs:
         node-version: '22'
         cache: 'npm'
 
-    - name: Build TypeScript
+    - name: Install and Build TypeScript (app)
       if: matrix.language == 'typescript'
       run: |
-        npm install --prefix app
-        npm run build --prefix app
-        npm install --prefix datasource
-        npm run build --prefix datasource
+        cd app
+        npm install
+        npm ci
+        npm run build
+        
+    - name: Install and Build TypeScript (datasource)
+      if: matrix.language == 'typescript'
+      run: |
+        cd datasource
+        npm install
+        npm ci
+        npm run build
 
     - name: Build Go
       if: matrix.language == 'go'
@@ -59,7 +67,7 @@ jobs:
         go build ./...
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
 
@@ -128,7 +136,7 @@ jobs:
         ./dependency-check/bin/dependency-check.sh --scan datasource/ --format HTML --format JSON --prettyPrint --failOnCVSS 7
 
     - name: Upload Dependency-Check reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dependency-check-reports
         path: |
