@@ -277,7 +277,15 @@ jobs:
         wget "https://github.com/jeremylong/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip"
         unzip dependency-check-$VERSION-release.zip
 
-    - name: Run Dependency-Check on app
+    - name: Cache Dependency-Check data
+      uses: actions/cache@v4
+      with:
+        path: dependency-check/data
+        key: ${{ runner.os }}-dependency-check-${{ hashFiles('dependency-check/data/**') }}
+        restore-keys: |
+          ${{ runner.os }}-dependency-check-
+
+    - name: Run Dependency-Check
       env:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
       run: |
@@ -287,24 +295,14 @@ jobs:
         fi
         ./dependency-check/bin/dependency-check.sh \
           --nvdApiKey "$NVD_API_KEY" \
-          --scan app/ --format HTML --format JSON --prettyPrint --failOnCVSS 7
-        
-    - name: Run Dependency-Check on datasource
-      env:
-        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-      run: |
-        if [ -z "$NVD_API_KEY" ]; then
-          echo "::error::NVD_API_KEY secret is not configured; unable to run dependency-check." >&2
-          exit 1
-        fi
-        ./dependency-check/bin/dependency-check.sh \
-          --nvdApiKey "$NVD_API_KEY" \
-          --scan datasource/ --format HTML --format JSON --prettyPrint --failOnCVSS 7
+          --disableOssIndex \
+          --scan app --scan datasource \
+          --format HTML --format JSON --prettyPrint \
+          --failOnCVSS 7 \
+          --out dependency-check-reports
 
     - name: Upload Dependency-Check reports
       uses: actions/upload-artifact@v4
       with:
         name: dependency-check-reports
-        path: |
-          dependency-check-report.html
-          dependency-check-report.json
+        path: dependency-check-reports
