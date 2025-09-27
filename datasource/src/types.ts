@@ -1,9 +1,6 @@
-import { DataSourceJsonData } from '@grafana/data';
+import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-export interface MiradorQuery {
-  refId?: string;
-  intervalMs?: number;
-  maxDataPoints?: number;
+export interface MiradorQuery extends DataQuery {
   queryType: QueryType;
   query: string;
   queryLanguage?: 'lucene' | 'promql';

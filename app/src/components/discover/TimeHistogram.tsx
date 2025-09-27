@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FieldType, MutableDataFrame, type TimeRange, dateTime } from '@grafana/data';
+import { FieldType, type TimeRange, dateTime, toDataFrame } from '@grafana/data';
 import { TimeSeries, Spinner, useStyles2 } from '@grafana/ui';
 import { css } from '@emotion/css';
 import type { HistogramBucket } from '../../types/discover';
@@ -34,21 +34,16 @@ export const TimeHistogram: React.FC<TimeHistogramProps> = ({ buckets, loading, 
   }, []);
 
   const frame = useMemo(() => {
-    const dataFrame = new MutableDataFrame({
+    const times = buckets.map((bucket) => dateTime(bucket.time).toDate());
+    const counts = buckets.map((bucket) => bucket.count);
+
+    return toDataFrame({
+      refId: 'timeHistogram',
       fields: [
-        { name: 'time', type: FieldType.time, config: { custom: {} } },
-        { name: 'count', type: FieldType.number, config: { custom: {} } },
+        { name: 'time', type: FieldType.time, values: times, config: { custom: {} } },
+        { name: 'count', type: FieldType.number, values: counts, config: { custom: {} } },
       ],
     });
-
-    for (const bucket of buckets) {
-      dataFrame.add({
-        time: dateTime(bucket.time).toDate(),
-        count: bucket.count,
-      });
-    }
-
-    return dataFrame;
   }, [buckets]);
 
   return (

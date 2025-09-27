@@ -145,6 +145,7 @@ jest.mock('@grafana/ui', () => {
   const actual = jest.requireActual('@grafana/ui');
   return {
     ...actual,
+    // eslint-disable-next-line react/prop-types
     TimeRangePicker: ({ onChange, timeRange, 'data-testid': dataTestId }) =>
       React.createElement('div', {
         'data-testid': dataTestId ?? 'mock-time-range-picker',
