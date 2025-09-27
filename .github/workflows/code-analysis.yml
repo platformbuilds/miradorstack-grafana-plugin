@@ -142,6 +142,12 @@ jobs:
       with:
         node-version: '22'
 
+    - name: Cache Playwright binaries
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-ms-playwright
+
     - name: Install Playwright
       run: npx playwright install --with-deps chromium
 
@@ -170,6 +176,9 @@ jobs:
   vulnerability-check:
     name: Vulnerability Check
     runs-on: ubuntu-latest
+    env:
+      DC_VERSION: 12.1.0
+      DC_DATA_DIR: ~/.cache/dependency-check
     
     steps:
     - name: Checkout repository
@@ -180,6 +189,16 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.21'
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Install govulncheck
       run: go install golang.org/x/vuln/cmd/govulncheck@latest
@@ -271,19 +290,27 @@ jobs:
         npm audit --audit-level=high
 
     # Additional TypeScript security scanning with OWASP Dependency-Check
+    - name: Cache Dependency-Check installation
+      id: cache-odc
+      uses: actions/cache@v4
+      with:
+        path: dependency-check
+        key: ${{ runner.os }}-dependency-check-${{ env.DC_VERSION }}
+
     - name: Download Dependency-Check
+      if: steps.cache-odc.outputs.cache-hit != 'true'
       run: |
-        VERSION="12.1.0"
-        wget "https://github.com/jeremylong/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip"
-        unzip dependency-check-$VERSION-release.zip
+        wget "https://github.com/jeremylong/DependencyCheck/releases/download/v${DC_VERSION}/dependency-check-${DC_VERSION}-release.zip"
+        unzip dependency-check-${DC_VERSION}-release.zip
+        rm dependency-check-${DC_VERSION}-release.zip
 
     - name: Cache Dependency-Check data
       uses: actions/cache@v4
       with:
-        path: dependency-check/data
-        key: ${{ runner.os }}-dependency-check-${{ hashFiles('dependency-check/data/**') }}
+        path: ${{ env.DC_DATA_DIR }}
+        key: ${{ runner.os }}-dependency-check-data-${{ env.DC_VERSION }}
         restore-keys: |
-          ${{ runner.os }}-dependency-check-
+          ${{ runner.os }}-dependency-check-data-
 
     - name: Run Dependency-Check
       env:
@@ -294,8 +321,10 @@ jobs:
           exit 1
         fi
         mkdir -p dependency-check-reports
+        mkdir -p "$DC_DATA_DIR"
         ./dependency-check/bin/dependency-check.sh \
           --nvdApiKey "$NVD_API_KEY" \
+          --data "$DC_DATA_DIR" \
           --disableOssIndex \
           --suppression dependency-check-suppressions.xml \
           --scan app --scan datasource \
