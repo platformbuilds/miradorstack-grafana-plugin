@@ -286,7 +286,6 @@ jobs:
           exit 1
         fi
         ./dependency-check/bin/dependency-check.sh \
-          --nvdApiKey "$NVD_API_KEY" \
           --scan app/ --format HTML --format JSON --prettyPrint --failOnCVSS 7
         
     - name: Run Dependency-Check on datasource
@@ -298,7 +297,6 @@ jobs:
           exit 1
         fi
         ./dependency-check/bin/dependency-check.sh \
-          --nvdApiKey "$NVD_API_KEY" \
           --scan datasource/ --format HTML --format JSON --prettyPrint --failOnCVSS 7
 
     - name: Upload Dependency-Check reports
