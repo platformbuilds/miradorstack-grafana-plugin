@@ -297,6 +297,7 @@ jobs:
         ./dependency-check/bin/dependency-check.sh \
           --nvdApiKey "$NVD_API_KEY" \
           --disableOssIndex \
+          --suppression dependency-check-suppressions.xml \
           --scan app --scan datasource \
           --format HTML --format JSON --prettyPrint \
           --failOnCVSS 7 \
