@@ -180,6 +180,19 @@ jobs:
       - name: Install dev dependencies
         run: npm ci
 
+      - name: Pull Grafana Docker Image
+        run: docker pull grafana/grafana:latest
+
+      - name: Start Grafana Container
+        run: docker run -d --name grafana -p 3000:3000 grafana/grafana:latest
+
+      - name: Ensure Grafana Container is Running
+        run: |
+          if ! docker ps --filter "name=grafana" --format "{{.Names}}" | grep -q "grafana"; then
+            echo "Grafana container is not running!";
+            exit 1;
+          fi
+
       - name: Start Grafana
         run: |
           docker compose pull
