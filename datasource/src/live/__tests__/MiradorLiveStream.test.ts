@@ -3,9 +3,9 @@ import type { MiradorQuery } from '../../types';
 
 describe('MiradorLiveStream', () => {
   it('emits frames when messages arrive', (done) => {
-    const messages: any[] = [];
+  const messages: any[] = [];
     class StubWebSocket {
-      public static listeners: Record<string, ((ev: any) => void)[]> = {};
+      public static listeners: Record<string, Array<(ev: any) => void>> = {};
       public readyState = 1;
       constructor(public url: string) {
         StubWebSocket.listeners[url] = [];

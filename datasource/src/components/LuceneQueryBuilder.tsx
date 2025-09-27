@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, HorizontalGroup, Icon, IconButton, InlineField, Input, Select, Stack } from '@grafana/ui';
+import { Button, Stack, Icon, IconButton, InlineField, Input, Combobox } from '@grafana/ui';
 import type { SelectableValue } from '@grafana/data';
 
 import {
@@ -86,8 +86,7 @@ export const LuceneQueryBuilder: React.FC<LuceneQueryBuilderProps> = ({ value, a
     emitChange(next);
   };
 
-  const handleOperatorChange = (option: SelectableValue<'AND' | 'OR'>) => {
-    const nextOperator = option.value ?? operator;
+  const handleOperatorChange = (nextOperator: 'AND' | 'OR') => {
     setOperator(nextOperator);
     emitChange(clauses, nextOperator);
   };
@@ -100,26 +99,26 @@ export const LuceneQueryBuilder: React.FC<LuceneQueryBuilderProps> = ({ value, a
           : CLAUSE_OPERATORS;
 
         return (
-          <HorizontalGroup key={clause.id} align="flex-start">
+          <Stack key={clause.id} direction="row" gap={2} alignItems="flex-start">
             <InlineField label="Field" transparent grow>
-              <Select
+              <Combobox
                 aria-label={`Field for clause ${clause.id}`}
                 options={fields.map((field) => ({ label: field, value: field }))}
-                value={{ label: clause.field, value: clause.field }}
-                onChange={(option) => updateClause(clause.id, { field: option.value ?? '', value: clause.value })}
+                value={clause.field}
+                onChange={(option) => updateClause(clause.id, { field: option?.value ?? '', value: clause.value })}
                 width={24}
                 disabled={disabled}
               />
             </InlineField>
             <InlineField label="Operator" transparent>
-              <Select
+              <Combobox
                 aria-label={`Operator for clause ${clause.id}`}
-                options={clauseOperators}
-                value={clauseOperators.find((item) => item.value === clause.comparator)}
+                options={clauseOperators.filter((op) => op.value !== undefined).map(op => ({ label: op.label, value: String(op.value) }))}
+                value={clause.comparator}
                 onChange={(option) =>
                   updateClause(clause.id, {
-                    comparator: option.value ?? clause.comparator,
-                    value: option.value === 'exists' || option.value === 'not_exists' ? undefined : clause.value,
+                    comparator: option?.value as LuceneComparator ?? clause.comparator,
+                    value: option?.value === 'exists' || option?.value === 'not_exists' ? undefined : clause.value,
                   })
                 }
                 width={16}
@@ -146,31 +145,31 @@ export const LuceneQueryBuilder: React.FC<LuceneQueryBuilderProps> = ({ value, a
               onClick={() => removeClause(clause.id)}
               disabled={disabled}
             />
-          </HorizontalGroup>
+          </Stack>
         );
       })}
 
-      <HorizontalGroup justify="space-between" align="center">
-        <HorizontalGroup>
+  <Stack direction="row" gap={2} justifyContent="space-between" alignItems="center">
+  <Stack direction="row" gap={2}>
           <Button icon="plus" onClick={addClause} disabled={disabled}>
             Add filter
           </Button>
           <InlineField label="Join with" transparent>
-            <Select
+            <Combobox
               aria-label="Join operator"
-              options={CONNECTORS}
-              value={CONNECTORS.find((item) => item.value === operator)}
-              onChange={handleOperatorChange}
+              options={CONNECTORS.filter((op) => op.value !== undefined).map(op => ({ label: op.label, value: String(op.value) }))}
+              value={operator}
+              onChange={(option) => handleOperatorChange((option?.value as 'AND' | 'OR') ?? operator)}
               width={10}
               disabled={disabled}
             />
           </InlineField>
-        </HorizontalGroup>
-        <HorizontalGroup>
+  </Stack>
+  <Stack direction="row" gap={2}>
           <Icon name="info-circle" />
           <span style={{ fontSize: '12px' }}>Preview updates automatically</span>
-        </HorizontalGroup>
-      </HorizontalGroup>
+  </Stack>
+  </Stack>
 
       <InlineField label="Preview" transparent grow>
         <textarea

@@ -1,3 +1,24 @@
 {
-  "extends": "./.config/.eslintrc"
+  "extends": ["@grafana/eslint-config"],
+  "root": true,
+  "rules": {
+    "react/prop-types": "off"
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.{ts,tsx}"],
+      "rules": {
+        "@typescript-eslint/no-deprecated": "warn"
+      },
+      "parserOptions": {
+        "project": "./tsconfig.json"
+      }
+    },
+    {
+      "files": ["./tests/**/*"],
+      "rules": {
+        "react-hooks/rules-of-hooks": "off"
+      }
+    }
+  ]
 }

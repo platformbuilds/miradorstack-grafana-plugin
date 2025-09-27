@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useMemo, useState } from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { Alert, Button, HorizontalGroup, InlineField, Input, Select, Stack, TextArea } from '@grafana/ui';
+import { Alert, Button, Stack, InlineField, Input, Combobox, TextArea } from '@grafana/ui';
 import { DataSource } from '../datasource';
 import { MiradorDataSourceOptions, MiradorQuery, QueryType } from '../types';
 import { LuceneQueryBuilder } from './LuceneQueryBuilder';
@@ -68,20 +68,20 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
   return (
     <Stack direction="column" gap={1}>
       <InlineField label="Query Type" labelWidth={12} tooltip="Select the Mirador data domain">
-        <Select
-          inputId="mirador-query-type"
-          options={QUERY_TYPE_OPTIONS}
-          onChange={onQueryTypeChange}
-          value={QUERY_TYPE_OPTIONS.find((option) => option.value === queryType) ?? QUERY_TYPE_OPTIONS[0]}
+        <Combobox
+          aria-label="mirador-query-type"
+          options={QUERY_TYPE_OPTIONS.map(opt => ({ label: opt.label, value: String(opt.value) }))}
+          value={String(queryType)}
+          onChange={option => onQueryTypeChange({ value: option?.value as QueryType })}
         />
       </InlineField>
 
       <InlineField label="Language" labelWidth={12} tooltip="Lucene for logs/traces, PromQL for metrics">
-        <Select
-          inputId="mirador-query-language"
-          options={QUERY_LANGUAGE_OPTIONS}
-          onChange={onQueryLanguageChange}
-          value={QUERY_LANGUAGE_OPTIONS.find((option) => option.value === queryLanguage)}
+        <Combobox
+          aria-label="mirador-query-language"
+          options={QUERY_LANGUAGE_OPTIONS.map(opt => ({ label: opt.label, value: String(opt.value) }))}
+          value={String(queryLanguage)}
+          onChange={option => onQueryLanguageChange({ value: option?.value as MiradorQuery['queryLanguage'] })}
         />
       </InlineField>
 
@@ -98,7 +98,7 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 
       {showBuilder ? (
         <Stack direction="column" gap={1}>
-          <HorizontalGroup>
+          <Stack direction="row" gap={2}>
             <Button
               size="sm"
               variant={activeTab === 'builder' ? 'primary' : 'secondary'}
@@ -113,7 +113,7 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
             >
               Raw
             </Button>
-          </HorizontalGroup>
+          </Stack>
 
           {activeTab === 'builder' ? (
             <>
