@@ -4,7 +4,11 @@ import { AppRootProps, PluginType } from '@grafana/data';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-jest.mock('../../pages/Discover', () => () => <div data-testid="discover-search-bar" />);
+jest.mock('../../pages/Discover', () => {
+  const DiscoverMock = () => <div data-testid="discover-search-bar" />;
+  DiscoverMock.displayName = 'DiscoverMock';
+  return DiscoverMock;
+});
 
 describe('Components/App', () => {
   let props: AppRootProps;

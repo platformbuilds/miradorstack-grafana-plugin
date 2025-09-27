@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Button, Drawer, Field, Input, Select, TextArea, useStyles2 } from '@grafana/ui';
+import { Button, Drawer, Field, Input, Combobox, TextArea, useStyles2 } from '@grafana/ui';
 import { css } from '@emotion/css';
 import type { DiscoverFilter, FilterComparator, SavedFilterGroup } from '../../types/discover';
 
@@ -55,10 +55,10 @@ export const AdvancedFiltersPanel: React.FC<AdvancedFiltersPanelProps> = ({
               <Input value={field} onChange={(event) => setField(event.currentTarget.value)} />
             </Field>
             <Field label="Comparator" className={styles.field}>
-              <Select
+              <Combobox
                 options={comparatorOptions}
-                value={comparatorOptions.find((option) => option.value === comparator)}
-                onChange={(option) => setComparator((option?.value as FilterComparator) ?? 'is')}
+                value={comparator}
+                onChange={(value) => setComparator((value?.value as FilterComparator) ?? 'is')}
               />
             </Field>
             {comparator !== 'exists' && (

@@ -2,7 +2,7 @@ import React from 'react';
 import { css } from '@emotion/css';
 import { GrafanaTheme2, PanelProps } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
-import { getLocationSrv } from '@grafana/runtime';
+import { locationService } from '@grafana/runtime';
 
 import { prefixRoute } from '../../utils/utils.routing';
 
@@ -20,7 +20,7 @@ export const LogsExplorerPanel: React.FC<PanelProps<LogsExplorerPanelOptions>> =
   const styles = useStyles2((theme) => getStyles(theme)({ width, height }));
 
   const handleOpenDiscover = () => {
-    getLocationSrv().update({
+    locationService.push({
       path: prefixRoute('discover'),
       query: options.query ? { query: options.query } : undefined,
     });

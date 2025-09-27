@@ -1,5 +1,5 @@
 import React, { FormEvent, useMemo, useState } from 'react';
-import { useStyles2, Alert, Button, Field, HorizontalGroup, Icon, Input, Modal, TextArea } from '@grafana/ui';
+import { useStyles2, Alert, Button, Field, Stack, Icon, Input, Modal, TextArea } from '@grafana/ui';
 import { css } from '@emotion/css';
 import { dateTime, type AppRootProps, type TimeRange } from '@grafana/data';
 
@@ -341,10 +341,10 @@ export const DiscoverPage: React.FC<AppRootProps> = () => {
     <div className={styles.wrapper}>
       <header className={styles.header}>
         <div>
-          <HorizontalGroup spacing="xs" align="center">
+          <Stack direction="row" gap={1} alignItems="center">
             <Icon name="search-plus" />
             <h1 className={styles.title}>Discover</h1>
-          </HorizontalGroup>
+          </Stack>
           <span className={styles.breadcrumbs}>Mirador Explorer / Discover</span>
         </div>
         <Button icon="filter" variant="secondary" onClick={() => setAdvancedOpen(true)}>
@@ -363,7 +363,7 @@ export const DiscoverPage: React.FC<AppRootProps> = () => {
             onRunQuery={handleRunQuery}
           />
           <div className={styles.secondaryActions}>
-            <HorizontalGroup spacing="sm">
+            <Stack direction="row" gap={2}>
               <Button icon="star" variant="secondary" onClick={handleOpenSaveModal}>
                 Save search
               </Button>
@@ -399,7 +399,7 @@ export const DiscoverPage: React.FC<AppRootProps> = () => {
               >
                 Export JSON
               </Button>
-            </HorizontalGroup>
+            </Stack>
           </div>
           <FilterPillBar
             filters={filters.filters}
@@ -499,7 +499,7 @@ export const DiscoverPage: React.FC<AppRootProps> = () => {
                       Updated {dateTime(search.updatedAt).fromNow()} · {search.filters.length} filters
                     </div>
                   </div>
-                  <HorizontalGroup spacing="xs">
+                  <Stack direction="row" gap={1}>
                     <Button size="sm" icon="play" onClick={() => handleApplySavedSearch(search)}>
                       Load
                     </Button>
@@ -519,7 +519,7 @@ export const DiscoverPage: React.FC<AppRootProps> = () => {
                     >
                       Delete
                     </Button>
-                  </HorizontalGroup>
+                  </Stack>
                 </li>
               ))}
             </ul>
@@ -547,14 +547,14 @@ export const DiscoverPage: React.FC<AppRootProps> = () => {
                       Ran {dateTime(entry.executedAt).fromNow()} · {entry.filters.length} filters · limit {entry.limit}
                     </div>
                   </div>
-                  <HorizontalGroup spacing="xs">
+                  <Stack direction="row" gap={1}>
                     <Button size="sm" icon="play" onClick={() => handleApplyHistory(entry)}>
                       Load
                     </Button>
                     <Button size="sm" icon="star" variant="secondary" onClick={() => handleSaveFromHistory(entry)}>
                       Save
                     </Button>
-                  </HorizontalGroup>
+                  </Stack>
                 </li>
               ))}
             </ul>

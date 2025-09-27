@@ -5,7 +5,7 @@ import {
   Badge,
   Button,
   Field,
-  HorizontalGroup,
+  Stack,
   Icon,
   Input,
   Modal,
@@ -310,7 +310,7 @@ const SchemaPage: React.FC<AppRootProps> = ({ meta }) => {
             <span className={styles.subtitle}>Mirador Explorer / Schema Browser</span>
           </div>
         </div>
-        <HorizontalGroup spacing="sm" align="center">
+        <Stack direction="row" gap={2} alignItems="center">
           {loading && <Spinner size={20} />}
           <Button
             variant="primary"
@@ -328,7 +328,7 @@ const SchemaPage: React.FC<AppRootProps> = ({ meta }) => {
           >
             Refresh
           </Button>
-        </HorizontalGroup>
+        </Stack>
       </header>
 
       {!hasDatasource && (

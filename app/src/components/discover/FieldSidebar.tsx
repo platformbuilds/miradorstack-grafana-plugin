@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Button, Icon, Input, Select, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Input, Combobox, useStyles2 } from '@grafana/ui';
 import { css } from '@emotion/css';
 import { filterFieldStats } from '../../utils/fieldStats';
 import type { FieldStat } from '../../types/discover';
@@ -38,10 +38,10 @@ export const FieldSidebar: React.FC<FieldSidebarProps> = ({
           value={search}
           onChange={(event) => setSearch(event.currentTarget.value)}
         />
-        <Select
+        <Combobox
           aria-label="Sort fields"
           options={SORT_OPTIONS.map(({ label, value }) => ({ label, value }))}
-          value={SORT_OPTIONS.find((option) => option.value === sort)}
+          value={sort}
           onChange={(option) => setSort((option?.value as typeof sort) ?? 'count')}
         />
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button, Card, useStyles2 } from '@grafana/ui';
 import { css, cx } from '@emotion/css';
 import type { LogDocument } from '../../types/discover';
@@ -26,7 +26,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({ documents, pinnedF
 
   const totalHeight = documents.length * ROW_HEIGHT;
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const container = containerRef.current;
     if (!container) {
       return;
@@ -35,13 +35,13 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({ documents, pinnedF
     const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - BUFFER_ROWS);
     const end = Math.min(documents.length, start + BUFFER_ROWS * 4);
     setWindowRange({ start, end });
-  };
+  }, [documents.length]);
 
   const visibleDocuments = documents.slice(windowRange.start, windowRange.end);
 
   useEffect(() => {
     handleScroll();
-  }, [documents]);
+  }, [documents, handleScroll]);
 
   return (
     <section className={styles.container} data-testid="discover-document-table">

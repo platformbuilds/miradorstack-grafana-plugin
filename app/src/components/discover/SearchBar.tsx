@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, HorizontalGroup, Icon, InlineField, Input, TimeRangePicker, useStyles2 } from '@grafana/ui';
+import { Button, Stack, Icon, InlineField, Input, TimeRangePicker, useStyles2 } from '@grafana/ui';
 import { css } from '@emotion/css';
 import type { TimeRange } from '@grafana/data';
 
@@ -63,7 +63,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <div className={styles.wrapper} data-testid="discover-search-bar">
-      <HorizontalGroup justify="space-between" align="flex-end">
+      <Stack direction="row" gap={2} justifyContent="space-between" alignItems="flex-end">
         <InlineField label="Search" labelWidth={10} grow tooltip="Enter a Lucene query or keywords">
           <Input
             placeholder="service:payments AND level:ERROR"
@@ -88,7 +88,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <Button icon="search" onClick={onRunQuery} variant="primary">
           Run query
         </Button>
-      </HorizontalGroup>
+      </Stack>
       <div className={styles.pickerRow}>
         <InlineField label="Time range" labelWidth={10} grow tooltip="Restrict documents by time">
           <TimeRangePicker

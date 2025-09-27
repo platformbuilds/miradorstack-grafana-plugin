@@ -54,7 +54,7 @@ export function useDiscoverFilters(initialFilters: DiscoverFilter[] = []): Disco
         return next;
       });
     },
-    [filters]
+    [filters, generateId]
   );
 
   const deleteGroup = useCallback((id: string) => {
