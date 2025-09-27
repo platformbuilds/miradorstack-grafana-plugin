@@ -1,5 +1,6 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
+// eslint-disable-next-line @typescript-eslint/no-deprecated -- Grafana data source generics still expect DataQuery
 export interface MiradorQuery extends DataQuery {
   queryType: QueryType;
   query: string;

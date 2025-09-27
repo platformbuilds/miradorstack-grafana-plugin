@@ -9,6 +9,7 @@ export default [
     files: ['src/**/*.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-deprecated': 'warn',
+      'react/prop-types': 'off',
     },
     languageOptions: {
       parserOptions: {

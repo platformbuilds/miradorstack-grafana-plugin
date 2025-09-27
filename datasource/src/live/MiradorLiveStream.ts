@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { DataQueryResponse, FieldType, LoadingState, MutableDataFrame } from '@grafana/data';
+import { DataQueryResponse, FieldType, LoadingState, toDataFrame } from '@grafana/data';
 import type { MiradorDataSourceOptions, MiradorQuery } from '../types';
 
 export interface MiradorLiveStreamOptions {
@@ -119,37 +119,39 @@ function appendQueryParams(baseUrl: string, query: MiradorQuery, tenantId?: stri
 }
 
 function createFrame(messages: LiveLogMessage[], refId: string) {
-  const frame = new MutableDataFrame({
-    refId,
-    fields: [
-      { name: 'time', type: FieldType.time },
-      { name: 'message', type: FieldType.string },
-    ],
-  });
-
-  const ensureField = (fieldName: string) => {
-    if (!frame.fields.some((field) => field.name === fieldName)) {
-      frame.addField({ name: fieldName, type: FieldType.string });
-    }
-  };
+  const fieldMap = new Map<string, { type: FieldType; values: unknown[] }>();
+  fieldMap.set('time', { type: FieldType.time, values: [] });
+  fieldMap.set('message', { type: FieldType.string, values: [] });
 
   for (const message of messages) {
-    const row: Record<string, unknown> = {
-      time: message.timestamp ? new Date(message.timestamp) : new Date(),
-      message: message.message ?? '',
-    };
+    const timeValue = message.timestamp ? new Date(message.timestamp) : new Date();
+    fieldMap.get('time')?.values.push(timeValue);
+    fieldMap.get('message')?.values.push(message.message ?? '');
 
     if (message.fields) {
       for (const [key, value] of Object.entries(message.fields)) {
-        ensureField(key);
-        row[key] = value;
+        if (!fieldMap.has(key)) {
+          fieldMap.set(key, { type: FieldType.string, values: [] });
+        }
+        fieldMap.get(key)?.values.push(value);
       }
     }
 
-    frame.add(row);
+    for (const [name, field] of fieldMap.entries()) {
+      if (field.values.length < fieldMap.get('time')!.values.length) {
+        field.values.push(undefined);
+      }
+    }
   }
 
-  return frame;
+  return toDataFrame({
+    refId,
+    fields: Array.from(fieldMap.entries()).map(([name, info]) => ({
+      name,
+      type: info.type,
+      values: info.values,
+    })),
+  });
 }
 
 export function createLiveStreamOptions(options: MiradorDataSourceOptions): MiradorLiveStreamOptions {
