@@ -598,7 +598,7 @@ const renderLogs = (fields: SchemaField[], onEdit: (field: SchemaField) => void)
         <li key={field.name} className={stylesFactory.card}>
           <div className={stylesFactory.cardHeader}>
             <span className={stylesFactory.cardTitle}>{field.name}</span>
-            <Badge text={field.type} />
+            <Badge text={field.type} color="blue" />
           </div>
           {field.description && <p className={stylesFactory.description}>{field.description}</p>}
           <div className={stylesFactory.chips}>
@@ -637,7 +637,7 @@ const renderMetrics = (metrics: MetricDescriptor[], onEdit: (metric: MetricDescr
         <li key={metric.name} className={stylesFactory.card}>
           <div className={stylesFactory.cardHeader}>
             <span className={stylesFactory.cardTitle}>{metric.name}</span>
-            <Badge text={metric.type} />
+            <Badge text={metric.type} color="green" />
           </div>
           {metric.description && <p className={stylesFactory.description}>{metric.description}</p>}
           <div className={stylesFactory.metaRow}>
@@ -649,7 +649,7 @@ const renderMetrics = (metrics: MetricDescriptor[], onEdit: (metric: MetricDescr
           {metric.aggregations && metric.aggregations.length > 0 && (
             <div className={stylesFactory.chips}>
               {metric.aggregations.map((aggregation) => (
-                <Badge key={`${metric.name}-${aggregation}`} text={aggregation} />
+                <Badge key={`${metric.name}-${aggregation}`} text={aggregation} color="orange" />
               ))}
             </div>
           )}
@@ -676,7 +676,7 @@ const renderTraces = (services: TraceServiceSchema[], onEdit: (service: TraceSer
           <div className={stylesFactory.cardHeader}>
             <span className={stylesFactory.cardTitle}>{service.name}</span>
             {service.attributes && service.attributes.length > 0 && (
-              <Badge text={`${service.attributes.length} attributes`} />
+              <Badge text={`${service.attributes.length} attributes`} color="purple" />
             )}
           </div>
           {service.description && <p className={stylesFactory.description}>{service.description}</p>}

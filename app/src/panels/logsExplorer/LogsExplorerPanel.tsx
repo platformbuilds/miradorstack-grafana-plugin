@@ -1,6 +1,6 @@
 import React from 'react';
 import { css } from '@emotion/css';
-import { PanelProps } from '@grafana/data';
+import { GrafanaTheme2, PanelProps } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 import { getLocationSrv } from '@grafana/runtime';
 
@@ -17,7 +17,7 @@ export const LogsExplorerPanel: React.FC<PanelProps<LogsExplorerPanelOptions>> =
   width,
   height,
 }) => {
-  const styles = useStyles2(getStyles({ width, height }));
+  const styles = useStyles2((theme) => getStyles(theme)({ width, height }));
 
   const handleOpenDiscover = () => {
     getLocationSrv().update({
@@ -61,55 +61,57 @@ export const LogsExplorerPanel: React.FC<PanelProps<LogsExplorerPanelOptions>> =
   );
 };
 
-const getStyles = ({ width, height }: { width: number; height: number }) => ({
-  container: css`
-    width: ${width}px;
-    height: ${height}px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1rem;
-    background: var(--grafana-background-secondary);
-    border-radius: 4px;
-    gap: 1rem;
-  `,
-  header: css`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  `,
-  title: css`
-    font-size: 1.1rem;
-    font-weight: 600;
-  `,
-  subtitle: css`
-    font-size: 12px;
-    color: var(--grafana-text-secondary);
-  `,
-  summary: css`
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  `,
-  summaryLabel: css`
-    font-size: 12px;
-    text-transform: uppercase;
-    color: var(--grafana-text-secondary);
-  `,
-  query: css`
-    display: inline-flex;
-    padding: 0.5rem;
-    background: var(--grafana-background-primary);
-    border-radius: 4px;
-    font-family: var(--grafana-font-monospace);
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  `,
-  hint: css`
-    font-size: 12px;
-    color: var(--grafana-text-secondary);
-  `,
-});
+const getStyles = (theme: GrafanaTheme2) => (props: { width: number; height: number }) => {
+  return {
+    container: css`
+      width: ${props.width}px;
+      height: ${props.height}px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1rem;
+      background: var(--grafana-background-secondary);
+      border-radius: 4px;
+      gap: 1rem;
+    `,
+    header: css`
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    `,
+    title: css`
+      font-size: 1.1rem;
+      font-weight: 600;
+    `,
+    subtitle: css`
+      font-size: 12px;
+      color: var(--grafana-text-secondary);
+    `,
+    summary: css`
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    `,
+    summaryLabel: css`
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--grafana-text-secondary);
+    `,
+    query: css`
+      display: inline-flex;
+      padding: 0.5rem;
+      background: var(--grafana-background-primary);
+      border-radius: 4px;
+      font-family: var(--grafana-font-monospace);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    `,
+    hint: css`
+      font-size: 12px;
+      color: var(--grafana-text-secondary);
+    `,
+  };
+};

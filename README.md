@@ -34,9 +34,25 @@ Mirador Explorer is a Grafana app plugin bundled with a dedicated Mirador Core d
 
 ## Prerequisites
 
+### Development Requirements
 - Node.js 22+
-- npm 10+
+- npm 11.5+
 - Docker (for local Grafana dev server)
+
+### Production Requirements
+- Grafana ≥12.2.0
+  - Required for modern UI components
+  - Needed for React 18 compatibility
+  - Supports all plugin features and APIs
+
+### Plugin Compatibility Matrix
+| Component | Minimum Version | Recommended Version |
+|-----------|----------------|-------------------|
+| Grafana | 12.2.0 | 12.2.0+ |
+| Node.js | 22.0.0 | 22.0.0+ |
+| npm | 11.5.1 | 11.5.1+ |
+| React | 18.2.0 | 18.2.0 |
+| TypeScript | 5.5.4 | 5.5.4+ |
 
 ## Getting Started
 
@@ -74,6 +90,46 @@ Within Grafana, open **Configuration → Mirador Explorer** and supply the Mirad
 ### Dashboard panel
 
 Under **Dashboards → Panels → Logs Explorer Panel**, add the Mirador panel to provide one-click navigation into Discover with a preconfigured Lucene query. Panel options let you set the default query and toggle the inline summary; the panel automatically respects the dashboard time range.
+
+## Production Deployment
+
+### Using Helm Charts
+
+If you're deploying Grafana using Helm charts, you can install this plugin by adding it to the plugins list in your `values.yaml`:
+
+```yaml
+grafana:
+  plugins:
+    - platformbuilds-miradorstack-miradorexplorer-app
+    - platformbuilds-miradorcoreconnector-datasource
+
+  # Optional: If you want to load the plugin from a specific URL
+  # pluginUrls:
+  #   - https://github.com/platformbuilds/miradorstack-grafana-plugin/releases/download/v1.0.0/miradorstack-miradorexplorer-app-1.0.0.zip
+  #   - https://github.com/platformbuilds/miradorstack-grafana-plugin/releases/download/v1.0.0/miradorstack-miradorcoreconnector-datasource-1.0.0.zip
+
+  # Required configuration for the plugin
+  grafana.ini:
+    plugins:
+      allow_loading_unsigned_plugins: "platformbuilds-miradorstack-miradorexplorer-app,platformbuilds-miradorcoreconnector-datasource"
+```
+
+Deploy or upgrade your Grafana installation:
+
+```bash
+# Add the Grafana Helm repository
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+# Install/upgrade Grafana with the plugin
+helm upgrade --install my-grafana grafana/grafana -f values.yaml
+```
+
+After deployment:
+1. Access your Grafana instance
+2. Go to **Configuration → Plugins** to verify the plugin installation
+3. Configure the Mirador Core Connector data source with your API credentials
+4. Open **Configuration → Mirador Explorer** to complete the setup
 
 ## Testing
 

@@ -505,7 +505,7 @@ export const DiscoverPage: React.FC<AppRootProps> = () => {
                     </Button>
                     <Button
                       size="sm"
-                      icon={search.favorite ? 'star' : 'star-outline'}
+                      icon={search.favorite ? 'favorite' : 'star'}
                       variant="secondary"
                       onClick={() => toggleFavorite(search.id)}
                     >

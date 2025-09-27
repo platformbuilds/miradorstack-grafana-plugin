@@ -74,6 +74,7 @@ describe('SchemaApi', () => {
       expect.objectContaining<SchemaApiError>({
         message: 'upstream failure',
         status: 502,
+        name: 'SchemaApiError'
       })
     );
   });
