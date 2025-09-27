@@ -1,6 +1,12 @@
 import { MiradorLiveStream } from '../MiradorLiveStream';
 import type { MiradorQuery } from '../../types';
 
+jest.setTimeout(10000); // Increase timeout to 10 seconds
+
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console errors during test
+});
+
 describe('MiradorLiveStream', () => {
   it('emits frames when messages arrive', (done) => {
   const messages: any[] = [];

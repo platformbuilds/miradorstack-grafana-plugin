@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { DataQueryResponse, FieldType, LoadingState } from '@grafana/data';
+import { DataQueryResponse, FieldType, LoadingState, MutableDataFrame } from '@grafana/data';
 import type { MiradorDataSourceOptions, MiradorQuery } from '../types';
 
 export interface MiradorLiveStreamOptions {
@@ -119,11 +119,19 @@ function appendQueryParams(baseUrl: string, query: MiradorQuery, tenantId?: stri
 }
 
 function createFrame(messages: LiveLogMessage[], refId: string) {
-  const fields: Array<{ name: string; type: FieldType }> = [
-    { name: 'time', type: FieldType.time },
-    { name: 'message', type: FieldType.string },
-  ];
-  const rows: Array<Record<string, unknown>> = [];
+  const frame = new MutableDataFrame({
+    refId,
+    fields: [
+      { name: 'time', type: FieldType.time },
+      { name: 'message', type: FieldType.string },
+    ],
+  });
+
+  const ensureField = (fieldName: string) => {
+    if (!frame.fields.some((field) => field.name === fieldName)) {
+      frame.addField({ name: fieldName, type: FieldType.string });
+    }
+  };
 
   for (const message of messages) {
     const row: Record<string, unknown> = {
@@ -133,16 +141,15 @@ function createFrame(messages: LiveLogMessage[], refId: string) {
 
     if (message.fields) {
       for (const [key, value] of Object.entries(message.fields)) {
-        if (!fields.some((field) => field.name === key)) {
-          fields.push({ name: key, type: FieldType.string });
-        }
+        ensureField(key);
         row[key] = value;
       }
     }
-    rows.push(row);
+
+    frame.add(row);
   }
 
-  return { refId, fields, rows };
+  return frame;
 }
 
 export function createLiveStreamOptions(options: MiradorDataSourceOptions): MiradorLiveStreamOptions {

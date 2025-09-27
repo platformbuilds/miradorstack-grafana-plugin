@@ -11,6 +11,16 @@ const baseQuery: MiradorQuery = {
 };
 
 describe('QueryEditor', () => {
+  beforeAll(() => {
+    Object.defineProperty(window, 'CanvasRenderingContext2D', {
+      value: class {
+        measureText() {
+          return { width: 100 };
+        }
+      },
+    });
+  });
+
   it('invokes onChange when raw query updates and triggers onRunQuery on blur', () => {
     const onChange = jest.fn();
     const onRunQuery = jest.fn();

@@ -33,6 +33,19 @@ Mirador Explorer is a Grafana app plugin bundled with a dedicated Mirador Core d
 - Logs Explorer dashboard panel that deep links Grafana dashboards into the Discover experience.
 
 ## Prerequisites
+## Linting & ESLint Compatibility
+
+**Sanity/ToDo:**
+
+- This repo uses ESLint 8.x and `@grafana/eslint-config@8.x` because Grafana's official config does **not** support ESLint 9.x or flat config as of September 2025.
+- Attempting to use ESLint 9.x or the flat config will break linting and CI/CD due to missing compatibility in `@grafana/eslint-config`.
+- We are pinned to 8.x until Grafana releases a compatible config for ESLint 9.x. This is a hard dependency for all plugin code quality and CI workflows.
+- **TODO:** Upgrade to ESLint 9.x and flat config once Grafana releases an official compatible version. Track this in future sprints.
+
+**Why:**
+- Grafana plugin development requires using their official lint config for code style, best practices, and CI/CD compatibility.
+- The latest available version (`@grafana/eslint-config@8.x`) only supports ESLint 8.x and legacy config format.
+- This is a known limitation and is documented here for transparency and future upgrades.
 
 ### Development Requirements
 - Node.js 22+

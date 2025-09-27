@@ -20,6 +20,16 @@ describe('Discover interactions', () => {
 
   beforeAll(() => {
     dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2025-02-14T10:05:00.000Z'));
+
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: jest.fn(() => JSON.stringify([])),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+        clear: jest.fn(),
+      },
+      writable: true,
+    });
   });
 
   afterAll(() => {
