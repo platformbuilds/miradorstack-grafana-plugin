@@ -42,23 +42,54 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
-        cache: 'npm'
 
-    - name: Install and Build TypeScript (app)
+    # App package setup
+    - name: Generate app lock file
       if: matrix.language == 'typescript'
+      working-directory: ./app
       run: |
-        cd app
-        npm install
-        npm ci
-        npm run build
-        
-    - name: Install and Build TypeScript (datasource)
+        rm -f package-lock.json
+        npm install --package-lock-only
+
+    - name: Cache app dependencies
       if: matrix.language == 'typescript'
+      uses: actions/cache@v4
+      with:
+        path: |
+          app/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-npm-app-${{ hashFiles('app/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-app-
+
+    - name: Install and build app
+      if: matrix.language == 'typescript'
+      working-directory: ./app
+      run: npm ci && npm run build
+
+    # Datasource package setup
+    - name: Generate datasource lock file
+      if: matrix.language == 'typescript'
+      working-directory: ./datasource
       run: |
-        cd datasource
-        npm install
-        npm ci
-        npm run build
+        rm -f package-lock.json
+        npm install --package-lock-only
+
+    - name: Cache datasource dependencies
+      if: matrix.language == 'typescript'
+      uses: actions/cache@v4
+      with:
+        path: |
+          datasource/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-npm-datasource-${{ hashFiles('datasource/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-datasource-
+
+    - name: Install and build datasource
+      if: matrix.language == 'typescript'
+      working-directory: ./datasource
+      run: npm ci && npm run build
 
     - name: Build Go
       if: matrix.language == 'go'
@@ -98,17 +129,48 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
-        cache: 'npm'
 
-    - name: Install dependencies (app)
+    # App vulnerability scanning setup
+    - name: Generate app lock file
+      working-directory: ./app
       run: |
-        cd app
-        npm install
+        rm -f package-lock.json
+        npm install --package-lock-only
 
-    - name: Install dependencies (datasource)
+    - name: Cache app dependencies for vulnerability check
+      uses: actions/cache@v4
+      with:
+        path: |
+          app/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-npm-app-vuln-${{ hashFiles('app/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-app-vuln-
+
+    - name: Install app dependencies
+      working-directory: ./app
+      run: npm ci
+
+    # Datasource vulnerability scanning setup
+    - name: Generate datasource lock file
+      working-directory: ./datasource
       run: |
-        cd datasource
-        npm install
+        rm -f package-lock.json
+        npm install --package-lock-only
+
+    - name: Cache datasource dependencies for vulnerability check
+      uses: actions/cache@v4
+      with:
+        path: |
+          datasource/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-npm-datasource-vuln-${{ hashFiles('datasource/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-datasource-vuln-
+
+    - name: Install datasource dependencies
+      working-directory: ./datasource
+      run: npm ci
 
     - name: Run npm audit (app)
       run: |
