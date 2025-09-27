@@ -9,6 +9,15 @@ Mirador Explorer is a Grafana app plugin bundled with a dedicated Mirador Core d
 - `dev/` – Engineering docs (action plan, design baselines, testing strategy)
 - `architecture-plan.md` – High-level technical blueprint
 
+## Key Features
+
+- Discover workspace with field statistics, histogram interactions, and Lucene builder powered queries.
+- Schema Browser surfacing Mirador log fields, metric descriptors, and trace services pulled directly from the datasource backend.
+- Mirador Core datasource with authenticated log/metric/trace queries, health checks, and schema resource handlers.
+- Live log streaming via WebSocket and comprehensive test harness across Go and TypeScript layers.
+- Saved searches, query history, and CSV/JSON exports to accelerate investigation workflows.
+- Logs Explorer dashboard panel that deep links Grafana dashboards into the Discover experience.
+
 ## Prerequisites
 
 - Node.js 22+
@@ -45,6 +54,12 @@ docker compose up --build
 ```
 
 Grafana will be available at `http://localhost:3000` with anonymous admin access for development convenience.
+
+Within Grafana, open **Configuration → Mirador Explorer** and supply the Mirador Core API URL, API key, and the UID of your Mirador Core Connector datasource. The Schema Browser relies on these settings to call the backend schema resources.
+
+### Dashboard panel
+
+Under **Dashboards → Panels → Logs Explorer Panel**, add the Mirador panel to provide one-click navigation into Discover with a preconfigured Lucene query. Panel options let you set the default query and toggle the inline summary; the panel automatically respects the dashboard time range.
 
 ## Testing
 

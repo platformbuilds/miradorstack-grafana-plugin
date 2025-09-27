@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/miradorstack/mirador-core-connector/pkg/mirador"
 )
 
 type httpResponder func(w http.ResponseWriter, r *http.Request)
@@ -40,6 +42,12 @@ func setupTestHTTPClient(t *testing.T, handlers map[string]httpResponder) func()
 	return func() {
 		testHTTPClient = prev
 	}
+}
+
+func resetSchemaStateForTest(tb testing.TB) {
+	tb.Helper()
+	schemaCacheStore.reset()
+	schemaOverridesStore.reset()
 }
 
 func TestQueryDataLogsIntegration(t *testing.T) {
@@ -186,6 +194,270 @@ func TestCheckHealthCallsMirador(t *testing.T) {
 
 	if res.Status != backend.HealthStatusOk {
 		t.Fatalf("expected ok status, got %s", res.Status)
+	}
+}
+
+func TestCallResourceLogsSchema(t *testing.T) {
+	resetSchemaStateForTest(t)
+	cleanup := setupTestHTTPClient(t, map[string]httpResponder{
+		"/api/v1/schema/logs/fields": func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"fields":[{"name":"service","type":"keyword","description":"Service name"}],"version":"2025-01-01"}`))
+		},
+	})
+	defer cleanup()
+
+	ds := Datasource{}
+	settings := backend.DataSourceInstanceSettings{
+		JSONData:                []byte(`{"url":"http://mirador.local"}`),
+		DecryptedSecureJSONData: map[string]string{"bearerToken": "token"},
+	}
+
+	var response backend.CallResourceResponse
+	err := ds.CallResource(context.Background(), &backend.CallResourceRequest{
+		PluginContext: backend.PluginContext{DataSourceInstanceSettings: &settings},
+		Path:          "schema/logs",
+		Method:        http.MethodGet,
+	}, backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+		response = *resp
+		return nil
+	}))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if response.Status != http.StatusOK {
+		t.Fatalf("unexpected status: %d", response.Status)
+	}
+
+	var schema mirador.LogsSchema
+	if err := json.Unmarshal(response.Body, &schema); err != nil {
+		t.Fatalf("unmarshal response: %v", err)
+	}
+
+	if len(schema.Fields) != 1 || schema.Fields[0].Name != "service" {
+		t.Fatalf("unexpected schema payload: %#v", schema)
+	}
+}
+
+func TestCallResourceMetricDescriptor(t *testing.T) {
+	resetSchemaStateForTest(t)
+	cleanup := setupTestHTTPClient(t, map[string]httpResponder{
+		"/api/v1/schema/metrics/http_requests_total": func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"name":"http_requests_total","type":"counter","unit":"requests","labels":["status"],"description":"Total requests"}`))
+		},
+	})
+	defer cleanup()
+
+	ds := Datasource{}
+	settings := backend.DataSourceInstanceSettings{
+		JSONData:                []byte(`{"url":"http://mirador.local"}`),
+		DecryptedSecureJSONData: map[string]string{"bearerToken": "token"},
+	}
+
+	var response backend.CallResourceResponse
+	err := ds.CallResource(context.Background(), &backend.CallResourceRequest{
+		PluginContext: backend.PluginContext{DataSourceInstanceSettings: &settings},
+		Path:          "schema/metrics/http_requests_total",
+		Method:        http.MethodGet,
+	}, backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+		response = *resp
+		return nil
+	}))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if response.Status != http.StatusOK {
+		t.Fatalf("unexpected status: %d", response.Status)
+	}
+
+	var descriptor mirador.MetricDescriptor
+	if err := json.Unmarshal(response.Body, &descriptor); err != nil {
+		t.Fatalf("unmarshal response: %v", err)
+	}
+
+	if descriptor.Name != "http_requests_total" || descriptor.Unit != "requests" {
+		t.Fatalf("unexpected metric descriptor: %#v", descriptor)
+	}
+}
+
+func TestCallResourceTracesSchemaError(t *testing.T) {
+	resetSchemaStateForTest(t)
+	cleanup := setupTestHTTPClient(t, map[string]httpResponder{
+		"/api/v1/schema/traces/services": func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error":"upstream failure"}`))
+		},
+	})
+	defer cleanup()
+
+	ds := Datasource{}
+	settings := backend.DataSourceInstanceSettings{
+		JSONData:                []byte(`{"url":"http://mirador.local"}`),
+		DecryptedSecureJSONData: map[string]string{"bearerToken": "token"},
+	}
+
+	var response backend.CallResourceResponse
+	err := ds.CallResource(context.Background(), &backend.CallResourceRequest{
+		PluginContext: backend.PluginContext{DataSourceInstanceSettings: &settings},
+		Path:          "schema/traces",
+		Method:        http.MethodGet,
+	}, backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+		response = *resp
+		return nil
+	}))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if response.Status != http.StatusBadGateway {
+		t.Fatalf("expected bad gateway status, got %d", response.Status)
+	}
+
+	var payload map[string]string
+	if err := json.Unmarshal(response.Body, &payload); err != nil {
+		t.Fatalf("unmarshal response: %v", err)
+	}
+
+	if payload["error"] == "" {
+		t.Fatal("expected error message in payload")
+	}
+}
+
+func TestCallResourceLogsSchemaCachesResponses(t *testing.T) {
+	resetSchemaStateForTest(t)
+	callCount := 0
+	cleanup := setupTestHTTPClient(t, map[string]httpResponder{
+		"/api/v1/schema/logs/fields": func(w http.ResponseWriter, r *http.Request) {
+			callCount++
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"fields":[{"name":"service","type":"keyword"}],"version":"v1"}`))
+		},
+	})
+	defer cleanup()
+
+	ds := Datasource{}
+	settings := backend.DataSourceInstanceSettings{
+		JSONData:                []byte(`{"url":"http://mirador.local"}`),
+		DecryptedSecureJSONData: map[string]string{"bearerToken": "token"},
+	}
+
+	req := &backend.CallResourceRequest{
+		PluginContext: backend.PluginContext{DataSourceInstanceSettings: &settings},
+		Path:          "schema/logs",
+		Method:        http.MethodGet,
+	}
+
+	var response backend.CallResourceResponse
+	sender := backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+		response = *resp
+		return nil
+	})
+
+	if err := ds.CallResource(context.Background(), req, sender); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if err := ds.CallResource(context.Background(), req, sender); err != nil {
+		t.Fatalf("second call unexpected error: %v", err)
+	}
+
+	if callCount != 1 {
+		t.Fatalf("expected upstream to be called once, got %d", callCount)
+	}
+
+	var schema mirador.LogsSchema
+	if err := json.Unmarshal(response.Body, &schema); err != nil {
+		t.Fatalf("unmarshal response: %v", err)
+	}
+	if len(schema.Fields) != 1 || schema.Fields[0].Name != "service" {
+		t.Fatalf("unexpected schema: %#v", schema)
+	}
+}
+
+func TestCallResourceLogsSchemaOverride(t *testing.T) {
+	resetSchemaStateForTest(t)
+	callCount := 0
+	cleanup := setupTestHTTPClient(t, map[string]httpResponder{
+		"/api/v1/schema/logs/fields": func(w http.ResponseWriter, r *http.Request) {
+			callCount++
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"fields":[{"name":"service","type":"keyword","description":"Upstream"}]}`))
+		},
+	})
+	defer cleanup()
+
+	ds := Datasource{}
+	settings := backend.DataSourceInstanceSettings{
+		JSONData:                []byte(`{"url":"http://mirador.local"}`),
+		DecryptedSecureJSONData: map[string]string{"bearerToken": "token"},
+	}
+
+	getReq := &backend.CallResourceRequest{
+		PluginContext: backend.PluginContext{DataSourceInstanceSettings: &settings},
+		Path:          "schema/logs",
+		Method:        http.MethodGet,
+	}
+
+	sender := backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+		return nil
+	})
+
+	if err := ds.CallResource(context.Background(), getReq, sender); err != nil {
+		t.Fatalf("initial get error: %v", err)
+	}
+
+	if callCount != 1 {
+		t.Fatalf("expected initial upstream call count 1, got %d", callCount)
+	}
+
+	postReq := &backend.CallResourceRequest{
+		PluginContext: backend.PluginContext{DataSourceInstanceSettings: &settings},
+		Path:          "schema/logs",
+		Method:        http.MethodPost,
+		Body:          []byte(`{"name":"service","type":"keyword","description":"Override"}`),
+	}
+
+	if err := ds.CallResource(context.Background(), postReq, sender); err != nil {
+		t.Fatalf("post error: %v", err)
+	}
+
+	var response backend.CallResourceResponse
+	senderCapture := backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+		response = *resp
+		return nil
+	})
+
+	if err := ds.CallResource(context.Background(), getReq, senderCapture); err != nil {
+		t.Fatalf("second get error: %v", err)
+	}
+
+	if callCount != 2 {
+		t.Fatalf("expected cache invalidation to refetch upstream, got %d calls", callCount)
+	}
+
+	var schema mirador.LogsSchema
+	if err := json.Unmarshal(response.Body, &schema); err != nil {
+		t.Fatalf("unmarshal response: %v", err)
+	}
+
+	if len(schema.Fields) == 0 || schema.Fields[0].Description != "Override" {
+		t.Fatalf("expected override description, got %#v", schema.Fields)
+	}
+
+	// subsequent get should use cache and keep override
+	if err := ds.CallResource(context.Background(), getReq, senderCapture); err != nil {
+		t.Fatalf("third get error: %v", err)
+	}
+
+	if callCount != 2 {
+		t.Fatalf("expected cache to prevent additional upstream calls, got %d", callCount)
 	}
 }
 

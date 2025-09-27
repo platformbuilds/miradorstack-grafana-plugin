@@ -87,6 +87,57 @@ func (c *Client) QueryTraces(ctx context.Context, payload TracesQuery) (TracesRe
 	return result, nil
 }
 
+func (c *Client) LogsSchema(ctx context.Context) (LogsSchema, error) {
+	var result LogsSchema
+	if err := c.get(ctx, "/api/v1/schema/logs/fields", &result); err != nil {
+		return LogsSchema{}, err
+	}
+	return result, nil
+}
+
+func (c *Client) LogFieldSchema(ctx context.Context, field string) (SchemaField, error) {
+	var result SchemaField
+	endpoint := fmt.Sprintf("/api/v1/schema/logs/fields/%s", url.PathEscape(field))
+	if err := c.get(ctx, endpoint, &result); err != nil {
+		return SchemaField{}, err
+	}
+	return result, nil
+}
+
+func (c *Client) MetricsSchema(ctx context.Context) (MetricsSchema, error) {
+	var result MetricsSchema
+	if err := c.get(ctx, "/api/v1/schema/metrics", &result); err != nil {
+		return MetricsSchema{}, err
+	}
+	return result, nil
+}
+
+func (c *Client) MetricSchema(ctx context.Context, metric string) (MetricDescriptor, error) {
+	var result MetricDescriptor
+	endpoint := fmt.Sprintf("/api/v1/schema/metrics/%s", url.PathEscape(metric))
+	if err := c.get(ctx, endpoint, &result); err != nil {
+		return MetricDescriptor{}, err
+	}
+	return result, nil
+}
+
+func (c *Client) TracesSchema(ctx context.Context) (TracesSchema, error) {
+	var result TracesSchema
+	if err := c.get(ctx, "/api/v1/schema/traces/services", &result); err != nil {
+		return TracesSchema{}, err
+	}
+	return result, nil
+}
+
+func (c *Client) TraceServiceSchema(ctx context.Context, service string) (TraceServiceSchema, error) {
+	var result TraceServiceSchema
+	endpoint := fmt.Sprintf("/api/v1/schema/traces/services/%s", url.PathEscape(service))
+	if err := c.get(ctx, endpoint, &result); err != nil {
+		return TraceServiceSchema{}, err
+	}
+	return result, nil
+}
+
 func (c *Client) Health(ctx context.Context) error {
 	req, err := c.newRequest(ctx, http.MethodGet, "/api/v1/health", nil)
 	if err != nil {
@@ -108,6 +159,29 @@ func (c *Client) Health(ctx context.Context) error {
 
 func (c *Client) post(ctx context.Context, path string, payload any, out any) error {
 	req, err := c.newRequest(ctx, http.MethodPost, path, payload)
+	if err != nil {
+		return err
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 400 {
+		return fmt.Errorf("mirador request failed: %s", res.Status)
+	}
+
+	if out == nil {
+		return nil
+	}
+
+	return json.NewDecoder(res.Body).Decode(out)
+}
+
+func (c *Client) get(ctx context.Context, endpoint string, out any) error {
+	req, err := c.newRequest(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return err
 	}

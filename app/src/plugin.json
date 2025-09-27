@@ -22,29 +22,17 @@
   "includes": [
     {
       "type": "page",
-      "name": "Page One",
-      "path": "/a/%PLUGIN_ID%/one",
+      "icon": "search-plus",
+      "name": "Discover",
+      "path": "/a/%PLUGIN_ID%/discover",
       "addToNav": true,
       "defaultNav": true
     },
     {
       "type": "page",
-      "name": "Page Two",
-      "path": "/a/%PLUGIN_ID%/two",
-      "addToNav": true,
-      "defaultNav": false
-    },
-    {
-      "type": "page",
-      "name": "Page Three",
-      "path": "/a/%PLUGIN_ID%/three",
-      "addToNav": true,
-      "defaultNav": false
-    },
-    {
-      "type": "page",
-      "name": "Page Four",
-      "path": "/a/%PLUGIN_ID%/four",
+      "icon": "layers",
+      "name": "Schema Browser",
+      "path": "/a/%PLUGIN_ID%/schema",
       "addToNav": true,
       "defaultNav": false
     },
@@ -55,6 +43,16 @@
       "path": "/plugins/%PLUGIN_ID%",
       "role": "Admin",
       "addToNav": true
+    }
+  ],
+  "panels": [
+    {
+      "id": "logs-explorer-panel",
+      "name": "Logs Explorer Panel",
+      "description": "Launch Mirador Discover with a preconfigured Mirador query directly from dashboards.",
+      "module": "panels/logsExplorer/module",
+      "keywords": ["mirador", "logs", "discover"],
+      "sort": 10
     }
   ],
   "dependencies": {

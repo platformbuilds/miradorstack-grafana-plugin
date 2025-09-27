@@ -33,6 +33,7 @@ describe('Components/AppConfig', () => {
     expect(screen.queryByRole('group', { name: /api settings/i })).toBeInTheDocument();
     expect(screen.queryByTestId(testIds.appConfig.apiKey)).toBeInTheDocument();
     expect(screen.queryByTestId(testIds.appConfig.apiUrl)).toBeInTheDocument();
+    expect(screen.queryByTestId(testIds.appConfig.datasourceUid)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /save api settings/i })).toBeInTheDocument();
   });
 });

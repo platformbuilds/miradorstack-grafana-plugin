@@ -8,6 +8,7 @@ import { testIds } from '../testIds';
 
 type AppPluginSettings = {
   apiUrl?: string;
+  datasourceUid?: string;
 };
 
 type State = {
@@ -17,6 +18,7 @@ type State = {
   isApiKeySet: boolean;
   // A secret key for our custom API.
   apiKey: string;
+  datasourceUid: string;
 };
 
 export interface AppConfigProps extends PluginConfigPageProps<AppPluginMeta<AppPluginSettings>> {}
@@ -28,9 +30,12 @@ const AppConfig = ({ plugin }: AppConfigProps) => {
     apiUrl: jsonData?.apiUrl || '',
     apiKey: '',
     isApiKeySet: Boolean(secureJsonFields?.apiKey),
+    datasourceUid: jsonData?.datasourceUid || '',
   });
 
-  const isSubmitDisabled = Boolean(!state.apiUrl || (!state.isApiKeySet && !state.apiKey));
+  const isSubmitDisabled = Boolean(
+    !state.apiUrl || (!state.isApiKeySet && !state.apiKey) || !state.datasourceUid
+  );
 
   const onResetApiKey = () =>
     setState({
@@ -56,6 +61,7 @@ const AppConfig = ({ plugin }: AppConfigProps) => {
       pinned,
       jsonData: {
         apiUrl: state.apiUrl,
+        datasourceUid: state.datasourceUid,
       },
       // This cannot be queried later by the frontend.
       // We don't want to override it in case it was set previously and left untouched now.
@@ -92,6 +98,22 @@ const AppConfig = ({ plugin }: AppConfigProps) => {
             data-testid={testIds.appConfig.apiUrl}
             value={state.apiUrl}
             placeholder={`E.g.: http://mywebsite.com/api/v1`}
+            onChange={onChange}
+          />
+        </Field>
+
+        <Field
+          label="Mirador datasource UID"
+          description="UID of the Mirador Core Connector datasource to surface schema services"
+          className={s.marginTop}
+        >
+          <Input
+            width={60}
+            name="datasourceUid"
+            id="config-datasource-uid"
+            data-testid={testIds.appConfig.datasourceUid}
+            value={state.datasourceUid}
+            placeholder={`E.g.: mirador-core`}
             onChange={onChange}
           />
         </Field>

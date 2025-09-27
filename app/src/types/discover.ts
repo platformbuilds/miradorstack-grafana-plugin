@@ -1,4 +1,4 @@
-import type { TimeRange } from '@grafana/data';
+import type { RawTimeRange, TimeRange } from '@grafana/data';
 
 export interface LogDocument {
   id: string;
@@ -40,6 +40,12 @@ export interface DiscoverFilter {
   value?: string | number | Array<string | number>;
 }
 
+export interface StoredTimeRange {
+  from: string;
+  to: string;
+  raw: RawTimeRange;
+}
+
 export interface SavedFilterGroup {
   id: string;
   name: string;
@@ -51,4 +57,26 @@ export interface SavedFilterGroup {
 export interface HistogramState {
   buckets: HistogramBucket[];
   loading: boolean;
+}
+
+export interface SavedSearch {
+  id: string;
+  name: string;
+  description?: string;
+  query: string;
+  timeRange: StoredTimeRange;
+  limit: number;
+  filters: Array<Omit<DiscoverFilter, 'id'>>;
+  favorite?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QueryHistoryEntry {
+  id: string;
+  query: string;
+  limit: number;
+  timeRange: StoredTimeRange;
+  executedAt: string;
+  filters: Array<Omit<DiscoverFilter, 'id'>>;
 }

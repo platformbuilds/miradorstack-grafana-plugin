@@ -2,6 +2,62 @@ package mirador
 
 import "time"
 
+// Shared schema primitives
+
+type SchemaField struct {
+	Name          string   `json:"name"`
+	Type          string   `json:"type"`
+	Description   string   `json:"description,omitempty"`
+	Examples      []string `json:"examples,omitempty"`
+	Aggregatable  bool     `json:"aggregatable,omitempty"`
+	Filterable    bool     `json:"filterable,omitempty"`
+	DefaultFormat string   `json:"defaultFormat,omitempty"`
+}
+
+// Metrics schema
+
+type MetricsSchema struct {
+	Metrics []MetricDescriptor `json:"metrics"`
+	Version string             `json:"version,omitempty"`
+}
+
+type MetricDescriptor struct {
+	Name         string   `json:"name"`
+	Type         string   `json:"type"`
+	Unit         string   `json:"unit,omitempty"`
+	Description  string   `json:"description,omitempty"`
+	Labels       []string `json:"labels,omitempty"`
+	Aggregations []string `json:"aggregations,omitempty"`
+}
+
+// Logs schema
+
+type LogsSchema struct {
+	Fields  []SchemaField `json:"fields"`
+	Version string        `json:"version,omitempty"`
+}
+
+// Traces schema
+
+type TracesSchema struct {
+	Services []TraceServiceSchema `json:"services"`
+	Version  string               `json:"version,omitempty"`
+}
+
+type TraceServiceSchema struct {
+	Name        string               `json:"name"`
+	Description string               `json:"description,omitempty"`
+	Operations  []TraceOperationSpec `json:"operations,omitempty"`
+	Attributes  []SchemaField        `json:"attributes,omitempty"`
+}
+
+type TraceOperationSpec struct {
+	Name        string        `json:"name"`
+	SpanKinds   []string      `json:"spanKinds,omitempty"`
+	Attributes  []SchemaField `json:"attributes,omitempty"`
+	Description string        `json:"description,omitempty"`
+}
+
 // TimeSpan captures ISO-8601 strings expected by Mirador APIs.
 type TimeSpan struct {
 	From string `json:"from"`
