@@ -49,6 +49,16 @@ export function ConfigEditor(props: Props) {
     });
   };
 
+  const onWebSocketUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onOptionsChange({
+      ...options,
+      jsonData: {
+        ...jsonData,
+        websocketUrl: event.target.value,
+      },
+    });
+  };
+
   const onResetBearerToken = () => {
     onOptionsChange({
       ...options,
@@ -76,6 +86,21 @@ export function ConfigEditor(props: Props) {
           onChange={onUrlChange}
           value={jsonData.url || ''}
           placeholder="https://mirador.example.com"
+          width={45}
+        />
+      </InlineField>
+
+      <InlineField
+        label="WebSocket URL"
+        labelWidth={18}
+        interactive
+        tooltip={'Optional direct WebSocket endpoint, defaults to Mirador API URL'}
+      >
+        <Input
+          id="config-editor-websocket-url"
+          onChange={onWebSocketUrlChange}
+          value={jsonData.websocketUrl || ''}
+          placeholder="wss://mirador.example.com/api/v1/logs/stream"
           width={45}
         />
       </InlineField>

@@ -49,4 +49,18 @@ describe('ConfigEditor', () => {
       })
     );
   });
+
+  it('updates websocket url field', () => {
+    const { getByRole, onOptionsChange } = setup();
+
+    fireEvent.change(getByRole('textbox', { name: /websocket url/i }), {
+      target: { value: 'wss://mirador.local/stream' },
+    });
+
+    expect(onOptionsChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        jsonData: expect.objectContaining({ websocketUrl: 'wss://mirador.local/stream' }),
+      })
+    );
+  });
 });

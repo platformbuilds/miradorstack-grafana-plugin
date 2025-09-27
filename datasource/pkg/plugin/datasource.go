@@ -4,12 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
+	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/miradorstack/mirador-core-connector/pkg/mirador"
 	"github.com/miradorstack/mirador-core-connector/pkg/models"
 )
 
@@ -23,6 +27,8 @@ var (
 	_ backend.CheckHealthHandler    = (*Datasource)(nil)
 	_ instancemgmt.InstanceDisposer = (*Datasource)(nil)
 )
+
+var testHTTPClient *http.Client
 
 // NewDatasource creates a new datasource instance.
 func NewDatasource(_ context.Context, _ backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
@@ -66,9 +72,10 @@ type queryModel struct {
 	QueryLanguage string   `json:"queryLanguage"`
 	Limit         int      `json:"limit"`
 	Fields        []string `json:"fields"`
+	Step          string   `json:"step"`
 }
 
-func (d *Datasource) query(_ context.Context, pCtx backend.PluginContext, query backend.DataQuery) backend.DataResponse {
+func (d *Datasource) query(ctx context.Context, pCtx backend.PluginContext, query backend.DataQuery) backend.DataResponse {
 	settings, err := models.LoadPluginSettings(*pCtx.DataSourceInstanceSettings)
 	if err != nil {
 		return backend.ErrDataResponse(backend.StatusInternal, fmt.Sprintf("load settings: %v", err))
@@ -82,6 +89,11 @@ func (d *Datasource) query(_ context.Context, pCtx backend.PluginContext, query 
 		return backend.ErrDataResponse(backend.StatusBadRequest, "Bearer token is required")
 	}
 
+	client, err := newMiradorClient(settings)
+	if err != nil {
+		return backend.ErrDataResponse(backend.StatusBadRequest, err.Error())
+	}
+
 	var model queryModel
 	if err := json.Unmarshal(query.JSON, &model); err != nil {
 		return backend.ErrDataResponse(backend.StatusBadRequest, fmt.Sprintf("json unmarshal: %v", err))
@@ -89,83 +101,75 @@ func (d *Datasource) query(_ context.Context, pCtx backend.PluginContext, query 
 
 	switch strings.ToLower(model.QueryType) {
 	case "metrics":
-		return d.buildMetricsResponse(query)
+		return d.queryMetrics(ctx, client, query, model)
 	case "traces":
-		return d.buildTraceResponse(query)
+		return d.queryTraces(ctx, client, query, model)
 	default:
-		return d.buildLogsResponse(query, model)
+		return d.queryLogs(ctx, client, query, model)
 	}
 }
 
-func (d *Datasource) buildLogsResponse(query backend.DataQuery, model queryModel) backend.DataResponse {
-	rows := 2
-	if model.Limit > 0 && model.Limit < rows {
-		rows = model.Limit
+func (d *Datasource) queryLogs(ctx context.Context, client *mirador.Client, query backend.DataQuery, model queryModel) backend.DataResponse {
+	payload := mirador.LogsQuery{
+		Query:  model.Query,
+		Limit:  model.Limit,
+		Fields: model.Fields,
+	}
+	if !query.TimeRange.From.IsZero() {
+		payload.TimeRange = &mirador.TimeSpan{
+			From: query.TimeRange.From.UTC().Format(time.RFC3339Nano),
+			To:   query.TimeRange.To.UTC().Format(time.RFC3339Nano),
+		}
 	}
 
-	timestamps := make([]time.Time, rows)
-	services := make([]string, rows)
-	levels := make([]string, rows)
-	messages := make([]string, rows)
-
-	for i := 0; i < rows; i++ {
-		timestamps[i] = query.TimeRange.From.Add(time.Duration(i) * time.Minute)
-		services[i] = "payments"
-		levels[i] = []string{"INFO", "ERROR"}[i%2]
-		messages[i] = fmt.Sprintf("Log %d for query %s", i+1, model.Query)
+	resp, err := client.QueryLogs(ctx, payload)
+	if err != nil {
+		return backend.ErrDataResponse(backend.StatusInternal, err.Error())
 	}
 
-	frame := data.NewFrame("logs",
-		data.NewField("time", nil, timestamps),
-		data.NewField("service", nil, services),
-		data.NewField("level", nil, levels),
-		data.NewField("message", nil, messages),
-	)
-	frame.Meta = &data.FrameMeta{
-		PreferredVisualization: data.VisTypeTable,
-		Custom: map[string]any{
-			"queryType": "logs",
-		},
-	}
-
-	return backend.DataResponse{Frames: data.Frames{frame}}
+	frames := logsToFrame(resp)
+	return backend.DataResponse{Frames: frames}
 }
 
-func (d *Datasource) buildMetricsResponse(query backend.DataQuery) backend.DataResponse {
-	points := 5
-	timestamps := make([]time.Time, points)
-	values := make([]float64, points)
-
-	for i := 0; i < points; i++ {
-		timestamps[i] = query.TimeRange.From.Add(time.Duration(i) * time.Minute)
-		values[i] = 100 + float64(i*5)
+func (d *Datasource) queryMetrics(ctx context.Context, client *mirador.Client, query backend.DataQuery, model queryModel) backend.DataResponse {
+	step := model.Step
+	if step == "" && query.Interval > 0 {
+		step = formatDuration(query.Interval)
+	}
+	if step == "" {
+		step = "1m"
 	}
 
-	frame := data.NewFrame("metrics",
-		data.NewField("time", nil, timestamps),
-		data.NewField("value", nil, values),
-	)
-	frame.Meta = &data.FrameMeta{
-		PreferredVisualization: data.VisTypeGraph,
+	payload := mirador.MetricsQuery{
+		Query: model.Query,
+		Step:  step,
+		Start: query.TimeRange.From.UTC().Format(time.RFC3339Nano),
+		End:   query.TimeRange.To.UTC().Format(time.RFC3339Nano),
 	}
 
-	return backend.DataResponse{Frames: data.Frames{frame}}
+	resp, err := client.QueryMetrics(ctx, payload)
+	if err != nil {
+		return backend.ErrDataResponse(backend.StatusInternal, err.Error())
+	}
+
+	frames := metricsToFrames(resp)
+	return backend.DataResponse{Frames: frames}
 }
 
-func (d *Datasource) buildTraceResponse(query backend.DataQuery) backend.DataResponse {
-	frame := data.NewFrame("traces",
-		data.NewField("traceID", nil, []string{"abc-123", "def-456"}),
-		data.NewField("service", nil, []string{"payments", "checkout"}),
-		data.NewField("duration_ms", nil, []int64{1200, 830}),
-	)
-
-	frame.Meta = &data.FrameMeta{
-		PreferredVisualization: data.VisTypeTable,
-		Custom: map[string]any{
-			"query": string(query.JSON),
-		},
+func (d *Datasource) queryTraces(ctx context.Context, client *mirador.Client, query backend.DataQuery, model queryModel) backend.DataResponse {
+	payload := mirador.TracesQuery{
+		Query: model.Query,
+		Limit: model.Limit,
+		Start: query.TimeRange.From.UTC().Format(time.RFC3339Nano),
+		End:   query.TimeRange.To.UTC().Format(time.RFC3339Nano),
 	}
 
+	resp, err := client.QueryTraces(ctx, payload)
+	if err != nil {
+		return backend.ErrDataResponse(backend.StatusInternal, err.Error())
+	}
+
+	frame := tracesToFrame(resp)
 	return backend.DataResponse{Frames: data.Frames{frame}}
 }
 
@@ -173,7 +177,7 @@ func (d *Datasource) buildTraceResponse(query backend.DataQuery) backend.DataRes
 // The main use case for these health checks is the test button on the
 // datasource configuration page which allows users to verify that
 // a datasource is working as expected.
-func (d *Datasource) CheckHealth(_ context.Context, req *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
+func (d *Datasource) CheckHealth(ctx context.Context, req *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
 	res := &backend.CheckHealthResult{}
 	config, err := models.LoadPluginSettings(*req.PluginContext.DataSourceInstanceSettings)
 
@@ -195,8 +199,186 @@ func (d *Datasource) CheckHealth(_ context.Context, req *backend.CheckHealthRequ
 		return res, nil
 	}
 
+	client, err := newMiradorClient(config)
+	if err != nil {
+		res.Status = backend.HealthStatusError
+		res.Message = err.Error()
+		return res, nil
+	}
+
+	if err := client.Health(ctx); err != nil {
+		res.Status = backend.HealthStatusError
+		res.Message = err.Error()
+		return res, nil
+	}
+
 	res.Status = backend.HealthStatusOk
 	res.Message = "Mirador Core configuration looks good"
 
 	return res, nil
+}
+
+func newMiradorClient(settings *models.PluginSettings) (*mirador.Client, error) {
+	var timeout time.Duration
+	if settings.TimeoutMs > 0 {
+		timeout = time.Duration(settings.TimeoutMs) * time.Millisecond
+	}
+
+	cfg := mirador.Config{
+		BaseURL:  settings.URL,
+		Bearer:   settings.Secrets.BearerToken,
+		TenantID: settings.TenantID,
+		Timeout:  timeout,
+	}
+
+	if testHTTPClient != nil {
+		cfg.HTTPClient = testHTTPClient
+	}
+
+	return mirador.NewClient(cfg)
+}
+
+func logsToFrame(resp mirador.LogsResponse) data.Frames {
+	if len(resp.Results) == 0 {
+		frame := data.NewFrame("logs",
+			data.NewField("time", nil, []time.Time{}),
+		)
+		frame.Meta = &data.FrameMeta{PreferredVisualization: data.VisTypeTable}
+		return data.Frames{frame}
+	}
+
+	times := make([]time.Time, len(resp.Results))
+	columnData := map[string][]string{}
+
+	for i, entry := range resp.Results {
+		if ts, ok := entry.Timestamp(); ok {
+			times[i] = ts
+		}
+		for key, raw := range entry {
+			if key == "_time" {
+				continue
+			}
+			value := fmt.Sprint(raw)
+			columnData[key] = append(columnData[key], value)
+		}
+	}
+
+	fields := make([]*data.Field, 0, len(columnData)+1)
+	fields = append(fields, data.NewField("time", nil, times))
+	for key, values := range columnData {
+		fields = append(fields, data.NewField(key, nil, values))
+	}
+
+	frame := data.NewFrame("logs", fields...)
+	frame.Meta = &data.FrameMeta{PreferredVisualization: data.VisTypeTable}
+	return data.Frames{frame}
+}
+
+func metricsToFrames(resp mirador.MetricsResponse) data.Frames {
+	frames := data.Frames{}
+	for _, series := range resp.Data.Result {
+		if len(series.Values) > 0 {
+			times := make([]time.Time, len(series.Values))
+			values := make([]float64, len(series.Values))
+			for i, pair := range series.Values {
+				times[i] = toTime(pair[0])
+				values[i] = toFloat(pair[1])
+			}
+			frame := data.NewFrame(series.Metric["__name__"],
+				data.NewField("time", nil, times),
+				data.NewField("value", nil, values),
+			)
+			frame.Meta = &data.FrameMeta{
+				PreferredVisualization: data.VisTypeGraph,
+				Custom:                 map[string]any{"labels": series.Metric},
+			}
+			frames = append(frames, frame)
+			continue
+		}
+
+		if len(series.Value) == 2 {
+			t := toTime(series.Value[0])
+			value := toFloat(series.Value[1])
+			frame := data.NewFrame(series.Metric["__name__"],
+				data.NewField("time", nil, []time.Time{t}),
+				data.NewField("value", nil, []float64{value}),
+			)
+			frame.Meta = &data.FrameMeta{
+				PreferredVisualization: data.VisTypeGraph,
+				Custom:                 map[string]any{"labels": series.Metric},
+			}
+			frames = append(frames, frame)
+		}
+	}
+
+	if len(frames) == 0 {
+		frames = append(frames, data.NewFrame("metrics"))
+	}
+
+	return frames
+}
+
+func tracesToFrame(resp mirador.TracesResponse) *data.Frame {
+	if len(resp.Data) == 0 {
+		return data.NewFrame("traces")
+	}
+
+	traceIDs := make([]string, len(resp.Data))
+	durations := make([]int64, len(resp.Data))
+	spanCounts := make([]int64, len(resp.Data))
+
+	for i, trace := range resp.Data {
+		traceIDs[i] = trace.TraceID
+		durations[i] = trace.Duration
+		spanCounts[i] = int64(len(trace.Spans))
+	}
+
+	frame := data.NewFrame("traces",
+		data.NewField("traceID", nil, traceIDs),
+		data.NewField("duration", nil, durations),
+		data.NewField("spanCount", nil, spanCounts),
+	)
+	frame.Meta = &data.FrameMeta{PreferredVisualization: data.VisTypeTable}
+	return frame
+}
+
+func toTime(raw interface{}) time.Time {
+	switch v := raw.(type) {
+	case float64:
+		return time.Unix(int64(v), 0).UTC()
+	case string:
+		if f, err := strconv.ParseFloat(v, 64); err == nil {
+			return time.Unix(int64(f), int64((f-math.Floor(f))*1e9)).UTC()
+		}
+		if parsed, err := time.Parse(time.RFC3339Nano, v); err == nil {
+			return parsed.UTC()
+		}
+	}
+	return time.Time{}
+}
+
+func toFloat(raw interface{}) float64 {
+	switch v := raw.(type) {
+	case float64:
+		return v
+	case string:
+		if f, err := strconv.ParseFloat(v, 64); err == nil {
+			return f
+		}
+	case json.Number:
+		if f, err := v.Float64(); err == nil {
+			return f
+		}
+	}
+	return 0
+}
+
+func formatDuration(d time.Duration) string {
+	if d%time.Second == 0 {
+		return fmt.Sprintf("%ds", int(d.Seconds()))
+	}
+	if d%time.Millisecond == 0 {
+		return fmt.Sprintf("%dms", int(d.Milliseconds()))
+	}
+	return d.String()
 }

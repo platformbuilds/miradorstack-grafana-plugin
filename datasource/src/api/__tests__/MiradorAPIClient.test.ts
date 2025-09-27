@@ -55,6 +55,34 @@ describe('MiradorAPIClient', () => {
     await expect(client.testConnection()).rejects.toEqual(new MiradorAPIError(400, 'bad request'));
   });
 
+  it('requests metrics and traces endpoints', async () => {
+    const fetchMock = globalThis.fetch as jest.Mock;
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: {
+        get: (key: string) => (key.toLowerCase() === 'content-type' ? 'application/json' : null),
+      } as Headers,
+      json: async () => ({ status: 'success', data: { resultType: 'matrix', result: [] } }),
+    });
+
+    const client = new MiradorAPIClient({ baseUrl: BASE_URL });
+    await client.queryMetrics({ query: 'up' });
+    expect(fetchMock).toHaveBeenCalledWith(`${BASE_URL}/api/v1/query`, expect.any(Object));
+
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: {
+        get: (key: string) => (key.toLowerCase() === 'content-type' ? 'application/json' : null),
+      } as Headers,
+      json: async () => ({ data: [] }),
+    });
+
+    await client.queryTraces({ query: 'service:payments' });
+    expect(fetchMock).toHaveBeenLastCalledWith(`${BASE_URL}/api/v1/traces/search`, expect.any(Object));
+  });
+
   it('times out requests', async () => {
     jest.useFakeTimers();
     const fetchMock = globalThis.fetch as jest.Mock;

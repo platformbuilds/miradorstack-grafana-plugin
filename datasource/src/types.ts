@@ -20,6 +20,7 @@ export interface MiradorDataSourceOptions extends DataSourceJsonData {
   tenantId?: string;
   enableWebSocket?: boolean;
   timeoutMs?: number;
+  websocketUrl?: string;
 }
 
 export interface MiradorSecureJsonData {

@@ -12,6 +12,7 @@ type PluginSettings struct {
 	TenantID        string                `json:"tenantId"`
 	EnableWebSocket bool                  `json:"enableWebSocket"`
 	TimeoutMs       int                   `json:"timeoutMs"`
+	WebsocketURL    string                `json:"websocketUrl"`
 	Secrets         *SecretPluginSettings `json:"-"`
 }
 

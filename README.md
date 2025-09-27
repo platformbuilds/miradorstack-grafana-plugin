@@ -52,5 +52,6 @@ Grafana will be available at `http://localhost:3000` with anonymous admin access
 - Unit tests: `npm run test:ci --prefix <package>`
 - Playwright E2E scaffolding is available via `npm run e2e` (Chromium profile).
 - Backend Go tests: `go test ./...` from `datasource/`
+- Combined smoke suite (datasource): `dev/tests/smoke.sh`
 
 See `dev/testing/strategy.md` for the evolving quality plan and `dev/design/baselines.md` for UX foundations.

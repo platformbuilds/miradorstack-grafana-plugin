@@ -44,6 +44,7 @@ Grafana starts at [http://localhost:3000](http://localhost:3000) with anonymous 
 | `npm run lint` | `app/`, `datasource/` | ESLint + Prettier |
 | `npm run e2e` | `app/`, `datasource/` | Playwright Chromium tests |
 | `go test ./...` | `datasource/` | Backend plugin unit tests |
+| `dev/tests/smoke.sh` | repo root | Combined datasource smoke tests |
 
 ## 7. Environment variables
 Create `.env.development` in each package (optional) to override defaults. Relevant keys:
@@ -51,4 +52,4 @@ Create `.env.development` in each package (optional) to override defaults. Relev
 - `MIRADOR_TENANT_ID`
 - `MIRADOR_BEARER_TOKEN`
 
-(Integration with these variables will be wired during Phase 2.)
+The datasource backend and live log streaming now read these variables directly.

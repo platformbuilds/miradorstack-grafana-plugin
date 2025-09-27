@@ -1,8 +1,10 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useMemo, useState } from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { InlineField, Input, Select, Stack } from '@grafana/ui';
+import { Alert, Button, HorizontalGroup, InlineField, Input, Select, Stack, TextArea } from '@grafana/ui';
 import { DataSource } from '../datasource';
 import { MiradorDataSourceOptions, MiradorQuery, QueryType } from '../types';
+import { LuceneQueryBuilder } from './LuceneQueryBuilder';
+import { validateLuceneQuery } from '../utils/lucene';
 
 type Props = QueryEditorProps<DataSource, MiradorQuery, MiradorDataSourceOptions>;
 
@@ -17,16 +19,13 @@ const QUERY_LANGUAGE_OPTIONS: Array<SelectableValue<NonNullable<MiradorQuery['qu
   { value: 'promql', label: 'PromQL' },
 ];
 
-export function QueryEditor({ query, onChange, onRunQuery }: Props) {
-  const onQueryStringChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...query, query: event.target.value });
-  };
+const DEFAULT_LOG_FIELDS = ['service', 'level', 'message', 'traceId'];
 
+export function QueryEditor({ query, onChange, onRunQuery }: Props) {
   const onQueryTypeChange = (option: SelectableValue<QueryType>) => {
     if (!option.value) {
       return;
     }
-
     onChange({ ...query, queryType: option.value });
     onRunQuery();
   };
@@ -46,7 +45,25 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
     onChange({ ...query, limit: value ? Number(value) : undefined });
   };
 
+  const onRawQueryChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    onChange({ ...query, query: event.target.value });
+  };
+
   const { queryType = QueryType.Logs, query: queryString = '', queryLanguage = 'lucene', limit } = query;
+  const showBuilder = (queryType === QueryType.Logs || queryType === QueryType.Traces) && queryLanguage === 'lucene';
+  const [activeTab, setActiveTab] = useState<'builder' | 'raw'>(showBuilder ? 'builder' : 'raw');
+
+  const fieldSuggestions = useMemo(
+    () => (query.fields?.length ? query.fields : DEFAULT_LOG_FIELDS),
+    [query.fields]
+  );
+
+  const validationErrors = useMemo(() => {
+    if (!showBuilder) {
+      return [];
+    }
+    return validateLuceneQuery(queryString);
+  }, [queryString, showBuilder]);
 
   return (
     <Stack direction="column" gap={1}>
@@ -56,16 +73,6 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
           options={QUERY_TYPE_OPTIONS}
           onChange={onQueryTypeChange}
           value={QUERY_TYPE_OPTIONS.find((option) => option.value === queryType) ?? QUERY_TYPE_OPTIONS[0]}
-        />
-      </InlineField>
-
-      <InlineField label="Query" labelWidth={12} grow tooltip="Enter Lucene or PromQL based on the selected type">
-        <Input
-          id="mirador-query-string"
-          onChange={onQueryStringChange}
-          onBlur={onRunQuery}
-          value={queryString}
-          placeholder={queryType === QueryType.Metrics ? 'rate(http_requests_total[5m])' : 'service:"payments"'}
         />
       </InlineField>
 
@@ -88,6 +95,94 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
           min={1}
         />
       </InlineField>
+
+      {showBuilder ? (
+        <Stack direction="column" gap={1}>
+          <HorizontalGroup>
+            <Button
+              size="sm"
+              variant={activeTab === 'builder' ? 'primary' : 'secondary'}
+              onClick={() => setActiveTab('builder')}
+            >
+              Builder
+            </Button>
+            <Button
+              size="sm"
+              variant={activeTab === 'raw' ? 'primary' : 'secondary'}
+              onClick={() => setActiveTab('raw')}
+            >
+              Raw
+            </Button>
+          </HorizontalGroup>
+
+          {activeTab === 'builder' ? (
+            <>
+              <LuceneQueryBuilder
+                value={queryString}
+                availableFields={fieldSuggestions}
+                onChange={(newValue, usedFields) =>
+                  onChange({ ...query, query: newValue, fields: usedFields })
+                }
+              />
+              {validationErrors.length > 0 && (
+                <Alert title="Query issues" severity="warning" className="gf-form-group">
+                  <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
+                    {validationErrors.map((error) => (
+                      <li key={error}>{error}</li>
+                    ))}
+                  </ul>
+                </Alert>
+              )}
+            </>
+          ) : (
+            <RawQueryEditor
+              queryType={queryType}
+              queryLanguage={queryLanguage}
+              queryString={queryString}
+              onChange={onRawQueryChange}
+              onRunQuery={onRunQuery}
+            />
+          )}
+        </Stack>
+      ) : (
+        <RawQueryEditor
+          queryType={queryType}
+          queryLanguage={queryLanguage}
+          queryString={queryString}
+          onChange={onRawQueryChange}
+          onRunQuery={onRunQuery}
+        />
+      )}
     </Stack>
+  );
+}
+
+interface RawQueryEditorProps {
+  queryType: QueryType;
+  queryLanguage: NonNullable<MiradorQuery['queryLanguage']>;
+  queryString: string;
+  onChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+  onRunQuery: () => void;
+}
+
+function RawQueryEditor({ queryType, queryLanguage, queryString, onChange, onRunQuery }: RawQueryEditorProps) {
+  const placeholder = queryType === QueryType.Metrics ? 'rate(http_requests_total[5m])' : 'service:"payments"';
+
+  return (
+    <InlineField
+      label={`${queryLanguage.toUpperCase()} Query`}
+      labelWidth={12}
+      grow
+      tooltip={`Edit the ${queryLanguage.toUpperCase()} query directly`}
+    >
+      <TextArea
+        aria-label="Raw query editor"
+        value={queryString}
+        placeholder={placeholder}
+        onChange={onChange}
+        onBlur={onRunQuery}
+        rows={6}
+      />
+    </InlineField>
   );
 }

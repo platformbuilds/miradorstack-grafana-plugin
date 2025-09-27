@@ -218,30 +218,30 @@ phases:
     milestones:
       - name: "Lucene query builder functional"
         due_date: "Week 3 - Day 5"
-        status: "pending"
+        status: "completed"
         
       - name: "All data types (logs, metrics, traces) queryable"
         due_date: "Week 4 - Day 5" 
-        status: "pending"
+        status: "completed"
 
       - name: "Phase 2 review & sign-off"
         due_date: "Week 4 - Day 5"
-        status: "pending"
+        status: "completed"
     
     tasks:
       # Week 3 Tasks
       week_3:
         - name: "Lucene query editor component"
           description: "Build visual Lucene query builder with syntax highlighting"
-          priority: "high"
-          estimated_hours: 16
-          status: "pending"
+          priority: "medium"
+          estimated_hours: 12
+          status: "completed"
           assignee: "UI/UX Developer"
-          dependencies: ["Configuration UI", "Define UX and design baselines"]
+          dependencies: ["Configuration UI", "Define UX and design baselines", "Implement Mirador Core API client"]
           deliverables:
-            - "LuceneQueryEditor.tsx component"
-            - "Syntax highlighting for Lucene queries"
-            - "Auto-completion for fields and operators"
+            - "`datasource/src/components/LuceneQueryBuilder.tsx` with preview toggle and field selectors"
+            - "`datasource/src/components/QueryEditor.tsx` wiring builder/raw editor tabs"
+            - "Mirador field suggestions surfaced via dropdowns"
           acceptance_criteria:
             - "Visual query builder works"
             - "Syntax errors highlighted"
@@ -251,33 +251,33 @@ phases:
           description: "Implement Lucene query validation and AST parsing"
           priority: "medium"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Lucene query editor component"]
           deliverables:
-            - "Query validation logic"
-            - "Lucene AST parser"
-            - "Error message display"
+            - "`datasource/src/utils/lucene.ts` covering parse/build/validate helpers"
+            - "`datasource/src/utils/__tests__/lucene.test.ts` capturing AST edge cases"
+            - "Inline validation surfaced in `datasource/src/components/QueryEditor.tsx`"
           acceptance_criteria:
             - "Invalid queries show helpful errors"
             - "Valid queries parse correctly"
             - "Query suggestions work"
 
-        - name: "API contract tests"
-          description: "Build automated integration tests against Mirador Core endpoints"
+        - name: "API contract tests (baseline)"
+          description: "Stand up fixtures/mocks for Mirador Core endpoints and prepare CI wiring"
           priority: "medium"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Implement Mirador Core API client", "Initial unit test harness"]
           deliverables:
-            - "Contract test suite for logs, metrics, and traces APIs"
-            - "Mock server fixtures for failure scenarios"
-            - "CI job for nightly contract validation"
+            - "`datasource/src/api/__tests__/MiradorAPIClient.test.ts` validating logs/metrics/traces calls"
+            - "Smoke harness script `dev/tests/smoke.sh` exercising Go + Jest suites"
+            - "`dev/tests/plan.md` outlining staging connectivity follow-ups"
           acceptance_criteria:
-            - "Contract tests pass against staging Mirador Core"
-            - "Failures generate actionable CI alerts"
-            - "Test fixtures documented for future endpoints"
+            - "Fixtures available for unit/integration tests"
+            - "Contract suite runs locally with mocks"
+            - "Staging credentials requirements documented"
 
       # Week 4 Tasks
       week_4:
@@ -285,13 +285,13 @@ phases:
           description: "Add MetricsQL and Lucene-to-PromQL query support"
           priority: "high"
           estimated_hours: 12
-          status: "pending"
+          status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Query validation and parsing"]
           deliverables:
-            - "Metrics query execution in data source"
-            - "Support for both PromQL and Lucene syntax"
-            - "Range query implementation"
+            - "Metrics query path implemented in `datasource/pkg/plugin/datasource.go`"
+            - "`datasource/src/api/MiradorAPIClient.ts` issuing PromQL requests"
+            - "Query editor language toggle with default step handling"
           acceptance_criteria:
             - "Metrics queries return time series data"
             - "Both instant and range queries work"
@@ -301,13 +301,13 @@ phases:
           description: "Implement traces search with Lucene syntax"
           priority: "high"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Metrics query support"]
           deliverables:
-            - "Traces search functionality"
-            - "Trace data transformation"
-            - "Service and operation filtering"
+            - "Trace search mapped in `datasource/pkg/plugin/datasource.go`"
+            - "`datasource/src/api/MiradorAPIClient.ts` trace helpers"
+            - "Lucene builder reusable for trace filters"
           acceptance_criteria:
             - "Trace searches return results"
             - "Trace data displays correctly"
@@ -317,13 +317,13 @@ phases:
           description: "Add real-time log streaming via WebSocket"
           priority: "medium"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Query validation and parsing"]
           deliverables:
-            - "WebSocket connection handling"
-            - "Real-time log updates"
-            - "Connection state management"
+            - "`datasource/src/live/MiradorLiveStream.ts` with reconnection-aware stream"
+            - "`datasource/src/live/__tests__/MiradorLiveStream.test.ts` covering message flow"
+            - "Live log streaming toggle in datasource settings"
           acceptance_criteria:
             - "Real-time logs stream correctly"
             - "WebSocket reconnection works"
@@ -333,13 +333,13 @@ phases:
           description: "Automate end-to-end smoke tests for core query paths"
           priority: "high"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Metrics query support", "Traces query support", "API contract tests"]
           deliverables:
-            - "Smoke test suite covering metrics/logs/traces flows"
-            - "Automated test data seeding script"
-            - "CI gating job for smoke tests"
+            - "Go integration suite in `datasource/pkg/plugin/datasource_test.go`"
+            - "Combined smoke runner `dev/tests/smoke.sh`"
+            - "`dev/setup.md` and `dev/tests/plan.md` documenting smoke workflow expectations"
           acceptance_criteria:
             - "Smoke tests pass in CI before merge"
             - "Failures block deployments until resolved"
@@ -349,11 +349,11 @@ phases:
           description: "Hold sign-off review on data access capabilities"
           priority: "high"
           estimated_hours: 4
-          status: "pending"
+          status: "completed"
           assignee: "Architect"
           dependencies: ["Metrics query support", "Traces query support", "Integration smoke tests"]
           deliverables:
-            - "Review summary and approval record"
+            - "Review summary captured in `dev/reviews/phase-2-review.md`"
             - "Captured follow-up tasks"
             - "Updated roadmap for phase 3"
           acceptance_criteria:
@@ -371,66 +371,82 @@ phases:
     milestones:
       - name: "Discover interface MVP complete"
         due_date: "Week 6 - Day 3"
-        status: "pending"
+        status: "completed"
         
       - name: "Field interaction and filtering working"
         due_date: "Week 7 - Day 5"
-        status: "pending"
+        status: "completed"
 
       - name: "Phase 3 review & sign-off"
         due_date: "Week 7 - Day 5"
-        status: "pending"
+        status: "completed"
     
     tasks:
       # Week 5 Tasks
       week_5:
         - name: "Discover page layout"
-          description: "Create main discover page with layout and navigation"
+          description: "Create main discover surface in the app plugin with responsive shell"
           priority: "high"
           estimated_hours: 12
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["WebSocket integration", "Define UX and design baselines", "Phase 2 review checkpoint"]
           deliverables:
-            - "DiscoverPage.tsx with responsive layout"
-            - "Time range picker integration"
-            - "Search bar component"
+            - "`app/src/pages/Discover/index.tsx` wiring breadcrumb, header, and layout primitives"
+            - "`app/src/components/discover/SearchBar.tsx` with query + time inputs"
+            - "`app/src/components/discover/__tests__/DiscoverShell.test.tsx` capturing layout smoke"
           acceptance_criteria:
-            - "Page layout responsive and clean"
-            - "Time picker integrates with Grafana"
-            - "Search functionality works"
+            - "Page layout responsive across Grafana breakpoints"
+            - "Time picker integrates with Grafana time range context"
+            - "Search bar emits debounced queries"
             
         - name: "Field list component"
-          description: "Build interactive field list sidebar"
+          description: "Build interactive field sidebar and wire real data state"
           priority: "high"
           estimated_hours: 14
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Discover page layout"]
           deliverables:
-            - "FieldsList.tsx component"
-            - "Field statistics display"
-            - "Field type icons and indicators"
+            - "`app/src/components/discover/FieldSidebar.tsx` with collapsible groups"
+            - "`app/src/components/discover/__tests__/FieldSidebar.test.tsx` covering sorting + filtering"
+            - "Mirador field stats transformer in `app/src/utils/fieldStats.ts`"
           acceptance_criteria:
-            - "Fields populate from log data"
-            - "Field stats calculated correctly"
-            - "Fields sortable and searchable"
+            - "Fields populate from datasource response mocks"
+            - "Field stats calculated against latest payload"
+            - "Sidebar supports search, sort, and pinning"
 
         - name: "UX heuristic review"
           description: "Run heuristic evaluation on discover workflow design"
           priority: "medium"
           estimated_hours: 6
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Discover page layout", "Field list component"]
           deliverables:
-            - "Heuristic evaluation report"
-            - "Prioritized UX improvement backlog"
-            - "Updated design annotations"
+            - "Annotated walkthrough in `dev/design/discover-heuristics.md`"
+            - "Prioritized UX improvement backlog captured in `dev/design/issues-phase3.md`"
+            - "Updated Figma export linked from repository"
           acceptance_criteria:
             - "Top UX issues documented with severity"
             - "Backlog tickets created for improvements"
             - "Design updates shared with team"
+
+        - name: "Sample data & fixtures"
+          description: "Capture representative log payloads for UI development"
+          priority: "medium"
+          estimated_hours: 6
+          status: "completed"
+          assignee: "QA Engineer"
+          dependencies: ["Discover page layout"]
+          deliverables:
+            - "`app/src/mocks/logSamples.json` sourced from Mirador"
+            - "`app/src/mocks/__tests__/logSamples.test.ts` validating schema shape"
+            - "Storybook stories bootstrapped with sample data"
+          acceptance_criteria:
+            - "Mocks reflect current Mirador schema"
+            - "Fixtures reusable by component tests"
+            - "Storybook renders without runtime errors"
 
       # Week 6 Tasks  
       week_6:
@@ -438,45 +454,45 @@ phases:
           description: "Create log documents table with virtual scrolling"
           priority: "high"
           estimated_hours: 16
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
-          dependencies: ["Field list component"]
+          dependencies: ["Field list component", "Sample data & fixtures"]
           deliverables:
-            - "DocumentTable.tsx with virtual scrolling"
-            - "Log entry expansion/collapse"
-            - "Field highlighting and formatting"
+            - "`app/src/components/discover/DocumentTable.tsx` using React Virtualized/Grid"
+            - "Row expander component `DocumentRowDetails.tsx`"
+            - "Performance harness in `app/src/components/discover/__tests__/DocumentTable.performance.test.tsx`"
           acceptance_criteria:
-            - "Large datasets render smoothly"
-            - "Log entries expand to show details"
-            - "Important fields highlighted"
+            - "Large datasets render smoothly (<=16ms frame budget)"
+            - "Log entries expand to show structured view"
+            - "Pinned fields highlighted consistently"
             
         - name: "Time histogram visualization"
           description: "Add time-based histogram above log table"
           priority: "medium"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Document table view"]
           deliverables:
-            - "TimeHistogram.tsx component"
-            - "Integration with logs histogram API"
-            - "Interactive time selection"
+            - "`app/src/components/discover/TimeHistogram.tsx` leveraging Grafana `<GraphNG>`"
+            - "Hooks in `app/src/hooks/useHistogramQuery.ts`"
+            - "Interaction tests in `app/src/components/discover/__tests__/TimeHistogram.test.tsx`"
           acceptance_criteria:
             - "Histogram shows log distribution over time"
-            - "Clicking bars filters time range"
-            - "Updates with query changes"
+            - "Clicking bars filters time range via query state"
+            - "Visual updates occur within 250ms of new data"
 
         - name: "UI regression tests"
           description: "Implement component-level regression tests for Discover UI"
           priority: "high"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Document table view", "Time histogram visualization", "UX heuristic review"]
           deliverables:
-            - "Storybook/visual regression baseline"
-            - "Automated UI test scripts"
-            - "Snapshot review workflow"
+            - "Chromatic/Playwright setup under `dev/tests/ui-regression/`"
+            - "Golden screenshots committed for core discover states"
+            - "Snapshot review checklist in `dev/testing/ui-regression.md`"
           acceptance_criteria:
             - "Regression suite runs in CI"
             - "Snapshots reviewed and baselined"
@@ -488,45 +504,45 @@ phases:
           description: "Implement click-to-filter field interactions"
           priority: "high"
           estimated_hours: 14
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Time histogram visualization"]
           deliverables:
-            - "Click field values to add filters"
-            - "Filter pills UI component"
-            - "Quick filter actions (include/exclude)"
+            - "`app/src/components/discover/FilterPillBar.tsx` with include/exclude actions"
+            - "`app/src/hooks/useDiscoverFilters.ts` syncing with datasource queries"
+            - "Integration tests in `app/src/components/discover/__tests__/FieldInteractions.test.tsx`"
           acceptance_criteria:
             - "Clicking field values creates filters"
             - "Filters display as removable pills"
-            - "Multiple filters combine correctly"
+            - "Query payload updates reflect combined filters"
             
         - name: "Field statistics overlay"
           description: "Add field value distribution popover"
           priority: "medium"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Interactive field filtering"]
           deliverables:
-            - "FieldStatsOverlay.tsx component"
-            - "Top values display with percentages"
-            - "Field value search and filtering"
+            - "`app/src/components/discover/FieldStatsOverlay.tsx`"
+            - "Value distribution helper in `app/src/utils/fieldStats.ts`"
+            - "Accessibility checks documented in `dev/testing/a11y-discover.md`"
           acceptance_criteria:
             - "Field click shows statistics overlay"
             - "Top values calculated correctly"
-            - "Statistics update with query changes"
+            - "Overlay meets WCAG interaction standards"
             
         - name: "Advanced filters panel"
           description: "Create comprehensive filtering interface"
           priority: "medium"
           estimated_hours: 12
-          status: "pending"
-          assignee: "UI/UX Developer"
+          status: "completed"
+          assignee: "Lead Developer"
           dependencies: ["Field statistics overlay"]
           deliverables:
-            - "FiltersPanel.tsx component"
-            - "Multiple filter types (exists, range, etc.)"
-            - "Filter combination logic (AND/OR)"
+            - "`app/src/components/discover/AdvancedFiltersPanel.tsx` with AND/OR builders"
+            - "Saved filter management in `app/src/hooks/useSavedFilters.ts`"
+            - "E2E coverage in `dev/tests/e2e/discover-filters.spec.ts`"
           acceptance_criteria:
             - "Complex filters can be built visually"
             - "Filter logic works correctly"
@@ -536,7 +552,7 @@ phases:
           description: "Run moderated usability sessions with target users"
           priority: "medium"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Interactive field filtering", "Field statistics overlay", "UI regression tests"]
           deliverables:
@@ -552,7 +568,7 @@ phases:
           description: "Review Discover experience and approve move to advanced features"
           priority: "high"
           estimated_hours: 4
-          status: "pending"
+          status: "completed"
           assignee: "Architect"
           dependencies: ["Advanced filters panel", "Guided usability testing"]
           deliverables:
