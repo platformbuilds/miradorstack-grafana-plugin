@@ -293,6 +293,7 @@ jobs:
           echo "::error::NVD_API_KEY secret is not configured; unable to run dependency-check." >&2
           exit 1
         fi
+        mkdir -p dependency-check-reports
         ./dependency-check/bin/dependency-check.sh \
           --nvdApiKey "$NVD_API_KEY" \
           --disableOssIndex \
