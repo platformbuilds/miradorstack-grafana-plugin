@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-check.1.3.xsd">
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppressions.1.6.0.xsd">
   <suppress>
     <notes>DOMPurify 2.3.1 is bundled inside monaco-editor 0.34.1, which ships with @grafana/ui 12.2.0. Upgrading Grafana packages is required to pick up a patched bundle; tracked internally.</notes>
     <packageUrl regex="true">pkg:javascript/DOMPurify@2\.3\.1</packageUrl>
