@@ -4,6 +4,7 @@ import { AppRootProps } from '@grafana/data';
 import { ROUTES } from '../../constants';
 const DiscoverPage = React.lazy(() => import('../../pages/Discover'));
 const SchemaPage = React.lazy(() => import('../../pages/Schema'));
+const PageOne = React.lazy(() => import('../../pages/PageOne'));
 const PageThree = React.lazy(() => import('../../pages/PageThree'));
 const PageFour = React.lazy(() => import('../../pages/PageFour'));
 
@@ -11,6 +12,7 @@ function App(props: AppRootProps) {
   return (
     <Suspense fallback={null}>
       <Routes>
+        <Route path={ROUTES.One} element={<PageOne />} />
         <Route path={ROUTES.Discover} element={<DiscoverPage {...props} />} />
         <Route path={ROUTES.Schema} element={<SchemaPage {...props} />} />
         <Route path={`${ROUTES.Three}/:id?`} element={<PageThree />} />

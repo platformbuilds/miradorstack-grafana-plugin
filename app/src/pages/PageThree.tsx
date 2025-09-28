@@ -14,7 +14,7 @@ function PageThree() {
 
   return (
     <PluginPage>
-      <div data-testid={testIds.pageThree.container}>
+      <div className="content" data-testid={testIds.pageThree.container}>
         This is page three.
         <br />
         <br />

@@ -74,7 +74,7 @@ const AppConfig = ({ plugin }: AppConfigProps) => {
   };
 
   return (
-    <form onSubmit={onSubmit}>
+    <form className="config-form" onSubmit={onSubmit}>
       <FieldSet label="API Settings">
         <Field label="API Key" description="A secret key for authenticating to our custom API">
           <SecretInput
