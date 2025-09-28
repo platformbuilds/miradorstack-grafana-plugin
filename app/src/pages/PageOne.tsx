@@ -1,33 +1,5 @@
-import React from 'react';
-import { css } from '@emotion/css';
-import { GrafanaTheme2 } from '@grafana/data';
-import { LinkButton, useStyles2 } from '@grafana/ui';
-import { prefixRoute } from '../utils/utils.routing';
-import { ROUTES } from '../constants';
-import { testIds } from '../components/testIds';
-import { PluginPage } from '@grafana/runtime';
-
-function PageOne() {
-  const s = useStyles2(getStyles);
-
-  return (
-    <PluginPage>
-      <div data-testid={testIds.pageOne.container}>
-        This is page one.
-        <div className={s.marginTop}>
-          <LinkButton data-testid={testIds.pageOne.navigateToFour} href={prefixRoute(ROUTES.Four)}>
-            Full-width page example
-          </LinkButton>
-        </div>
-      </div>
-    </PluginPage>
-  );
+// Removed: PageOne was deprecated and is no longer part of the app routes.
+// Keeping this placeholder to avoid TypeScript include errors until the file can be deleted.
+export default function RemovedPageOne() {
+  return null;
 }
-
-export default PageOne;
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  marginTop: css`
-    margin-top: ${theme.spacing(2)};
-  `,
-});

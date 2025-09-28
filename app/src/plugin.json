@@ -23,8 +23,8 @@
     "grafanaDependency": ">=12.2.0",
     "plugins": [
       {
-        "id": "miradorstack-miradorcore-datasource",
-        "name": "Mirador Core",
+        "id": "miradorstack-miradorcoreconnector-datasource",
+        "name": "Mirador Core Connector",
         "version": "^1.0.0",
         "type": "datasource"
       }

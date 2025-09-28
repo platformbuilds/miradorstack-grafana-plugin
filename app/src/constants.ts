@@ -5,8 +5,5 @@ export const PLUGIN_BASE_URL = `/a/${pluginJson.id}`;
 export enum ROUTES {
   Discover = 'discover',
   Schema = 'schema',
-  One = 'one',
   Two = 'two',
-  Three = 'three',
-  Four = 'four',
 }
