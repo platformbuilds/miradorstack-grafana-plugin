@@ -78,6 +78,8 @@ jobs:
         image: grafana/grafana:12.2.0   # Grafana >= 12.2.0 per matrix
         ports:
           - 3000:3000
+        env:
+          GF_PLUGINS_ALLOW_UNSIGNED_PLUGINS: "miradorstack-miradorexplorer-app,miradorstack-miradorcoreconnector-datasource"
         # Deterministic container name + healthcheck for readiness
         options: >-
           --name miradorstack-integration-grafana
