@@ -182,9 +182,10 @@ jobs:
           # Copy entire dist to preserve assets & frontend bundle
           docker cp app/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorexplorer-app/
           docker cp datasource/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource/
-          # Normalize backend binaries to Linux runner expectations
-          docker exec miradorstack-integration-grafana sh -lc 'cd /var/lib/grafana/plugins/miradorstack-miradorexplorer-app && if [ -f gpx_mirador_explorer_linux_amd64 ]; then mv -f gpx_mirador_explorer_linux_amd64 gpx_mirador_explorer; fi && chmod +x gpx_mirador_explorer || true'
-          docker exec miradorstack-integration-grafana sh -lc 'cd /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource && if [ -f gpx_mirador_core_connector_linux_amd64 ]; then mv -f gpx_mirador_core_connector_linux_amd64 gpx_mirador_core_connector; fi && chmod +x gpx_mirador_core_connector || true'
+          # Normalize backend binaries to Linux runner expectations (as root) and fix ownership
+          docker exec -u 0 miradorstack-integration-grafana sh -lc 'cd /var/lib/grafana/plugins/miradorstack-miradorexplorer-app && if [ -f gpx_mirador_explorer_linux_amd64 ]; then mv -f gpx_mirador_explorer_linux_amd64 gpx_mirador_explorer; fi && [ -f gpx_mirador_explorer ] && chmod 0755 gpx_mirador_explorer || true'
+          docker exec -u 0 miradorstack-integration-grafana sh -lc 'cd /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource && if [ -f gpx_mirador_core_connector_linux_amd64 ]; then mv -f gpx_mirador_core_connector_linux_amd64 gpx_mirador_core_connector; fi && [ -f gpx_mirador_core_connector ] && chmod 0755 gpx_mirador_core_connector || true'
+          docker exec -u 0 miradorstack-integration-grafana sh -lc 'chown -R 472:472 /var/lib/grafana/plugins/miradorstack-miradorexplorer-app /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource'
           docker restart miradorstack-integration-grafana
 
       - name: Wait for Grafana to be healthy after restart
@@ -211,7 +212,7 @@ jobs:
           set -e
           ids="miradorstack-miradorexplorer-app miradorstack-miradorcoreconnector-datasource"
           for i in {1..60}; do
-            json=$(curl -fsS http://localhost:3000/api/plugins || true)
+            json=$(curl -fsS http://admin:admin@localhost:3000/api/plugins || true)
             ok=1
             for id in $ids; do
               echo "$json" | grep -q "\"id\":\"$id\"" || ok=0
