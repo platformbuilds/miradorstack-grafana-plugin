@@ -162,9 +162,9 @@ jobs:
         
     - name: Copy plugins to Grafana
       run: |
-        docker cp app/dist/. grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-app/
-        docker cp datasource/dist/. grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-datasource/
-        docker restart grafana
+        docker cp app/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-app/
+        docker cp datasource/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-datasource/
+        docker restart miradorstack-integration-grafana
 
     - name: Run E2E tests
       run: |
