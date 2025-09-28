@@ -204,13 +204,20 @@ jobs:
       - name: Check plugin loading and logs
         run: |
           echo "=== Check Grafana configuration for plugins ==="
-          docker exec miradorstack-integration-grafana sh -lc 'grep -r "plugins" /etc/grafana/grafana.ini || echo "No plugin config found in grafana.ini"'
+          docker exec miradorstack-integration-grafana sh -lc 'echo "=== Raw grafana.ini content ===" && cat /etc/grafana/grafana.ini'
+          echo "=== Check specific allow_loading_unsigned_plugins setting ==="
+          docker exec miradorstack-integration-grafana sh -lc 'grep -A 2 -B 2 "allow_loading_unsigned_plugins" /etc/grafana/grafana.ini || echo "Setting not found in ini file"'
           docker exec miradorstack-integration-grafana sh -lc 'env | grep -E "(GF_PLUGINS|GF_PATHS)" || echo "No plugin-related env vars found"'
+          echo "=== Check plugins directory configuration ==="
+          docker exec miradorstack-integration-grafana sh -lc 'ls -la $GF_PATHS_PLUGINS || echo "Plugins directory not accessible"'
           echo "=== Force plugin rescan ==="
           docker exec miradorstack-integration-grafana sh -lc 'pkill -HUP grafana || kill -HUP 1 || true'
           sleep 5
           echo "=== Recent plugin-related logs ==="
-          docker logs miradorstack-integration-grafana 2>&1 | grep -i plugin | tail -n 20 || echo "No plugin logs found"
+          docker logs miradorstack-integration-grafana 2>&1 | grep -i -A 2 -B 2 "plugin\|loading\|unsigned\|signature" | tail -n 50 || echo "No plugin-related logs found"
+          echo "=== Check Grafana process environment ==="
+          docker exec miradorstack-integration-grafana sh -lc 'ps aux | grep grafana | head -1'
+          docker exec miradorstack-integration-grafana sh -lc 'cat /proc/$(pgrep grafana)/environ 2>/dev/null | tr "\0" "\n" | grep -E "GF_PLUGINS|GF_PATHS" || echo "Could not read process environment"'
           echo "=== Check what plugin.json files exist ==="
           docker exec miradorstack-integration-grafana sh -lc 'find /var/lib/grafana/plugins -name "*.json" -exec echo "Found: {}" \; -exec grep -H "\"id\":" {} \; || echo "No plugin.json files found"'
           
