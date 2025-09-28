@@ -1,8 +1,7 @@
 import React from 'react';
 import { AppPlugin, type AppRootProps } from '@grafana/data';
-import type { AppConfigProps } from './components/AppConfig/AppConfig';
 import AppRoot from './components/App/App';
-import AppConfigRoot from './components/AppConfig/AppConfig';
+import AppConfigRoot, { type AppConfigProps } from './components/AppConfig/AppConfig';
 
 const App = (props: AppRootProps) => <AppRoot {...props} />;
 
