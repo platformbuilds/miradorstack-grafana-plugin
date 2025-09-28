@@ -28,18 +28,20 @@ WORKDIR $GF_PATHS_HOME
 
 USER root
 
-# Installing supervisor and inotify-tools
+# Installing supervisor/inotify-tools, Git, and Node.js for frontend builds in development mode
 RUN if [ "${development}" = "true" ]; then \
-    if grep -i -q alpine /etc/issue; then \
-    apk add supervisor inotify-tools git; \
-    elif grep -i -q ubuntu /etc/issue; then \
-    DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && \
-    apt-get install -y supervisor inotify-tools git && \
-    rm -rf /var/lib/apt/lists/*; \
-    else \
-    echo 'ERROR: Unsupported base image' && /bin/false; \
-    fi \
+        if grep -i -q alpine /etc/issue; then \
+            apk add --no-cache supervisor inotify-tools git nodejs npm; \
+        elif grep -i -q ubuntu /etc/issue; then \
+            export DEBIAN_FRONTEND=noninteractive; \
+            apt-get update && \
+            apt-get install -y curl ca-certificates gnupg supervisor inotify-tools git && \
+            curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+            apt-get install -y nodejs && \
+            rm -rf /var/lib/apt/lists/*; \
+        else \
+            echo 'ERROR: Unsupported base image' && /bin/false; \
+        fi; \
     fi
 
 COPY supervisord/supervisord.conf /etc/supervisor.d/supervisord.ini

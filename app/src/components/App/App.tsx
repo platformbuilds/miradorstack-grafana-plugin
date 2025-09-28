@@ -8,8 +8,8 @@ import SchemaPage from '../../pages/Schema';
 function App(props: AppRootProps) {
   return (
     <Routes>
-      <Route path={ROUTES.Discover} element={<DiscoverPage {...props} />} />
-      <Route path={ROUTES.Schema} element={<SchemaPage {...props} />} />
+      <Route path={`/${ROUTES.Discover}`} element={<DiscoverPage {...props} />} />
+      <Route path={`/${ROUTES.Schema}`} element={<SchemaPage {...props} />} />
 
       {/* Default page */}
       <Route path="*" element={<DiscoverPage {...props} />} />

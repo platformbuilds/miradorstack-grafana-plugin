@@ -154,6 +154,29 @@ After deployment:
 
 See `dev/testing/strategy.md` for the evolving quality plan and `dev/design/baselines.md` for UX foundations.
 
+## Local Docker setup on Apple Silicon (M1/M2)
+
+This repository includes a ready-to-run Docker Compose setup that works on arm64 Macs.
+
+Quick start:
+
+1. Install dependencies and build once (host):
+   - `npm ci --prefix app`
+   - `npm ci --prefix datasource`
+   - `npm run build --prefix app`
+   - `npm run build --prefix datasource`
+2. From the repo root, start Grafana:
+   - `docker compose up --build`
+3. (Optional) In separate terminals, enable live rebuilding:
+   - `npm run dev --prefix app`
+   - `npm run dev --prefix datasource`
+
+Notes:
+- A `docker-compose.override.yaml` sets `platform: linux/arm64` for Apple Silicon so multi-arch images pull correctly.
+- The container in development mode installs Node.js, Go, mage, and Delve to support live builds and Go debug attach.
+- Anonymous auth and unsigned plugin loading are enabled for local development only.
+- If you prefer x86 emulation, remove the `platform:` line and turn on Rosetta emulation in Docker Desktop.
+
 ## Production Deployment
 
 To deploy this plugin in a production Grafana instance:

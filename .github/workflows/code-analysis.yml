@@ -79,7 +79,8 @@ jobs:
         ports:
           - 3000:3000
         env:
-          GF_PLUGINS_ALLOW_UNSIGNED_PLUGINS: "miradorstack-miradorexplorer-app,miradorstack-miradorcoreconnector-datasource"
+          # Use the correct env var and plugin IDs to allow unsigned plugins in CI
+          GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: "miradorstack-miradorexplorer-app,miradorstack-miradorcoreconnector-datasource"
         # Deterministic container name + healthcheck for readiness
         options: >-
           --name miradorstack-integration-grafana
@@ -144,10 +145,10 @@ jobs:
         
       - name: Copy plugins to Grafana
         run: |
-          docker exec miradorstack-integration-grafana mkdir -p /var/lib/grafana/plugins/platformbuilds-miradorstack-app
-          docker exec miradorstack-integration-grafana mkdir -p /var/lib/grafana/plugins/platformbuilds-miradorstack-datasource
-          docker cp app/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-app/
-          docker cp datasource/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-datasource/
+          docker exec miradorstack-integration-grafana mkdir -p /var/lib/grafana/plugins/miradorstack-miradorexplorer-app
+          docker exec miradorstack-integration-grafana mkdir -p /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource
+          docker cp app/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorexplorer-app/
+          docker cp datasource/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource/
           docker restart miradorstack-integration-grafana
 
       - name: Run E2E tests (app)
