@@ -4,20 +4,23 @@ test('should be possible to save app configuration', async ({ appConfigPage, pag
   const saveButton = page.getByRole('button', { name: /Save API settings/i });
   const resetButton = page.getByRole('button', { name: /reset/i });
 
+  // Wait for an app configuration form to load
+  await page.waitForSelector('.config-form', { timeout: 10000 }); // Ensure the form can be referred by this selector
+
   // Ensure the reset button is visible before clicking
   await expect(resetButton).toBeVisible({ timeout: 5000 });
 
-  // reset the configured secret
+  // Reset the configured secret
   await resetButton.click();
-  // enter some valid values
+
+  // Enter some valid values
   await page.getByRole('textbox', { name: 'API Key' }).fill('secret-api-key');
   await page.getByRole('textbox', { name: 'API Url' }).clear();
   await page.getByRole('textbox', { name: 'API Url' }).fill('http://www.my-awsome-grafana-app.com/api');
 
-  // listen for the server response on the saved form
+  // Listen for the server response on the saved form
   const saveResponse = appConfigPage.waitForSettingsResponse();
 
   await saveButton.click();
   await expect(saveResponse).toBeOK();
 });
-
