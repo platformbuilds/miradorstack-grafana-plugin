@@ -183,22 +183,17 @@ jobs:
       - name: Pull Grafana Docker Image
         run: docker pull grafana/grafana:latest
 
-      - name: Start Grafana Container
-        run: docker run -d --name grafana -p 3000:3000 grafana/grafana:latest
+      - name: Start Grafana with both plugins
+        run: docker-compose -f docker-compose.integration.yaml up -d
 
-      - name: Verify Grafana Container
-        run: |
-          docker ps --filter "name=grafana" --format "{{.Names}}" | grep -q "grafana" || (echo "Grafana container is not running!" && exit 1)
+      - name: Wait for Grafana to be ready
+        run: npx wait-on http://localhost:3000
 
-      - name: Copy Plugins to Grafana
-        run: |
-          docker cp app/dist/. grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-app/
-          docker cp datasource/dist/. grafana:/var/lib/grafana/plugins/platformbuilds-miradorstack-datasource/
+      - name: Run Playwright E2E integration tests
+        run: npm run e2e
 
-      - name: Start Grafana
-        run: |
-          docker compose pull
-          ANONYMOUS_AUTH_ENABLED=false DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
+      - name: Stop Grafana container
+        run: docker-compose -f docker-compose.integration.yaml down
 
       - name: Wait for grafana server
         uses: grafana/plugin-actions/wait-for-grafana@main # zizmor: ignore[unpinned-uses] provided by grafana
