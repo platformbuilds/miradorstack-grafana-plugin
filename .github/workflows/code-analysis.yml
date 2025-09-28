@@ -78,6 +78,9 @@ jobs:
         image: grafana/grafana:12.2.0   # Grafana >= 12.2.0 per matrix
         ports:
           - 3000:3000
+        volumes:
+          - ./app/dist:/var/lib/grafana/plugins/miradorstack-miradorexplorer-app
+          - ./datasource/dist:/var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource
         env:
           # Use the correct env var and plugin IDs to allow unsigned plugins in CI
           GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: "miradorstack-miradorexplorer-app,miradorstack-miradorcoreconnector-datasource"
@@ -159,7 +162,6 @@ jobs:
           ls -la app/dist | grep -E ' gpx_mirador_explorer($|_|\.)' || (echo "app backend executable missing" && exit 1)
           ls -la datasource/dist | grep -E ' gpx_mirador_core_connector($|_|\.)' || (echo "datasource backend executable missing" && exit 1)
 
-      # Wait for Grafana to be healthy before interacting
       - name: Wait for Grafana to be healthy
         run: |
           for i in {1..60}; do
@@ -173,36 +175,8 @@ jobs:
           echo "Grafana did not become healthy in time"
           docker logs miradorstack-integration-grafana
           exit 1
-        
-      - name: Copy plugins to Grafana
-        run: |
-          set -e
-          docker exec miradorstack-integration-grafana mkdir -p /var/lib/grafana/plugins/miradorstack-miradorexplorer-app
-          docker exec miradorstack-integration-grafana mkdir -p /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource
-          # Copy entire dist to preserve assets & frontend bundle
-          docker cp app/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorexplorer-app/
-          docker cp datasource/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource/
-          # Normalize backend binaries to Linux runner expectations (as root) and fix ownership
-          docker exec -u 0 miradorstack-integration-grafana sh -lc 'cd /var/lib/grafana/plugins/miradorstack-miradorexplorer-app && if [ -f gpx_mirador_explorer_linux_amd64 ]; then mv -f gpx_mirador_explorer_linux_amd64 gpx_mirador_explorer; fi && [ -f gpx_mirador_explorer ] && chmod 0755 gpx_mirador_explorer || true'
-          docker exec -u 0 miradorstack-integration-grafana sh -lc 'cd /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource && if [ -f gpx_mirador_core_connector_linux_amd64 ]; then mv -f gpx_mirador_core_connector_linux_amd64 gpx_mirador_core_connector; fi && [ -f gpx_mirador_core_connector ] && chmod 0755 gpx_mirador_core_connector || true'
-          docker exec -u 0 miradorstack-integration-grafana sh -lc 'chown -R 472:472 /var/lib/grafana/plugins/miradorstack-miradorexplorer-app /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource'
-          docker restart miradorstack-integration-grafana
 
-      - name: Wait for Grafana to be healthy after restart
-        run: |
-          for i in {1..60}; do
-            status=$(docker inspect -f '{{.State.Health.Status}}' miradorstack-integration-grafana || echo "unknown")
-            if [ "$status" = "healthy" ]; then
-              echo "Grafana is healthy after restart"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "Grafana did not become healthy after restart in time"
-          docker logs miradorstack-integration-grafana | tail -n 500
-          exit 1
-
-      - name: List plugins inside Grafana (diagnostics)
+      - name: Verify plugins are mounted and accessible
         run: |
           sleep 3
           echo "=== Plugin directories ==="
@@ -216,13 +190,18 @@ jobs:
           echo "=== Check environment ==="
           docker exec miradorstack-integration-grafana sh -lc 'env | grep -i plugin || true'
 
-      - name: Force plugin rescan and check logs
+      - name: Check plugin loading and logs
         run: |
-          echo "=== Sending SIGHUP to force plugin rescan ==="
+          echo "=== Check Grafana configuration for plugins ==="
+          docker exec miradorstack-integration-grafana sh -lc 'grep -r "plugins" /etc/grafana/grafana.ini || echo "No plugin config found in grafana.ini"'
+          docker exec miradorstack-integration-grafana sh -lc 'env | grep -E "(GF_PLUGINS|GF_PATHS)" || echo "No plugin-related env vars found"'
+          echo "=== Force plugin rescan ==="
           docker exec miradorstack-integration-grafana sh -lc 'pkill -HUP grafana || kill -HUP 1 || true'
           sleep 5
           echo "=== Recent plugin-related logs ==="
           docker logs miradorstack-integration-grafana 2>&1 | grep -i plugin | tail -n 20 || echo "No plugin logs found"
+          echo "=== Check what plugin.json files exist ==="
+          docker exec miradorstack-integration-grafana sh -lc 'find /var/lib/grafana/plugins -name "*.json" -exec echo "Found: {}" \; -exec grep -H "\"id\":" {} \; || echo "No plugin.json files found"'
           
       - name: Verify plugins are loaded in Grafana
         run: |
