@@ -17,6 +17,10 @@ test('should be possible to save app configuration', async ({ appConfigPage, pag
   await page.getByRole('textbox', { name: 'API Key' }).fill('secret-api-key');
   await page.getByRole('textbox', { name: 'API Url' }).clear();
   await page.getByRole('textbox', { name: 'API Url' }).fill('http://www.my-awsome-grafana-app.com/api');
+  await page.getByRole('textbox', { name: 'Mirador datasource UID' }).fill('123e4567-e89b-12d3-a456-426614174000'); // <-- Set as UUID
+
+  // Wait for the save button to be visible
+  await expect(saveButton).toBeVisible({ timeout: 10000 });
 
   // Listen for the server response on the saved form
   const saveResponse = appConfigPage.waitForSettingsResponse();
