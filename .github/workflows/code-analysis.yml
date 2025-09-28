@@ -84,6 +84,10 @@ jobs:
           # Maximize plugin logging to diagnose load/discovery in CI
           GF_LOG_LEVEL: debug
           GF_LOG_FILTERS: "plugins=debug plugins.*=debug plugin.*=debug"
+          # Enable anonymous admin so we can query the API without credentials in CI
+          GF_AUTH_ANONYMOUS_ENABLED: "true"
+          GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+          GF_AUTH_BASIC_ENABLED: "false"
         # Deterministic container name + healthcheck for readiness
         options: >-
           --name miradorstack-integration-grafana
@@ -153,6 +157,26 @@ jobs:
           docker cp app/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorexplorer-app/
           docker cp datasource/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource/
           docker restart miradorstack-integration-grafana
+
+      - name: Verify plugins are loaded in Grafana
+        run: |
+          set -e
+          ids="miradorstack-miradorexplorer-app miradorstack-miradorcoreconnector-datasource"
+          for i in {1..60}; do
+            json=$(curl -fsS http://localhost:3000/api/plugins || true)
+            ok=1
+            for id in $ids; do
+              echo "$json" | grep -q "\"id\":\"$id\"" || ok=0
+            done
+            if [ "$ok" = "1" ]; then
+              echo "All plugins loaded"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Plugins did not load in time"
+          docker logs miradorstack-integration-grafana | tail -n 500
+          exit 1
 
       - name: Run E2E tests (app)
         working-directory: ./app
