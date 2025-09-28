@@ -81,6 +81,9 @@ jobs:
         env:
           # Use the correct env var and plugin IDs to allow unsigned plugins in CI
           GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: "miradorstack-miradorexplorer-app,miradorstack-miradorcoreconnector-datasource"
+          # Maximize plugin logging to diagnose load/discovery in CI
+          GF_LOG_LEVEL: debug
+          GF_LOG_FILTERS: "plugins=debug plugins.*=debug plugin.*=debug"
         # Deterministic container name + healthcheck for readiness
         options: >-
           --name miradorstack-integration-grafana
