@@ -205,8 +205,25 @@ jobs:
       - name: List plugins inside Grafana (diagnostics)
         run: |
           sleep 3
-          docker exec miradorstack-integration-grafana sh -lc 'ls -la /var/lib/grafana/plugins && ls -la /var/lib/grafana/plugins/miradorstack-miradorexplorer-app || true && ls -la /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource || true'
+          echo "=== Plugin directories ==="
+          docker exec miradorstack-integration-grafana sh -lc 'ls -la /var/lib/grafana/plugins'
+          echo "=== App plugin contents ==="
+          docker exec miradorstack-integration-grafana sh -lc 'ls -la /var/lib/grafana/plugins/miradorstack-miradorexplorer-app || true'
+          echo "=== Datasource plugin contents ==="
+          docker exec miradorstack-integration-grafana sh -lc 'ls -la /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource || true'
+          echo "=== Check plugin.json IDs ==="
+          docker exec miradorstack-integration-grafana sh -lc 'grep -H "\"id\":" /var/lib/grafana/plugins/*/plugin.json || true'
+          echo "=== Check environment ==="
+          docker exec miradorstack-integration-grafana sh -lc 'env | grep -i plugin || true'
 
+      - name: Force plugin rescan and check logs
+        run: |
+          echo "=== Sending SIGHUP to force plugin rescan ==="
+          docker exec miradorstack-integration-grafana sh -lc 'pkill -HUP grafana || kill -HUP 1 || true'
+          sleep 5
+          echo "=== Recent plugin-related logs ==="
+          docker logs miradorstack-integration-grafana 2>&1 | grep -i plugin | tail -n 20 || echo "No plugin logs found"
+          
       - name: Verify plugins are loaded in Grafana
         run: |
           set -e
@@ -230,11 +247,11 @@ jobs:
       - name: Run E2E tests (app)
         working-directory: ./app
         env:
-          GRAFANA_BASE_URL: http://localhost:3000
+          GRAFANA_BASE_URL: http://admin:admin@localhost:3000
         run: npm run e2e
 
       - name: Run E2E tests (datasource)
         working-directory: ./datasource
         env:
-          GRAFANA_BASE_URL: http://localhost:3000
+          GRAFANA_BASE_URL: http://admin:admin@localhost:3000
         run: npm run e2e
