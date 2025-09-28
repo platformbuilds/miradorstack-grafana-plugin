@@ -81,7 +81,7 @@ jobs:
   functionality-test:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [analyze]
+    needs: [analyze, vulnerability-check]
     
     services:
       grafana:
@@ -169,3 +169,120 @@ jobs:
         env:
           GRAFANA_BASE_URL: http://localhost:3000
         run: npm run e2e
+
+  vulnerability-check:
+    name: Vulnerability Check
+    runs-on: ubuntu-latest
+    env:
+      DC_VERSION: 12.1.0
+      DC_DATA_DIR: ~/.cache/dependency-check
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Go vulnerability scanning
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Run govulncheck on datasource
+        run: |
+          cd datasource
+          govulncheck ./...
+
+      # Node.js/TypeScript vulnerability scanning
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'   # Node.js >= 22.0.0
+          cache: 'npm'
+          cache-dependency-path: |
+            app/package-lock.json
+            datasource/package-lock.json
+
+      - name: Upgrade npm to >= 11.5.1
+        run: |
+          npm -v
+          npm i -g npm@^11.5.1
+          npm -v
+
+      # Reproducible installs only
+      - name: Install app dependencies
+        working-directory: ./app
+        run: npm ci
+
+      - name: Install datasource dependencies
+        working-directory: ./datasource
+        run: npm ci
+        
+      - name: Run npm audit (app)
+        working-directory: ./app
+        run: npm audit --audit-level=high
+
+      - name: Run npm audit (datasource)
+        working-directory: ./datasource
+        run: npm audit --audit-level=high
+
+      # Additional TypeScript security scanning with OWASP Dependency-Check
+      - name: Cache Dependency-Check installation
+        id: cache-odc
+        uses: actions/cache@v4
+        with:
+          path: dependency-check
+          key: ${{ runner.os }}-dependency-check-${{ env.DC_VERSION }}
+
+      - name: Download Dependency-Check
+        if: steps.cache-odc.outputs.cache-hit != 'true'
+        run: |
+          wget "https://github.com/jeremylong/DependencyCheck/releases/download/v${DC_VERSION}/dependency-check-${DC_VERSION}-release.zip"
+          unzip dependency-check-${DC_VERSION}-release.zip
+          rm dependency-check-${DC_VERSION}-release.zip
+
+      - name: Cache Dependency-Check data
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DC_DATA_DIR }}
+          key: ${{ runner.os }}-dependency-check-data-${{ env.DC_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-dependency-check-data-
+
+      - name: Run Dependency-Check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          if [ -z "$NVD_API_KEY" ]; then
+            echo "::error::NVD_API_KEY secret is not configured; unable to run dependency-check." >&2
+            exit 1
+          fi
+          mkdir -p dependency-check-reports
+          mkdir -p "$DC_DATA_DIR"
+          ./dependency-check/bin/dependency-check.sh \
+            --nvdApiKey "$NVD_API_KEY" \
+            --data "$DC_DATA_DIR" \
+            --disableOssIndex \
+            --suppression dependency-check-suppressions.xml \
+            --scan app --scan datasource \
+            --format HTML --format JSON --prettyPrint \
+            --failOnCVSS 7 \
+            --out dependency-check-reports
+
+      - name: Upload Dependency-Check reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-reports
+          path: dependency-check-reports
