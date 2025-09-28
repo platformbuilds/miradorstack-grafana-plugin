@@ -5,6 +5,7 @@ import { AppPluginMeta, GrafanaTheme2, PluginConfigPageProps, PluginMeta } from 
 import { getBackendSrv } from '@grafana/runtime';
 import { Button, Field, FieldSet, Input, SecretInput, useStyles2 } from '@grafana/ui';
 import { testIds } from '../testIds';
+import pluginJson from '../../plugin.json';
 
 type AppPluginSettings = {
   apiUrl?: string;
@@ -25,11 +26,16 @@ export interface AppConfigProps extends PluginConfigPageProps<AppPluginMeta<AppP
 
 const AppConfig = ({ plugin }: AppConfigProps) => {
   const s = useStyles2(getStyles);
-  const { enabled, pinned, jsonData, secureJsonFields } = plugin.meta;
+  const meta = (plugin?.meta as AppPluginMeta<AppPluginSettings> | undefined) ?? ({} as AppPluginMeta<AppPluginSettings>);
+  const enabled = Boolean(meta?.enabled);
+  const pinned = Boolean(meta?.pinned);
+  const jsonData = meta?.jsonData ?? {};
+  const secureJsonFields = meta?.secureJsonFields ?? {};
+  const pluginId = meta?.id ?? pluginJson.id;
   const [state, setState] = useState<State>({
     apiUrl: jsonData?.apiUrl || '',
     apiKey: '',
-    isApiKeySet: Boolean(secureJsonFields?.apiKey),
+    isApiKeySet: Boolean((secureJsonFields as Record<string, unknown>)?.apiKey),
     datasourceUid: jsonData?.datasourceUid || '',
   });
 
@@ -56,7 +62,7 @@ const AppConfig = ({ plugin }: AppConfigProps) => {
       return;
     }
 
-    updatePluginAndReload(plugin.meta.id, {
+    updatePluginAndReload(pluginId, {
       enabled,
       pinned,
       jsonData: {
