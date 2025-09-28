@@ -155,9 +155,9 @@ jobs:
           echo "Listing datasource/dist:" && ls -la datasource/dist || true
           test -f app/dist/plugin.json || (echo "app/dist/plugin.json missing" && exit 1)
           test -f datasource/dist/plugin.json || (echo "datasource/dist/plugin.json missing" && exit 1)
-          # Expect backend executables per plugin.json 'executable'
-          ls -la app/dist | grep -E '^.* gpx_mirador_explorer($|\.)' || (echo "app backend executable missing" && exit 1)
-          ls -la datasource/dist | grep -E '^.* gpx_mirador_core_connector($|\.)' || (echo "datasource backend executable missing" && exit 1)
+          # Expect backend executables per plugin.json 'executable' (allow platform-suffixed variants)
+          ls -la app/dist | grep -E ' gpx_mirador_explorer($|_|\.)' || (echo "app backend executable missing" && exit 1)
+          ls -la datasource/dist | grep -E ' gpx_mirador_core_connector($|_|\.)' || (echo "datasource backend executable missing" && exit 1)
 
       # Wait for Grafana to be healthy before interacting
       - name: Wait for Grafana to be healthy
@@ -176,10 +176,15 @@ jobs:
         
       - name: Copy plugins to Grafana
         run: |
+          set -e
           docker exec miradorstack-integration-grafana mkdir -p /var/lib/grafana/plugins/miradorstack-miradorexplorer-app
           docker exec miradorstack-integration-grafana mkdir -p /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource
+          # Copy entire dist to preserve assets & frontend bundle
           docker cp app/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorexplorer-app/
           docker cp datasource/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource/
+          # Normalize backend binaries to Linux runner expectations
+          docker exec miradorstack-integration-grafana sh -lc 'cd /var/lib/grafana/plugins/miradorstack-miradorexplorer-app && if [ -f gpx_mirador_explorer_linux_amd64 ]; then mv -f gpx_mirador_explorer_linux_amd64 gpx_mirador_explorer; fi && chmod +x gpx_mirador_explorer || true'
+          docker exec miradorstack-integration-grafana sh -lc 'cd /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource && if [ -f gpx_mirador_core_connector_linux_amd64 ]; then mv -f gpx_mirador_core_connector_linux_amd64 gpx_mirador_core_connector; fi && chmod +x gpx_mirador_core_connector || true'
           docker restart miradorstack-integration-grafana
 
       - name: Wait for Grafana to be healthy after restart
