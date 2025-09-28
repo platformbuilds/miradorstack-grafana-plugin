@@ -100,6 +100,11 @@ jobs:
           --health-retries 20
     
     steps:
+      - name: Clean up dist directories
+        run: |
+          # Remove dist directories that may have restrictive permissions from previous runs
+          sudo rm -rf app/dist datasource/dist || true
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -150,6 +155,12 @@ jobs:
           npm ci
           npm run build
           mage -v || $HOME/go/bin/mage -v
+
+      - name: Fix dist directory permissions
+        run: |
+          # Ensure dist directories are accessible to the runner user
+          sudo chown -R $USER:$USER app/dist datasource/dist || true
+          chmod -R u+rwX app/dist datasource/dist || true
 
       - name: Verify build artifacts exist (diagnostics)
         run: |
