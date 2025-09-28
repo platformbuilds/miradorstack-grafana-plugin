@@ -4,8 +4,8 @@ test('should be possible to save app configuration', async ({ appConfigPage, pag
   const saveButton = page.getByRole('button', { name: /Save API settings/i });
   const resetButton = page.getByRole('button', { name: /reset/i });
 
-  // Wait for an app configuration form to load
-  await page.waitForSelector('.config-form', { timeout: 10000 }); // Ensure the form can be referred by this selector
+  // Wait for the save button to be visible (indicating the form is loaded)
+  await expect(saveButton).toBeVisible({ timeout: 10000 });
 
   // Ensure the reset button is visible before clicking
   await expect(resetButton).toBeVisible({ timeout: 5000 });
