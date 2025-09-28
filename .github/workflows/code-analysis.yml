@@ -100,6 +100,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Go (for backend plugin builds)
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Install Mage
+        run: go install github.com/magefile/mage@latest
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -125,15 +133,31 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
 
-      # Build only where needed (here)
+      # Build frontend (TS) and then backend (Go) for both plugins
       - name: Build and prepare plugins
         run: |
+          set -e
+          # App plugin: build frontend first, then backend to avoid binary being wiped by clean tasks
           cd app
           npm ci
           npm run build
+          mage -v || $HOME/go/bin/mage -v
+          # Datasource plugin: same order
           cd ../datasource
           npm ci
           npm run build
+          mage -v || $HOME/go/bin/mage -v
+
+      - name: Verify build artifacts exist (diagnostics)
+        run: |
+          set -e
+          echo "Listing app/dist:" && ls -la app/dist || true
+          echo "Listing datasource/dist:" && ls -la datasource/dist || true
+          test -f app/dist/plugin.json || (echo "app/dist/plugin.json missing" && exit 1)
+          test -f datasource/dist/plugin.json || (echo "datasource/dist/plugin.json missing" && exit 1)
+          # Expect backend executables per plugin.json 'executable'
+          ls -la app/dist | grep -E '^.* gpx_mirador_explorer($|\.)' || (echo "app backend executable missing" && exit 1)
+          ls -la datasource/dist | grep -E '^.* gpx_mirador_core_connector($|\.)' || (echo "datasource backend executable missing" && exit 1)
 
       # Wait for Grafana to be healthy before interacting
       - name: Wait for Grafana to be healthy
@@ -157,6 +181,25 @@ jobs:
           docker cp app/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorexplorer-app/
           docker cp datasource/dist/. miradorstack-integration-grafana:/var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource/
           docker restart miradorstack-integration-grafana
+
+      - name: Wait for Grafana to be healthy after restart
+        run: |
+          for i in {1..60}; do
+            status=$(docker inspect -f '{{.State.Health.Status}}' miradorstack-integration-grafana || echo "unknown")
+            if [ "$status" = "healthy" ]; then
+              echo "Grafana is healthy after restart"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Grafana did not become healthy after restart in time"
+          docker logs miradorstack-integration-grafana | tail -n 500
+          exit 1
+
+      - name: List plugins inside Grafana (diagnostics)
+        run: |
+          sleep 3
+          docker exec miradorstack-integration-grafana sh -lc 'ls -la /var/lib/grafana/plugins && ls -la /var/lib/grafana/plugins/miradorstack-miradorexplorer-app || true && ls -la /var/lib/grafana/plugins/miradorstack-miradorcoreconnector-datasource || true'
 
       - name: Verify plugins are loaded in Grafana
         run: |
