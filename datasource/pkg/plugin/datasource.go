@@ -71,10 +71,6 @@ func (d *Datasource) CallResource(ctx context.Context, req *backend.CallResource
 		return sendJSONResponse(sender, http.StatusBadRequest, map[string]string{"error": "Mirador API URL is not configured"})
 	}
 
-	if settings.Secrets == nil || settings.Secrets.BearerToken == "" {
-		return sendJSONResponse(sender, http.StatusBadRequest, map[string]string{"error": "Bearer token is required"})
-	}
-
 	method := strings.ToUpper(strings.TrimSpace(req.Method))
 	if method == "" {
 		method = http.MethodGet
@@ -157,10 +153,6 @@ func (d *Datasource) query(ctx context.Context, pCtx backend.PluginContext, quer
 
 	if settings.URL == "" {
 		return backend.ErrDataResponse(backend.StatusBadRequest, "Mirador API URL is not configured")
-	}
-
-	if settings.Secrets == nil || settings.Secrets.BearerToken == "" {
-		return backend.ErrDataResponse(backend.StatusBadRequest, "Bearer token is required")
 	}
 
 	client, err := newMiradorClient(settings)
@@ -264,12 +256,6 @@ func (d *Datasource) CheckHealth(ctx context.Context, req *backend.CheckHealthRe
 	if config.URL == "" {
 		res.Status = backend.HealthStatusError
 		res.Message = "Mirador API URL is missing"
-		return res, nil
-	}
-
-	if config.Secrets == nil || config.Secrets.BearerToken == "" {
-		res.Status = backend.HealthStatusError
-		res.Message = "Bearer token is missing"
 		return res, nil
 	}
 

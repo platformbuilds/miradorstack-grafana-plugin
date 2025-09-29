@@ -132,14 +132,13 @@ export function ConfigEditor(props: Props) {
         label="Bearer Token"
         labelWidth={18}
         interactive
-        tooltip={'Secure token used to authenticate with Mirador Core'}
+        tooltip={'Optional secure token used to authenticate with Mirador Core'}
       >
         <SecretInput
-          required
           id="config-editor-bearer"
           isConfigured={Boolean(secureJsonFields?.bearerToken)}
           value={secureJsonData?.bearerToken}
-          placeholder="Paste bearer token"
+          placeholder="Paste bearer token (optional)"
           width={45}
           onReset={onResetBearerToken}
           onChange={onBearerTokenChange}
