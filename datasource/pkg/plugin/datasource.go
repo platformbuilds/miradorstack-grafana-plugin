@@ -816,15 +816,15 @@ func metricsToFrames(resp mirador.MetricsResponse) data.Frames {
 }
 
 func tracesToFrame(resp mirador.TracesResponse) *data.Frame {
-	if len(resp.Data) == 0 {
+	if len(resp.Data.Traces) == 0 {
 		return data.NewFrame("traces")
 	}
 
-	traceIDs := make([]string, len(resp.Data))
-	durations := make([]int64, len(resp.Data))
-	spanCounts := make([]int64, len(resp.Data))
+	traceIDs := make([]string, len(resp.Data.Traces))
+	durations := make([]int64, len(resp.Data.Traces))
+	spanCounts := make([]int64, len(resp.Data.Traces))
 
-	for i, trace := range resp.Data {
+	for i, trace := range resp.Data.Traces {
 		traceIDs[i] = trace.TraceID
 		durations[i] = trace.Duration
 		spanCounts[i] = int64(len(trace.Spans))

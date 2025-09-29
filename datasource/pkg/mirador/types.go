@@ -131,7 +131,22 @@ type TracesQuery struct {
 }
 
 type TracesResponse struct {
-	Data []TraceData `json:"data"`
+	Data     TracesData     `json:"data"`
+	Metadata TracesMetadata `json:"metadata"`
+	Status   string         `json:"status"`
+}
+
+type TracesData struct {
+	Total  int         `json:"total"`
+	Traces []TraceData `json:"traces"`
+}
+
+type TracesMetadata struct {
+	Backend     string `json:"backend"`
+	Degraded    bool   `json:"degraded"`
+	Limit       int    `json:"limit"`
+	SearchTime  int    `json:"searchTime"`
+	TracesFound int    `json:"tracesFound"`
 }
 
 type TraceData struct {
