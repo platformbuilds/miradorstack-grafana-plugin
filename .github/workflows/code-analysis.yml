@@ -116,6 +116,15 @@ jobs:
       - name: Install Mage
         run: go install github.com/magefile/mage@latest
 
+      - name: Verify Go setup
+        run: |
+          echo "Go version: $(go version)"
+          echo "Go environment:"
+          go env GOPATH GOROOT GOBIN
+          echo "Mage location:"
+          which mage || echo "mage not in PATH"
+          ls -la $HOME/go/bin/mage || echo "mage not in $HOME/go/bin"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -145,16 +154,37 @@ jobs:
       - name: Build and prepare plugins
         run: |
           set -e
-          # App plugin: build frontend first, then backend to avoid binary being wiped by clean tasks
+          echo "=== Verifying Go modules ==="
+          echo "App plugin go.mod:"
+          cd app && go mod tidy && go mod verify && cd ..
+          echo "Datasource plugin go.mod:"
+          cd datasource && go mod tidy && go mod verify && cd ..
+          
+          echo "=== Building app plugin ==="
           cd app
-          npm ci
-          npm run build
-          mage -v || $HOME/go/bin/mage -v
-          # Datasource plugin: same order
+          echo "Installing dependencies..."
+          npm ci 2>&1
+          echo "Building frontend..."
+          npm run build 2>&1
+          echo "Building backend..."
+          mage -v 2>&1 || $HOME/go/bin/mage -v 2>&1
+          echo "Checking build output..."
+          ls -la dist/ || (echo "ERROR: app/dist/ is empty or missing" && exit 1)
+          test -f dist/plugin.json || (echo "ERROR: app/dist/plugin.json missing" && exit 1)
+          echo "App plugin build successful"
+          
+          echo "=== Building datasource plugin ==="
           cd ../datasource
-          npm ci
-          npm run build
-          mage -v || $HOME/go/bin/mage -v
+          echo "Installing dependencies..."
+          npm ci 2>&1
+          echo "Building frontend..."
+          npm run build 2>&1
+          echo "Building backend..."
+          mage -v 2>&1 || $HOME/go/bin/mage -v 2>&1
+          echo "Checking build output..."
+          ls -la dist/ || (echo "ERROR: datasource/dist/ is empty or missing" && exit 1)
+          test -f dist/plugin.json || (echo "ERROR: datasource/dist/plugin.json missing" && exit 1)
+          echo "Datasource plugin build successful"
 
       - name: Fix dist directory permissions
         run: |
@@ -165,13 +195,36 @@ jobs:
       - name: Verify build artifacts exist (diagnostics)
         run: |
           set -e
-          echo "Listing app/dist:" && ls -la app/dist || true
-          echo "Listing datasource/dist:" && ls -la datasource/dist || true
-          test -f app/dist/plugin.json || (echo "app/dist/plugin.json missing" && exit 1)
-          test -f datasource/dist/plugin.json || (echo "datasource/dist/plugin.json missing" && exit 1)
+          echo "=== App plugin dist contents ==="
+          ls -la app/dist || true
+          echo "=== Datasource plugin dist contents ==="
+          ls -la datasource/dist || true
+          echo "=== Checking required files ==="
+          test -f app/dist/plugin.json || (echo "ERROR: app/dist/plugin.json missing" && exit 1)
+          test -f datasource/dist/plugin.json || (echo "ERROR: datasource/dist/plugin.json missing" && exit 1)
+          echo "=== Checking backend executables ==="
           # Expect backend executables per plugin.json 'executable' (allow platform-suffixed variants)
-          ls -la app/dist | grep -E ' gpx_mirador_explorer($|_|\.)' || (echo "app backend executable missing" && exit 1)
-          ls -la datasource/dist | grep -E ' gpx_mirador_core_connector($|_|\.)' || (echo "datasource backend executable missing" && exit 1)
+          if ls -la app/dist | grep -q -E ' gpx_mirador_explorer($|_|\.)'; then
+            echo "✓ App backend executable found"
+          else
+            echo "ERROR: app backend executable missing" && exit 1
+          fi
+          if ls -la datasource/dist | grep -q -E ' gpx_mirador_core_connector($|_|\.)'; then
+            echo "✓ Datasource backend executable found"
+          else
+            echo "ERROR: datasource backend executable missing" && exit 1
+          fi
+          echo "=== Checking frontend bundles ==="
+          if ls -la app/dist | grep -q "module.js"; then
+            echo "✓ App frontend bundle found"
+          else
+            echo "ERROR: app frontend bundle missing" && exit 1
+          fi
+          if ls -la datasource/dist | grep -q "module.js"; then
+            echo "✓ Datasource frontend bundle found"
+          else
+            echo "ERROR: datasource frontend bundle missing" && exit 1
+          fi
 
       - name: Wait for Grafana to be healthy
         run: |
