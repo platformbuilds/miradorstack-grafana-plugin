@@ -57,7 +57,8 @@ const AppConfig = ({ plugin }: AppConfigProps) => {
     });
   };
 
-  const onSubmit = () => {
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     if (isSubmitDisabled) {
       return;
     }
@@ -80,7 +81,7 @@ const AppConfig = ({ plugin }: AppConfigProps) => {
   };
 
   return (
-    <form className="config-form" onSubmit={onSubmit}>
+    <form className="config-form" data-testid="app-config-form" onSubmit={onSubmit}>
       <FieldSet label="API Settings">
         <Field label="API Key" description="A secret key for authenticating to our custom API">
           <SecretInput
