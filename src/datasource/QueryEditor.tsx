@@ -1,8 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { QueryEditorProps } from '@grafana/data';
 import { Input, Select } from '@grafana/ui';
-import { MiradorDataSource } from './MiradorDataSource';
-import { MiradorQuery } from './MiradorDataSource';
+import { MiradorDataSource, MiradorQuery } from './MiradorDataSource';
 
 type Props = QueryEditorProps<MiradorDataSource, MiradorQuery, any>;
 

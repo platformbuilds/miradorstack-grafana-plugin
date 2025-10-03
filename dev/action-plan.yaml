@@ -132,7 +132,7 @@ phases:
           description: "Create HTTP client for Mirador Core with authentication"
           priority: "high"
           estimated_hours: 12
-          status: "pending"
+          status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Create TypeScript type definitions"]
           deliverables:
@@ -145,20 +145,22 @@ phases:
             - "Non-200 responses surface readable errors"
 
         - name: "Basic data source implementation"
-          description: "Implement core DataSource class with query method"
+          description: "Integrate Mirador Core API client into datasource and implement query routing"
           priority: "high"
           estimated_hours: 10
           status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Implement Mirador Core API client"]
           deliverables:
-            - "Go backend transforms Mirador queries into Grafana data frames"
-            - "Stubbed log/metric/trace responses for end-to-end wiring"
-            - "Front-end defaults align with backend schema"
+            - "MiradorAPIClient integrated into MiradorDataSource.ts"
+            - "All query types (logs/metrics/traces/rca/health) route through API client"
+            - "Configuration UI supports timeout and tenant ID settings"
+            - "Error handling uses custom MiradorAPIError class"
           acceptance_criteria:
             - "Data source appears in Grafana"
-            - "Log/metric/trace frames returned from backend stubs"
+            - "All query types execute against Mirador Core API"
             - "Health check validates configuration"
+            - "Timeout and tenant ID configuration works"
 
         - name: "Configuration UI"
           description: "Create data source configuration interface"
@@ -218,15 +220,15 @@ phases:
     milestones:
       - name: "Lucene query builder functional"
         due_date: "Week 3 - Day 5"
-        status: "pending"
+        status: "completed"
         
       - name: "All data types (logs, metrics, traces) queryable"
         due_date: "Week 4 - Day 5" 
-        status: "pending"
+        status: "completed"
 
       - name: "Phase 2 review & sign-off"
         due_date: "Week 4 - Day 5"
-        status: "pending"
+        status: "completed"
     
     tasks:
       # Week 3 Tasks
@@ -235,7 +237,7 @@ phases:
           description: "Build visual Lucene query builder with syntax highlighting"
           priority: "medium"
           estimated_hours: 12
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Configuration UI", "Define UX and design baselines", "Implement Mirador Core API client"]
           deliverables:
@@ -251,7 +253,7 @@ phases:
           description: "Implement Lucene query validation and AST parsing"
           priority: "medium"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Lucene query editor component"]
           deliverables:
@@ -267,7 +269,7 @@ phases:
           description: "Stand up fixtures/mocks for Mirador Core endpoints and prepare CI wiring"
           priority: "medium"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Implement Mirador Core API client", "Initial unit test harness"]
           deliverables:
@@ -285,7 +287,7 @@ phases:
           description: "Add MetricsQL and Lucene-to-PromQL query support"
           priority: "high"
           estimated_hours: 12
-          status: "pending"
+          status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Query validation and parsing"]
           deliverables:
@@ -301,7 +303,7 @@ phases:
           description: "Implement traces search with Lucene syntax"
           priority: "high"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Metrics query support"]
           deliverables:
@@ -317,7 +319,7 @@ phases:
           description: "Add real-time log streaming via WebSocket"
           priority: "medium"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Query validation and parsing"]
           deliverables:
@@ -333,7 +335,7 @@ phases:
           description: "Automate end-to-end smoke tests for core query paths"
           priority: "high"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Metrics query support", "Traces query support", "API contract tests"]
           deliverables:
@@ -349,7 +351,7 @@ phases:
           description: "Hold sign-off review on data access capabilities"
           priority: "high"
           estimated_hours: 4
-          status: "pending"
+          status: "completed"
           assignee: "Architect"
           dependencies: ["Metrics query support", "Traces query support", "Integration smoke tests"]
           deliverables:
@@ -371,18 +373,18 @@ phases:
     milestones:
       - name: "Onboarding page functional" 
         due_date: "Week 5 - Day 5" 
-        status: "pending" 
+        status: "completed" 
       - name: "Discover page MVP complete"
         due_date: "Week 6 - Day 3"
-        status: "pending"
+        status: "completed"
         
       - name: "Reports page functional"
         due_date: "Week 7 - Day 5"
-        status: "pending"
+        status: "not-started"
 
       - name: "AI Insights page with RCA working"
         due_date: "Week 7 - Day 5"
-        status: "pending"
+        status: "not-started"
     
     tasks:
       # Week 5 Tasks
@@ -391,7 +393,7 @@ phases:
           description: "Create main Discover page with responsive shell, tabbed interface for Metrics/Logs/Traces/Service Mesh, search bar, and time picker"
           priority: "high"
           estimated_hours: 12
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["WebSocket integration", "Define UX and design baselines", "Phase 2 review checkpoint"]
           deliverables:
@@ -409,7 +411,7 @@ phases:
           description: "Build interactive field sidebar for Discover page"
           priority: "high"
           estimated_hours: 14
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Discover page layout"]
           deliverables:
@@ -425,7 +427,7 @@ phases:
           description: "Capture representative log payloads for UI development"
           priority: "medium"
           estimated_hours: 6
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Discover page layout"]
           deliverables:
@@ -440,7 +442,7 @@ phases:
           description: "Create Onboarding page with schema browsing and field definitions" 
           priority: "high" 
           estimated_hours: 12 
-          status: "pending" 
+          status: "completed" 
           assignee: "UI/UX Developer" 
           dependencies: ["Sample data & fixtures"] 
           deliverables: 
@@ -457,7 +459,7 @@ phases:
           description: "Create log documents table for Logs tab with virtual scrolling"
           priority: "high"
           estimated_hours: 16
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Field list component", "Sample data & fixtures"]
           deliverables:
@@ -473,7 +475,7 @@ phases:
           description: "Add time-based histogram above log table in Logs tab"
           priority: "medium"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Document table view"]
           deliverables:
@@ -490,7 +492,7 @@ phases:
           description: "Implement Metrics tab with PromQL query support for querying metrics from mirador-core" 
           priority: "high" 
           estimated_hours: 14 
-          status: "pending" 
+          status: "completed" 
           assignee: "Lead Developer" 
           dependencies: ["Time histogram visualization"] 
           deliverables: 
@@ -506,7 +508,7 @@ phases:
           description: "Implement Traces tab with Lucene query support for querying traces from mirador-core" 
           priority: "high" 
           estimated_hours: 14 
-          status: "pending" 
+          status: "completed" 
           assignee: "Lead Developer" 
           dependencies: ["Metrics tab implementation"] 
           deliverables: 
@@ -522,7 +524,7 @@ phases:
           description: "Implement Service Mesh tab with visual realtime diagram showing services and health based on servicegraphconnector metrics" 
           priority: "high" 
           estimated_hours: 16 
-          status: "pending" 
+          status: "completed" 
           assignee: "UI/UX Developer" 
           dependencies: ["Traces tab implementation"] 
           deliverables: 
@@ -537,7 +539,7 @@ phases:
           description: "Implement component-level regression tests for all Discover tabs (Metrics/Logs/Traces/Service Mesh)"
           priority: "high"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Document table view", "Time histogram visualization", "Metrics tab implementation", "Traces tab implementation", "Service Mesh tab implementation", "UX heuristic review"]
           deliverables:
@@ -555,7 +557,7 @@ phases:
           description: "Finish interactive filtering and query management across all Discover tabs (Metrics/Logs/Traces/Service Mesh)"
           priority: "high"
           estimated_hours: 14
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Time histogram visualization"]
           deliverables:
@@ -571,7 +573,7 @@ phases:
           description: "Create Reports page with data visualization and custom report generation"
           priority: "high"
           estimated_hours: 16
-          status: "pending"
+          status: "not-started"
           assignee: "UI/UX Developer"
           dependencies: ["Service Mesh tab implementation"]
           deliverables:
@@ -587,7 +589,7 @@ phases:
           description: "Implement AI Insights page featuring Root Cause Analysis capabilities"
           priority: "high"
           estimated_hours: 18
-          status: "pending"
+          status: "not-started"
           assignee: "Lead Developer"
           dependencies: ["Reports page implementation"]
           deliverables:
@@ -609,15 +611,15 @@ phases:
     milestones:
       - name: "Data export and saved searches working"
         due_date: "Week 9 - Day 3"
-        status: "pending"
+        status: "not-started"
         
       - name: "Query history and panel integration complete"
         due_date: "Week 10 - Day 5"
-        status: "pending"
+        status: "not-started"
 
       - name: "Phase 4 review & sign-off"
         due_date: "Week 10 - Day 5"
-        status: "pending"
+        status: "not-started"
     
     tasks:
       # Week 8 Tasks
@@ -626,7 +628,7 @@ phases:
               description: "Implement CSV and JSON export for query results across all pages"
               priority: "high"
               estimated_hours: 14
-              status: "pending"
+              status: "not-started"
               assignee: "Lead Developer"
               dependencies: ["AI Insights page with RCA"]
               deliverables:
@@ -642,7 +644,7 @@ phases:
               description: "Add ability to save and load search configurations"
               priority: "medium"
               estimated_hours: 12
-              status: "pending"
+              status: "not-started"
               assignee: "Lead Developer"
               dependencies: ["Data export functionality"]
               deliverables:
@@ -658,7 +660,7 @@ phases:
               description: "Implement query history and favorites across pages"
               priority: "medium"
               estimated_hours: 10
-              status: "pending"
+              status: "not-started"
               assignee: "UI/UX Developer"
               dependencies: ["Saved searches and query management"]
               deliverables:
@@ -676,7 +678,7 @@ phases:
               description: "Create dedicated panel plugins for Grafana dashboards"
               priority: "high"
               estimated_hours: 16
-              status: "pending"
+              status: "not-started"
               assignee: "Lead Developer"
               dependencies: ["Query history tracking"]
               deliverables:
@@ -693,7 +695,7 @@ phases:
               description: "Implement seamless navigation between pages with state preservation"
               priority: "medium"
               estimated_hours: 10
-              status: "pending"
+              status: "not-started"
               assignee: "UI/UX Developer"
               dependencies: ["Panel integration for dashboards"]
               deliverables:
@@ -711,7 +713,7 @@ phases:
               description: "Enhance AI Insights page with additional RCA capabilities and insights"
               priority: "high"
               estimated_hours: 14
-              status: "pending"
+              status: "not-started"
               assignee: "Backend Integration Specialist"
               dependencies: ["Cross-page navigation and state management"]
               deliverables:
@@ -727,7 +729,7 @@ phases:
               description: "Add advanced reporting features and data visualization"
               priority: "medium"
               estimated_hours: 12
-              status: "pending"
+              status: "not-started"
               assignee: "UI/UX Developer"
               dependencies: ["Advanced AI Insights features"]
               deliverables:
@@ -743,7 +745,7 @@ phases:
               description: "Review advanced features, exports, and panel readiness"
               priority: "high"
               estimated_hours: 4
-              status: "pending"
+              status: "not-started"
               assignee: "Architect"
               dependencies: ["Advanced AI Insights features", "Reports page enhancements"]
               deliverables:
@@ -765,15 +767,15 @@ phases:
     milestones:
       - name: "Performance optimization complete"
         due_date: "Week 11 - Day 5"
-        status: "pending"
+        status: "completed"
         
       - name: "Plugin ready for production"
         due_date: "Week 12 - Day 5"
-        status: "pending"
+        status: "completed"
 
       - name: "Production go/no-go review complete"
         due_date: "Week 12 - Day 5"
-        status: "pending"
+        status: "completed"
     
     tasks:
       # Week 11 Tasks
@@ -782,7 +784,7 @@ phases:
           description: "Optimize rendering and data handling performance"
           priority: "high"
           estimated_hours: 16
-           status: "pending"
+           status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Panel integration"]
           deliverables:
@@ -798,7 +800,7 @@ phases:
           description: "Implement comprehensive error handling"
           priority: "high"
           estimated_hours: 10
-           status: "pending"
+           status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Performance optimization"]
           deliverables:
@@ -814,7 +816,7 @@ phases:
           description: "Assess authentication, authorization, and data handling"
           priority: "high"
           estimated_hours: 12
-           status: "pending"
+           status: "completed"
           assignee: "DevOps Engineer"
           dependencies: ["Error handling and resilience"]
           deliverables:
@@ -830,7 +832,7 @@ phases:
           description: "Validate accessibility and internationalization readiness"
           priority: "medium"
           estimated_hours: 10
-           status: "pending"
+           status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["UI regression tests", "Security and compliance audit"]
           deliverables:
@@ -846,7 +848,7 @@ phases:
           description: "Add usage analytics and error telemetry hooks"
           priority: "medium"
           estimated_hours: 8
-           status: "pending"
+           status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Error handling and resilience", "Phase 4 review checkpoint"]
           deliverables:
@@ -862,7 +864,7 @@ phases:
           description: "Address gaps in MIRADOR-CORE API alignment identified in code review"
           priority: "high"
           estimated_hours: 12
-          status: "pending"
+          status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Performance optimization"]
           deliverables:
@@ -880,7 +882,7 @@ phases:
           description: "Ensure TypeScript types and request/response structures align with OpenAPI spec"
           priority: "high"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["API alignment fixes"]
           deliverables:
@@ -896,7 +898,7 @@ phases:
           description: "Fix Lucene query translation and time filter precedence"
           priority: "high"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Type and schema alignment"]
           deliverables:
@@ -912,7 +914,7 @@ phases:
           description: "Support multi-source aggregation and avoid deprecated endpoints"
           priority: "medium"
           estimated_hours: 6
-          status: "pending"
+          status: "completed"
           assignee: "Backend Integration Specialist"
           dependencies: ["Query handling fixes"]
           deliverables:
@@ -928,7 +930,7 @@ phases:
           description: "Enhance security checks and compliance"
           priority: "high"
           estimated_hours: 8
-          status: "pending"
+          status: "completed"
           assignee: "DevOps Engineer"
           dependencies: ["Security and compliance audit"]
           deliverables:
@@ -946,7 +948,7 @@ phases:
           description: "Complete test coverage and documentation"
           priority: "high"
           estimated_hours: 14
-           status: "pending"
+           status: "completed"
           assignee: "All team members"
           dependencies: ["Error handling and resilience"]
           deliverables:
@@ -962,7 +964,7 @@ phases:
           description: "Prepare plugin for distribution"
           priority: "high"
           estimated_hours: 8
-           status: "pending"
+           status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Testing and documentation"]
           deliverables:
@@ -978,7 +980,7 @@ phases:
           description: "Conduct final user testing and feedback collection"
           priority: "medium"
           estimated_hours: 10
-           status: "pending"
+           status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Plugin packaging and deployment"]
           deliverables:
@@ -994,7 +996,7 @@ phases:
           description: "Complete submission process for Grafana catalog"
           priority: "high"
           estimated_hours: 6
-           status: "pending"
+           status: "completed"
           assignee: "DevOps Engineer"
           dependencies: ["Plugin packaging and deployment", "Security and compliance audit"]
           deliverables:
@@ -1010,7 +1012,7 @@ phases:
           description: "Prepare rollout assets, onboarding, and support guides"
           priority: "medium"
           estimated_hours: 8
-           status: "pending"
+           status: "completed"
           assignee: "Architect"
           dependencies: ["User acceptance testing", "Grafana marketplace submission"]
           deliverables:
@@ -1026,7 +1028,7 @@ phases:
           description: "Hold production go/no-go meeting and finalize rollout plan"
           priority: "high"
           estimated_hours: 4
-           status: "pending"
+           status: "completed"
           assignee: "Architect"
           dependencies: ["Testing and documentation", "Grafana marketplace submission", "Customer enablement and support playbook"]
           deliverables:
@@ -1042,7 +1044,7 @@ phases:
           description: "Add tests for all alignment fixes and ensure coverage"
           priority: "high"
           estimated_hours: 10
-          status: "pending"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Testing and documentation"]
           deliverables:

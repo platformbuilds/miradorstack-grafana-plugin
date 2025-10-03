@@ -17,6 +17,11 @@ function ExplorerPage() {
         <p>Welcome to the Mirador Core data exploration interface.</p>
         <p>Use the panels to explore logs, metrics, traces, and perform RCA.</p>
         <div className={s.marginTop}>
+          <LinkButton data-testid={testIds.pageOne.navigateToDiscover} href={prefixRoute(ROUTES.Discover)}>
+            Go to Discover
+          </LinkButton>
+        </div>
+        <div className={s.marginTop}>
           <LinkButton data-testid={testIds.pageOne.navigateToFour} href={prefixRoute(ROUTES.Schema)}>
             Go to Schema Explorer
           </LinkButton>

@@ -7,4 +7,5 @@ export enum ROUTES {
   Schema = 'two',
   Three = 'three',
   Four = 'four',
+  Discover = 'discover',
 }

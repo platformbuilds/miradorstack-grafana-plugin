@@ -27,7 +27,7 @@ class MiradorApiClient {
     return response.json();
   }
 
-  async logsQuery(query: string, limit: number = 100): Promise<any> {
+  async logsQuery(query: string, limit = 100): Promise<any> {
     const response = await this.request('/logs/query', {
       method: 'POST',
       body: JSON.stringify({

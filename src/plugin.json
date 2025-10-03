@@ -29,6 +29,13 @@
     },
     {
       "type": "page",
+      "name": "Discover",
+      "path": "/a/%PLUGIN_ID%/discover",
+      "addToNav": true,
+      "defaultNav": false
+    },
+    {
+      "type": "page",
       "name": "Schema Explorer",
       "path": "/a/%PLUGIN_ID%/two",
       "addToNav": true,

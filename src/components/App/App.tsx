@@ -6,10 +6,12 @@ const ExplorerPage = React.lazy(() => import('../../pages/PageOne'));
 const SchemaPage = React.lazy(() => import('../../pages/PageTwo'));
 const PageThree = React.lazy(() => import('../../pages/PageThree'));
 const PageFour = React.lazy(() => import('../../pages/PageFour'));
+const DiscoverPage = React.lazy(() => import('../../pages/Discover'));
 
 function App(props: AppRootProps) {
   return (
     <Routes>
+      <Route path={ROUTES.Discover} element={<DiscoverPage />} />
       <Route path={ROUTES.Schema} element={<SchemaPage />} />
       <Route path={`${ROUTES.Three}/:id?`} element={<PageThree />} />
 

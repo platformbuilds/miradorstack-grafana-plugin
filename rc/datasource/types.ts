@@ -235,3 +235,4 @@ export interface FieldStats {
   max?: number;
   avg?: number;
   unique?: number;
+}
