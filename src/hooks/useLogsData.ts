@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getDataSourceSrv } from '@grafana/runtime';
+import { dateTime } from '@grafana/data';
 import { LogEntry } from '../components/discover/DocumentTable';
 import { HistogramDataPoint } from '../components/discover/TimeHistogram';
 
@@ -19,105 +21,131 @@ export interface UseLogsDataResult {
   totalCount: number;
 }
 
-// Sample data for demonstration - will be replaced with real API calls
-const sampleLogData: LogEntry[] = [
-  {
-    timestamp: '2025-01-15T10:30:00Z',
-    level: 'INFO',
-    message: 'User login successful',
-    source: 'auth-service',
-    userId: 'user123',
-    ip: '192.168.1.100',
-    sessionId: 'sess_abc123'
-  },
-  {
-    timestamp: '2025-01-15T10:31:15Z',
-    level: 'ERROR',
-    message: 'Database connection failed',
-    source: 'user-service',
-    error: 'Connection timeout',
-    database: 'users',
-    retryCount: 3
-  },
-  {
-    timestamp: '2025-01-15T10:32:30Z',
-    level: 'WARN',
-    message: 'High memory usage detected',
-    source: 'monitoring',
-    memoryUsage: 85,
-    threshold: 80,
-    service: 'api-gateway'
-  },
-  {
-    timestamp: '2025-01-15T10:33:45Z',
-    level: 'INFO',
-    message: 'Payment processed successfully',
-    source: 'payment-service',
-    amount: 99.99,
-    currency: 'USD',
-    transactionId: 'txn_123456'
-  },
-  {
-    timestamp: '2025-01-15T10:35:00Z',
-    level: 'DEBUG',
-    message: 'Cache miss for key: user_profile_123',
-    source: 'cache-service',
-    key: 'user_profile_123',
-    operation: 'get'
-  }
-];
 
 export function useLogsData(initialParams: LogsQueryParams): UseLogsDataResult {
-  const [logs, setLogs] = useState<LogEntry[]>(sampleLogData);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [histogram, setHistogram] = useState<HistogramDataPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [totalCount, setTotalCount] = useState(sampleLogData.length);
+  const [totalCount, setTotalCount] = useState(0);
   const [currentParams, setCurrentParams] = useState<LogsQueryParams>(initialParams);
 
   const fetchLogs = useCallback(async (params: LogsQueryParams) => {
     setLoading(true);
-    setError(null);
+    setError(null); // Clear previous errors at the start of a new fetch
 
     try {
-      // TODO: Replace with real API call when data source integration is complete
-      // For now, simulate API delay and return sample data
-      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Get the Mirador data source
+      const dataSourceSrv = getDataSourceSrv();
+      const dataSource = await dataSourceSrv.get('Mirador Core Connector');
 
-      // Filter sample data based on query (simple text matching)
-      let filteredLogs = sampleLogData;
-      if (params.query && params.query.trim()) {
-        const query = params.query.toLowerCase();
-        filteredLogs = sampleLogData.filter(log =>
-          log.message.toLowerCase().includes(query) ||
-          log.level?.toLowerCase().includes(query) ||
-          log.source?.toLowerCase().includes(query) ||
-          Object.values(log).some(value =>
-            typeof value === 'string' && value.toLowerCase().includes(query)
-          )
-        );
+      if (!dataSource) {
+        throw new Error('Mirador Core Connector data source not found. Please configure the data source in Grafana.');
       }
 
-      // Apply time range filtering
-      filteredLogs = filteredLogs.filter(log => {
-        const logTime = new Date(log.timestamp).getTime();
-        return logTime >= params.start && logTime <= params.end;
+      // Create a query for logs
+      const query = {
+        queryType: 'logs',
+        query: params.query || '',
+        queryLanguage: params.queryLanguage || 'lucene',
+        start: params.start,
+        end: params.end,
+        limit: params.limit || 1000,
+        refId: 'logs-query',
+      };
+
+      // Execute the query
+      const queryResult = dataSource.query({
+        targets: [query],
+        range: {
+          from: dateTime(params.start),
+          to: dateTime(params.end),
+          raw: {
+            from: dateTime(params.start),
+            to: dateTime(params.end),
+          },
+        },
+        requestId: `logs-${Date.now()}`,
+        interval: '1s',
+        intervalMs: 1000,
+        scopedVars: {},
+        timezone: 'UTC',
+        app: 'mirador-plugin',
+        startTime: Date.now(),
       });
 
-      // Apply limit
-      if (params.limit) {
-        filteredLogs = filteredLogs.slice(0, params.limit);
+      const response = await new Promise<any>((resolve, reject) => {
+        if (queryResult instanceof Promise) {
+          queryResult.then(resolve).catch(reject);
+        } else {
+          // It's an Observable
+          queryResult.subscribe({
+            next: (result: any) => resolve(result),
+            error: (err: any) => reject(err),
+          });
+        }
+      });
+
+      if (!response || !response.data) {
+        console.log('No data in response');
+        setLogs([]);
+        setHistogram([]);
+        setTotalCount(0);
+        return;
       }
 
-      setLogs(filteredLogs);
-      setTotalCount(filteredLogs.length);
+      console.log('Response data:', JSON.stringify(response.data).substring(0, 200) + '...');
 
-      // Generate histogram data from filtered logs
-      const histogramData = generateHistogramFromLogs(filteredLogs, params.start, params.end);
+      // Process the response data
+      const logsData: LogEntry[] = [];
+      let totalCount = 0;
+      
+      console.log('Processing response:', response);
+      
+      // Handle different response formats
+      if (Array.isArray(response.data)) {
+        // Process each frame in the array
+        response.data.forEach((frame: any) => {
+          // Check if the frame has a direct logs property (from our custom processing)
+          if (frame.logs && Array.isArray(frame.logs)) {
+            console.log(`Found direct logs array with ${frame.logs.length} entries`);
+            logsData.push(...frame.logs as LogEntry[]);
+            totalCount += frame.logs.length;
+          }
+          // Traditional Grafana DataFrame format with fields
+          else if (frame.fields && frame.fields.length > 0) {
+            console.log('Processing traditional DataFrame format');
+            const rows = frame.length || 0;
+            
+            for (let i = 0; i < rows; i++) {
+              const logEntry: any = {};
+              frame.fields.forEach((field: any, fieldIndex: number) => {
+                logEntry[field.name] = field.values[i];
+              });
+              logsData.push(logEntry as LogEntry);
+            }
+            
+            totalCount += rows;
+          }
+        });
+      } 
+      // Direct API response without DataFrame wrapping
+      else if (response.data && response.data.logs && Array.isArray(response.data.logs)) {
+        console.log(`Processing direct API response with ${response.data.logs.length} logs`);
+        logsData.push(...response.data.logs as LogEntry[]);
+        totalCount = response.data.logs.length;
+      }
+
+      setLogs(logsData);
+      setTotalCount(totalCount);
+
+      // Generate histogram data from the logs
+      const histogramData = generateHistogramFromLogs(logsData, params.start, params.end);
       setHistogram(histogramData);
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch logs';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch logs from Mirador API';
       setError(errorMessage);
       setLogs([]);
       setHistogram([]);

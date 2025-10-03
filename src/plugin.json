@@ -6,8 +6,8 @@
   "backend": true,
   "executable": "gpx_miradorstack_connect",
   "info": {
-    "keywords": ["app"],
-    "description": "",
+    "keywords": ["observability", "logs", "metrics", "traces", "mirador"],
+    "description": "Miradorstack Connect - A comprehensive observability platform for logs, metrics, and traces analysis",
     "author": {
       "name": "Platformbuildspvtltd"
     },
@@ -21,51 +21,37 @@
   },
   "includes": [
     {
-      "type": "page",
-      "name": "Explorer",
-      "path": "/a/%PLUGIN_ID%/one",
-      "addToNav": true,
-      "defaultNav": true
-    },
-    {
-      "type": "page",
-      "name": "Discover",
-      "path": "/a/%PLUGIN_ID%/discover",
-      "addToNav": true,
-      "defaultNav": false
-    },
-    {
-      "type": "page",
-      "name": "Schema Explorer",
-      "path": "/a/%PLUGIN_ID%/two",
-      "addToNav": true,
-      "defaultNav": false
-    },
-    {
-      "type": "page",
-      "name": "Page Three",
-      "path": "/a/%PLUGIN_ID%/three",
-      "addToNav": true,
-      "defaultNav": false
-    },
-    {
-      "type": "page",
-      "name": "Page Four",
-      "path": "/a/%PLUGIN_ID%/four",
-      "addToNav": true,
-      "defaultNav": false
-    },
-    {
       "type": "datasource",
       "name": "Mirador Core Connector",
       "id": "mirador-core-connector"
     },
     {
       "type": "page",
-      "icon": "cog",
-      "name": "Configuration",
-      "path": "/plugins/%PLUGIN_ID%",
-      "role": "Admin",
+      "name": "Onboarding",
+      "path": "/a/%PLUGIN_ID%/onboarding",
+      "icon": "info-circle",
+      "addToNav": true,
+      "defaultNav": true
+    },
+    {
+      "type": "page", 
+      "name": "Discover",
+      "path": "/a/%PLUGIN_ID%/discover",
+      "icon": "search",
+      "addToNav": true
+    },
+    {
+      "type": "page",
+      "name": "Reports", 
+      "path": "/a/%PLUGIN_ID%/reports",
+      "icon": "chart-line",
+      "addToNav": true
+    },
+    {
+      "type": "page",
+      "name": "AI Insights",
+      "path": "/a/%PLUGIN_ID%/ai-insights", 
+      "icon": "ai",
       "addToNav": true
     }
   ],

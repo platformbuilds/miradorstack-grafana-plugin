@@ -1,16 +1,12 @@
 import React, { Suspense, lazy } from 'react';
-import { AppPlugin, type AppRootProps } from '@grafana/data';
+import { AppPlugin } from '@grafana/data';
 import { LoadingPlaceholder } from '@grafana/ui';
 import type { AppConfigProps } from './components/AppConfig/AppConfig';
+import App from './components/App/App';
 
-const LazyApp = lazy(() => import('./components/App/App'));
 const LazyAppConfig = lazy(() => import('./components/AppConfig/AppConfig'));
 
-const App = (props: AppRootProps) => (
-  <Suspense fallback={<LoadingPlaceholder text="" />}>
-    <LazyApp {...props} />
-  </Suspense>
-);
+// The real app handles routing and provides required context providers
 
 const AppConfig = (props: AppConfigProps) => (
   <Suspense fallback={<LoadingPlaceholder text="" />}>
@@ -18,9 +14,13 @@ const AppConfig = (props: AppConfigProps) => (
   </Suspense>
 );
 
-export const plugin = new AppPlugin<{}>().setRootPage(App).addConfigPage({
-  title: 'Configuration',
-  icon: 'cog',
-  body: AppConfig,
-  id: 'configuration',
-});
+// Use the full App component as the plugin root so context providers (Navigation, Logs, etc.) are available
+
+export const plugin = new AppPlugin<{}>()
+  .setRootPage(App)
+  .addConfigPage({
+    title: 'Configuration',
+    icon: 'cog',
+    body: AppConfig,
+    id: 'configuration',
+  });

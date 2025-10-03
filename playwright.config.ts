@@ -32,6 +32,16 @@ export default defineConfig<PluginOptions>({
     trace: 'on-first-retry',
   },
 
+  /* Global setup and teardown */
+  globalSetup: require.resolve('./tests/global-setup'),
+
+  /* Configure console and page error handling */
+  expect: {
+    toHaveScreenshot: {
+      threshold: 0.2,
+    },
+  },
+
   /* Configure projects for major browsers */
   projects: [
     // 1. Login to Grafana and store the cookie on disk for use in other tests.

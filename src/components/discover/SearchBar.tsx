@@ -1,33 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { css } from '@emotion/css';
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme2, TimeRange, dateTime } from '@grafana/data';
 import { useStyles2, Input, Button, TimeRangePicker } from '@grafana/ui';
-import { useTimeRange } from '../../hooks/useTimeRange';
+import { useLogsQuery, useLogsTimeRange, useLogsContext } from '../../contexts/LogsContext';
 
-interface SearchBarProps {
-  onQueryChange?: (query: string) => void;
-  onTimeRangeChange?: (timeRange: any) => void;
-}
-
-export function SearchBar({ onQueryChange, onTimeRangeChange }: SearchBarProps) {
+export function SearchBar() {
   const s = useStyles2(getStyles);
-  const [query, setQuery] = useState('');
-  const { timeRange, setTimeRange } = useTimeRange();
+  const { query, setQuery } = useLogsQuery();
+  const { timeRange, setTimeRange } = useLogsTimeRange();
+  const { search } = useLogsContext();
+
+  // Convert context timeRange to TimeRange format expected by TimeRangePicker
+  const timeRangeValue: TimeRange = {
+    from: dateTime(timeRange.from),
+    to: dateTime(timeRange.to),
+    raw: {
+      from: dateTime(timeRange.from).toISOString(),
+      to: dateTime(timeRange.to).toISOString(),
+    },
+  };
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = event.target.value;
     setQuery(newQuery);
-    onQueryChange?.(newQuery);
   };
 
-  const handleTimeRangeChange = (newTimeRange: any) => {
-    setTimeRange(newTimeRange);
-    onTimeRangeChange?.(newTimeRange);
+  const handleTimeRangeChange = (newTimeRange: TimeRange) => {
+    setTimeRange(newTimeRange.from.valueOf(), newTimeRange.to.valueOf());
   };
 
   const handleSearch = () => {
     // Trigger search with current query and time range
     console.log('Search triggered:', { query, timeRange });
+    search();
   };
 
   return (
@@ -44,7 +49,7 @@ export function SearchBar({ onQueryChange, onTimeRangeChange }: SearchBarProps) 
         </div>
         <div className={s.timePicker}>
           <TimeRangePicker
-            value={timeRange}
+            value={timeRangeValue}
             onChange={handleTimeRangeChange}
             onChangeTimeZone={() => {}}
             onMoveBackward={() => {}}

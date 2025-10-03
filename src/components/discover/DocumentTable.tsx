@@ -28,6 +28,32 @@ export const DocumentTable = memo(function DocumentTable({
   height = 400
 }: DocumentTableProps) {
   const s = useStyles2(getStyles);
+  
+  // Log received data for debugging
+  console.log(`DocumentTable: Rendering with ${data ? data.length : 0} log entries`);
+  if (data && data.length > 0) {
+    console.log('Sample log entry:', JSON.stringify(data[0]).substring(0, 200) + '...');
+    
+    // Normalize the field names
+    data = data.map(entry => {
+      // Convert _time to timestamp if needed
+      if (entry._time && !entry.timestamp) {
+        entry.timestamp = entry._time;
+      }
+      
+      // Convert _msg to message if needed
+      if (entry._msg && !entry.message) {
+        entry.message = entry._msg;
+      }
+      
+      // Convert severity to level if needed
+      if (entry.severity && !entry.level) {
+        entry.level = entry.severity;
+      }
+      
+      return entry;
+    });
+  }
 
   // Extract columns from data
   const columns = useMemo(() => {
@@ -50,10 +76,6 @@ export const DocumentTable = memo(function DocumentTable({
   const handleRowClick = useCallback((entry: LogEntry) => {
     onRowClick?.(entry);
   }, [onRowClick]);
-
-  const handleRowExpand = useCallback((entry: LogEntry) => {
-    onRowExpand?.(entry);
-  }, [onRowExpand]);
 
   const handleExpandClick = useCallback((entry: LogEntry, event: React.MouseEvent) => {
     event.stopPropagation();

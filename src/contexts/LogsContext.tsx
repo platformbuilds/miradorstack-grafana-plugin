@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { LogEntry } from '../components/discover/DocumentTable';
 import { FieldInfo } from '../components/discover/FieldSidebar';
+import { useLogsData as useLogsDataHook } from '../hooks/useLogsData';
 
 export interface LogsState {
   // Query state
@@ -43,7 +44,7 @@ export type LogsAction =
   | { type: 'RESET_FILTERS' };
 
 const initialState: LogsState = {
-  query: '',
+  query: 'service.name:"telemetrygen"',
   timeRange: {
     from: Date.now() - 24 * 60 * 60 * 1000, // 24 hours ago
     to: Date.now(),
@@ -147,6 +148,8 @@ interface LogsContextType {
   setError: (error: string | null) => void;
   setFieldInfo: (fieldInfo: FieldInfo[]) => void;
   resetFilters: () => void;
+  // Search function
+  search: () => void;
 }
 
 const LogsContext = createContext<LogsContextType | undefined>(undefined);
@@ -154,7 +157,46 @@ const LogsContext = createContext<LogsContextType | undefined>(undefined);
 export function LogsProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(logsReducer, initialState);
 
-  const contextValue: LogsContextType = {
+  // Use the data fetching hook
+  const logsDataHook = useLogsDataHook({
+    query: state.query,
+    start: state.timeRange.from,
+    end: state.timeRange.to,
+  });
+
+  // Sync the hook data with context state
+  useEffect(() => {
+    // Always clear existing error on data update (whether successful or not)
+    if (!logsDataHook.error) {
+      dispatch({ type: 'SET_ERROR', payload: null });
+    }
+    
+    // Always update logs data
+    dispatch({
+      type: 'SET_LOGS_DATA',
+      payload: {
+        logs: logsDataHook.logs || [],
+        histogram: logsDataHook.histogram || [],
+        totalCount: logsDataHook.totalCount || 0,
+      },
+    });
+    
+    // Update loading state
+    dispatch({ type: 'SET_LOADING', payload: logsDataHook.loading });
+    
+    // Update error state only if there's an actual error
+    if (logsDataHook.error) {
+      // Only show error if we actually have no data
+      if (!logsDataHook.logs || logsDataHook.logs.length === 0) {
+        dispatch({ type: 'SET_ERROR', payload: logsDataHook.error });
+      } else {
+        // We have data despite an error, so clear the error
+        dispatch({ type: 'SET_ERROR', payload: null });
+      }
+    }
+  }, [logsDataHook.logs, logsDataHook.histogram, logsDataHook.totalCount, logsDataHook.loading, logsDataHook.error]);
+
+    const contextValue: LogsContextType = {
     state,
     dispatch,
     setQuery: (query: string) => dispatch({ type: 'SET_QUERY', payload: query }),
@@ -168,6 +210,17 @@ export function LogsProvider({ children }: { children: ReactNode }) {
     setError: (error: string | null) => dispatch({ type: 'SET_ERROR', payload: error }),
     setFieldInfo: (fieldInfo: FieldInfo[]) => dispatch({ type: 'SET_FIELD_INFO', payload: fieldInfo }),
     resetFilters: () => dispatch({ type: 'RESET_FILTERS' }),
+    search: () => {
+      // Make sure we have a non-empty query (use * for all logs if query is empty)
+      const searchQuery = state.query.trim() || '*';
+      console.log(`Searching with query: "${searchQuery}"`);
+      
+      return logsDataHook.refetch({ 
+        query: searchQuery,
+        start: state.timeRange.from,
+        end: state.timeRange.to,
+      });
+    },
   };
 
   return (

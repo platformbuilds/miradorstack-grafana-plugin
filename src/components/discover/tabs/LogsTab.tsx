@@ -74,9 +74,12 @@ export function LogsTab() {
     setTimeRange(timeRangeClick.from, timeRangeClick.to);
   };
 
+  // Only show error if there are no logs and an error exists
+  const shouldShowError = error && (!logs || logs.length === 0);
+  
   return (
     <div className={s.container}>
-      {error && (
+      {shouldShowError && (
         <div className={s.error}>
           Error: {error}
         </div>
@@ -108,6 +111,8 @@ export function LogsTab() {
           <div className={s.table}>
             {loading ? (
               <div className={s.loading}>Loading logs...</div>
+            ) : logs.length === 0 ? (
+              <div className={s.empty}>No logs found. Try adjusting your search query or time range.</div>
             ) : (
               <DocumentTable
                 data={logs}
@@ -166,5 +171,15 @@ const getStyles = (theme: GrafanaTheme2) => ({
   table: css`
     flex: 1;
     overflow: hidden;
+  `,
+  empty: css`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: ${theme.spacing(4)};
+    color: ${theme.colors.text.secondary};
+    background: ${theme.colors.background.secondary};
+    border-radius: ${theme.shape.radius.default};
+    font-style: italic;
   `,
 });

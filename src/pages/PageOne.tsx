@@ -22,6 +22,16 @@ function ExplorerPage() {
           </LinkButton>
         </div>
         <div className={s.marginTop}>
+          <LinkButton href={prefixRoute(ROUTES.Reports)}>
+            Go to Reports
+          </LinkButton>
+        </div>
+        <div className={s.marginTop}>
+          <LinkButton href={prefixRoute(ROUTES.AIInsights)}>
+            Go to AI Insights
+          </LinkButton>
+        </div>
+        <div className={s.marginTop}>
           <LinkButton data-testid={testIds.pageOne.navigateToFour} href={prefixRoute(ROUTES.Schema)}>
             Go to Schema Explorer
           </LinkButton>

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "Mirador Core Connector",
+  "id": "platformbuildspvtltd-miradorstackconnect-datasource",
+  "metrics": true,
+  "logs": true,
+  "tracing": true,
+  "info": {
+    "keywords": ["observability", "logs", "metrics", "traces", "mirador"],
+    "description": "Mirador Core Connector - Data source for connecting to Mirador observability platform",
+    "author": {
+      "name": "Platformbuildspvtltd"
+    },
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=10.0.0",
+    "plugins": []
+  },
+  "routes": [
+    {
+      "path": "api",
+      "method": "*",
+      "url": "{{ .JsonData.url }}",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Bearer {{ .SecureJsonData.bearerToken }}"
+        }
+      ]
+    }
+  ]
+}

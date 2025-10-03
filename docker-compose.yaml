@@ -1,5 +1,30 @@
+version: '3.8'
+
 services:
   grafana:
-    extends:
-      file: .config/docker-compose-base.yaml
-      service: grafana
+    user: root
+    container_name: 'miradorstack-grafana-plugin'
+
+    build:
+      context: .
+      dockerfile: .config/Dockerfile
+      args:
+        grafana_image: grafana
+        grafana_version: 12.2.0
+        development: false
+        anonymous_auth_enabled: true
+    ports:
+      - 3000:3000/tcp
+    volumes:
+      - ./dist:/var/lib/grafana/plugins/platformbuildspvtltd-miradorstackconnect-app
+      - ./provisioning:/etc/grafana/provisioning
+    environment:
+      NODE_ENV: development
+      GF_LOG_FILTERS: plugin.platformbuildspvtltd-miradorstackconnect-app:debug
+      GF_LOG_LEVEL: debug
+      GF_DATAPROXY_LOGGING: 1
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: platformbuildspvtltd-miradorstackconnect-app
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_ANONYMOUS_ENABLED: true
+      GF_AUTH_BASIC_ENABLED: false
+      GF_DEFAULT_APP_MODE: development

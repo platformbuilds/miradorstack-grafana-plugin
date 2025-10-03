@@ -43,7 +43,12 @@ export class MiradorDataSource extends DataSourceApi<MiradorQuery, MiradorDataSo
 
     // Initialize API client
     const { url, timeout, tenantId } = instanceSettings.jsonData;
-    const { bearerToken } = (instanceSettings as any).secureJsonData as MiradorSecureData;
+    const secureJsonData = (instanceSettings as any).secureJsonData as MiradorSecureData;
+    const { bearerToken } = secureJsonData || {};
+
+    if (!url) {
+      throw new Error('Mirador data source URL is not configured');
+    }
 
     this.apiClient = new MiradorAPIClient({
       baseUrl: url,
@@ -90,6 +95,9 @@ export class MiradorDataSource extends DataSourceApi<MiradorQuery, MiradorDataSo
   // Perform API request
   private async doRequest(target: MiradorQuery, start: number, end: number): Promise<any> {
     try {
+      // Log the request for debugging
+      console.log(`Making API request for ${target.queryType} with query: "${target.query}"`);
+      
       switch (target.queryType) {
         case 'metrics':
           return await this.apiClient.queryMetrics({
@@ -99,13 +107,23 @@ export class MiradorDataSource extends DataSourceApi<MiradorQuery, MiradorDataSo
           });
 
         case 'logs':
-          return await this.apiClient.queryLogs({
-            query: target.query,
+          // Make sure we always have a valid query string (use * as default if empty)
+          const queryString = target.query?.trim() || '*';
+          
+          const response = await this.apiClient.queryLogs({
+            query: queryString,
             query_language: (target.queryLanguage as 'lucene' | 'logsql') || 'lucene',
             start,
             end,
             limit: target.limit || 1000,
           });
+          
+          // Log successful response
+          console.log(`Logs API response received: status=${response.status || 'unknown'}, logCount=${
+            response.data?.logs?.length || 'unknown'
+          }`);
+          
+          return response;
 
         case 'traces':
           return await this.apiClient.searchTraces({
@@ -142,13 +160,58 @@ export class MiradorDataSource extends DataSourceApi<MiradorQuery, MiradorDataSo
 
   // Process response into DataFrame
   private processResponse(response: any, target: MiradorQuery): MutableDataFrame[] {
+    console.log('Processing response:', response);
+    
     const frame = new MutableDataFrame({
       refId: target.refId,
       fields: [],
     });
 
-    // Basic processing - customize based on response structure
+    // Special handling for logs responses
+    if (target.queryType === 'logs') {
+      // Check for the exact format we're receiving from the API
+      if (response && response.data && response.data.data && Array.isArray(response.data.data.logs)) {
+        console.log(`Found ${response.data.data.logs.length} logs in response`);
+        
+        // Create the frame directly with the logs data
+        // Pass the raw logs data directly to be processed by hooks
+        return [{
+          refId: target.refId,
+          fields: response.data.data.fields || [],
+          length: response.data.data.logs.length,
+          logs: response.data.data.logs,
+          meta: {
+            custom: {
+              count: response.data.data.metadata?.logCount || response.data.data.logs.length,
+              fields: response.data.data.fields || [],
+              status: response.data.status || 'unknown',
+            }
+          }
+        } as any];
+      }
+    }
+
+    // Default processing for other response formats
     if (response.data) {
+      // Check for direct logs array in the response
+      if (response.data.logs && Array.isArray(response.data.logs)) {
+        // If there's a logs array but no fields defined, extract fields from the first log entry
+        if (response.data.logs.length > 0) {
+          const firstLog = response.data.logs[0];
+          Object.keys(firstLog).forEach(key => {
+            frame.addField({ name: key, type: FieldType.string });
+          });
+          
+          // Add all log entries
+          response.data.logs.forEach((log: any) => {
+            frame.add(log);
+          });
+          
+          console.log(`Processed ${response.data.logs.length} log entries from direct logs array`);
+          return [frame];
+        }
+      }
+      
       // Assume response.data is an array of objects
       if (Array.isArray(response.data)) {
         response.data.forEach((item: any, index: number) => {
@@ -160,6 +223,8 @@ export class MiradorDataSource extends DataSourceApi<MiradorQuery, MiradorDataSo
           }
           frame.add(item);
         });
+        
+        console.log(`Processed ${response.data.length} items from array`);
       }
     }
 

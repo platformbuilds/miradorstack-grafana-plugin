@@ -141,3 +141,6 @@ vite.config.ts.timestamp-*
 # Ignore ZIP Files which are releases
 *.zip
 */*.zip
+
+#Ignore test results
+test-results/

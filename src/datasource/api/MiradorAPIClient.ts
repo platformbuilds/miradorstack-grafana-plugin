@@ -62,9 +62,18 @@ export class MiradorAPIClient {
   private tenantId?: string;
 
   constructor(options: MiradorAPIClientOptions) {
+    if (!options.baseUrl) {
+      throw new Error('baseUrl is required for MiradorAPIClient');
+    }
     this.baseUrl = options.baseUrl.replace(/\/$/, ''); // Remove trailing slash
     this.bearerToken = options.bearerToken;
-    this.timeout = options.timeout || 30000; // 30 seconds default
+    // Allow provisioning or UI to specify timeout in seconds (common short numbers like 30)
+    // If a timeout looks like seconds (e.g. <= 1000), treat it as seconds and convert to ms.
+    if (options.timeout && options.timeout > 0 && options.timeout < 1000) {
+      this.timeout = options.timeout * 1000;
+    } else {
+      this.timeout = options.timeout || 30000; // default 30 seconds
+    }
     this.tenantId = options.tenantId;
   }
 
@@ -73,7 +82,14 @@ export class MiradorAPIClient {
     method: 'GET' | 'POST' = 'GET',
     body?: any
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    // Ensure requests target the API prefix. Many users will configure the base URL
+    // as the host root (e.g. http://localhost:8080) or already with /api/v1. Normalize
+    // so final URL always contains /api/v1 before the endpoint path.
+  const apiPrefix = '/api/v1';
+  // Remove trailing slash for accurate endsWith check, then only append apiPrefix when missing
+  const baseNoSlash = this.baseUrl.replace(/\/$/, '');
+  const normalizedBase = baseNoSlash.endsWith(apiPrefix) ? baseNoSlash : baseNoSlash + apiPrefix;
+  const url = `${normalizedBase}${endpoint}`;
 
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.bearerToken}`,
@@ -154,7 +170,12 @@ export class MiradorAPIClient {
       this.bearerToken = options.bearerToken;
     }
     if (options.timeout) {
-      this.timeout = options.timeout;
+      // Same coercion as constructor: interpret small numeric values as seconds
+      if (options.timeout > 0 && options.timeout < 1000) {
+        this.timeout = options.timeout * 1000;
+      } else {
+        this.timeout = options.timeout;
+      }
     }
     if (options.tenantId !== undefined) {
       this.tenantId = options.tenantId;

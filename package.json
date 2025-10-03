@@ -2,7 +2,9 @@
   "name": "miradorstack-connect",
   "version": "1.0.0",
   "scripts": {
-    "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
+    "build": "webpack -c ./.config/webpack/webpack.config.ts --env production && mage buildAll",
+    "build:frontend": "webpack -c ./.config/webpack/webpack.config.ts --env production",
+    "build:backend": "mage buildAll",
     "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",

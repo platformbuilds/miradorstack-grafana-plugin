@@ -55,14 +55,6 @@ export const FieldSidebar = memo(function FieldSidebar({
     setExpandedSections(newExpanded);
   }, [expandedSections]);
 
-  const handleFieldToggle = useCallback((fieldName: string) => {
-    onFieldToggle?.(fieldName);
-  }, [onFieldToggle]);
-
-  const handleFieldPin = useCallback((fieldName: string) => {
-    onFieldPin?.(fieldName);
-  }, [onFieldPin]);
-
   const handleFieldClick = useCallback((fieldName: string) => {
     onFieldToggle?.(fieldName);
   }, [onFieldToggle]);

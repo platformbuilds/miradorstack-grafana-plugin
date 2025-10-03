@@ -1,5 +1,5 @@
 ARG grafana_version=latest
-ARG grafana_image=grafana-enterprise
+ARG grafana_image=grafana
 
 FROM grafana/${grafana_image}:${grafana_version}
 
@@ -42,8 +42,8 @@ RUN if [ "${development}" = "true" ]; then \
     fi \
     fi
 
-COPY supervisord/supervisord.conf /etc/supervisor.d/supervisord.ini
-COPY supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY .config/supervisord/supervisord.conf /etc/supervisor.d/supervisord.ini
+COPY .config/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 
 # Installing Go
@@ -54,6 +54,17 @@ RUN if [ "${development}" = "true" ]; then \
     echo "export PATH=$PATH:/usr/local/go/bin:~/go/bin" >> ~/.bashrc && \
     rm -f go${GO_VERSION}.linux-${GO_ARCH}.tar.gz; \
     fi
+
+# Copy the correct Go binary for the target architecture
+# NOTE: Binary copying moved to entrypoint.sh to work with volume mounts
+# RUN if [ "${TARGETARCH}" = "amd64" ]; then \
+#     cp /var/lib/grafana/plugins/platformbuildspvtltd-miradorstackconnect-app/gpx_miradorstack_connect_linux_amd64 /var/lib/grafana/plugins/platformbuildspvtltd-miradorstackconnect-app/gpx_miradorstack_connect; \
+#     elif [ "${TARGETARCH}" = "arm64" ]; then \
+#     cp /var/lib/grafana/plugins/platformbuildspvtltd-miradorstackconnect-app/gpx_miradorstack_connect_linux_arm64 /var/lib/grafana/plugins/platformbuildspvtltd-miradorstackconnect-app/gpx_miradorstack_connect; \
+#     else \
+#     echo "Unsupported architecture: ${TARGETARCH}" && exit 1; \
+#     fi && \
+#     chmod +x /var/lib/grafana/plugins/platformbuildspvtltd-miradorstackconnect-app/gpx_miradorstack_connect
 
 # Installing delve for debugging
 RUN if [ "${development}" = "true" ]; then \
@@ -72,6 +83,6 @@ RUN if [ "${development}" = "true" ]; then \
 RUN sed -i 's|</body>|<script src="http://localhost:35729/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html
 
 
-COPY entrypoint.sh /entrypoint.sh
+COPY .config/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
