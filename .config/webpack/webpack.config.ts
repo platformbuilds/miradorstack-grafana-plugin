@@ -178,6 +178,7 @@ const config = async (env: Env): Promise<Configuration> => {
           { from: '**/*.png', to: '.', noErrorOnMissing: true },
           { from: '**/*.html', to: '.', noErrorOnMissing: true },
           { from: 'img/**/*', to: '.', noErrorOnMissing: true },
+          { from: 'img/**/*', to: 'datasource', noErrorOnMissing: true },
           { from: 'libs/**/*', to: '.', noErrorOnMissing: true },
           { from: 'static/**/*', to: '.', noErrorOnMissing: true },
           { from: '**/query_help.md', to: '.', noErrorOnMissing: true },

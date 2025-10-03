@@ -18,6 +18,7 @@ services:
     volumes:
       - ./dist:/var/lib/grafana/plugins/platformbuildspvtltd-miradorstackconnect-app
       - ./provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
     environment:
       NODE_ENV: development
       GF_LOG_FILTERS: plugin.platformbuildspvtltd-miradorstackconnect-app:debug
@@ -28,3 +29,10 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: true
       GF_AUTH_BASIC_ENABLED: false
       GF_DEFAULT_APP_MODE: development
+      # Ensure datasources are not overwritten on restart
+      GF_DATASOURCES_DEFAULT_SKIP_UPDATE: true
+      # This ensures datasources are provisioned only if they don't exist
+      GF_DATASOURCES_DEFAULT_OVERWRITE: false
+
+volumes:
+  grafana_data:
