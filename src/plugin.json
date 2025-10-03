@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "app",
+  "name": "Miradorstack-Connect",
+  "id": "platformbuildspvtltd-miradorstackconnect-app",
+  "backend": true,
+  "executable": "gpx_miradorstack_connect",
+  "info": {
+    "keywords": ["app"],
+    "description": "",
+    "author": {
+      "name": "Platformbuildspvtltd"
+    },
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "includes": [
+    {
+      "type": "page",
+      "name": "Explorer",
+      "path": "/a/%PLUGIN_ID%/one",
+      "addToNav": true,
+      "defaultNav": true
+    },
+    {
+      "type": "page",
+      "name": "Schema Explorer",
+      "path": "/a/%PLUGIN_ID%/two",
+      "addToNav": true,
+      "defaultNav": false
+    },
+    {
+      "type": "page",
+      "name": "Page Three",
+      "path": "/a/%PLUGIN_ID%/three",
+      "addToNav": true,
+      "defaultNav": false
+    },
+    {
+      "type": "page",
+      "name": "Page Four",
+      "path": "/a/%PLUGIN_ID%/four",
+      "addToNav": true,
+      "defaultNav": false
+    },
+    {
+      "type": "datasource",
+      "name": "Mirador Core Connector",
+      "id": "mirador-core-connector"
+    },
+    {
+      "type": "page",
+      "icon": "cog",
+      "name": "Configuration",
+      "path": "/plugins/%PLUGIN_ID%",
+      "role": "Admin",
+      "addToNav": true
+    }
+  ],
+  "dependencies": {
+    "grafanaDependency": ">=10.4.0",
+    "plugins": []
+  }
+}

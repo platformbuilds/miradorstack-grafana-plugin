@@ -16,9 +16,9 @@ Create a comprehensive Grafana plugin that brings a user-friendly interface to G
 ### 2. Data Source Plugin: "Mirador Core Connector"
 **Purpose**: Backend connectivity to Mirador Core APIs
 **Features**:
-- MetricsQL query support
-- LogsQL query builder
-- Traces data integration
+- Metrics query support (PromQL & MetricsQL)
+- Logs query builder (Lucene)
+- Traces data integration (Lucene)
 - AI engine connectivity
 - Real-time WebSocket streams
 - Schema definition caching
@@ -38,14 +38,15 @@ Create a comprehensive Grafana plugin that brings a user-friendly interface to G
 - Data type visualization
 
 #### 3.3 "AI Insights Panel"
-- Prediction results display
 - RCA investigation results
+- Prediction results display (future feature. Not now.)
 - Alert correlation views
 
 #### 3.4 "Schema Explorer Panel"
 - Metric definitions viewer
 - Log field schema browser
 - Trace service/operation explorer
+- realtime ServiceMaps using the serviceconnector metrics
 
 ## Technical Implementation Plan
 
@@ -304,7 +305,6 @@ wsClient.on('alerts', handleAlertsUpdate);
 1. **Dashboard Integration**
    - Use discovery results in dashboards
    - Create panels from explore queries
-   - Alert integration
 
 2. **Multi-tenancy**
    - Leverage Grafana's org model
@@ -329,6 +329,7 @@ wsClient.on('alerts', handleAlertsUpdate);
 - Field statistics
 - Filter management
 - Time range integration
+- RCA Investigation
 
 ### Milestone 3: Advanced Features (Week 12)
 - AI insights integration

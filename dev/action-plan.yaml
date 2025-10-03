@@ -132,7 +132,7 @@ phases:
           description: "Create HTTP client for Mirador Core with authentication"
           priority: "high"
           estimated_hours: 12
-          status: "completed"
+          status: "pending"
           assignee: "Backend Integration Specialist"
           dependencies: ["Create TypeScript type definitions"]
           deliverables:
@@ -218,15 +218,15 @@ phases:
     milestones:
       - name: "Lucene query builder functional"
         due_date: "Week 3 - Day 5"
-        status: "completed"
+        status: "pending"
         
       - name: "All data types (logs, metrics, traces) queryable"
         due_date: "Week 4 - Day 5" 
-        status: "completed"
+        status: "pending"
 
       - name: "Phase 2 review & sign-off"
         due_date: "Week 4 - Day 5"
-        status: "completed"
+        status: "pending"
     
     tasks:
       # Week 3 Tasks
@@ -235,7 +235,7 @@ phases:
           description: "Build visual Lucene query builder with syntax highlighting"
           priority: "medium"
           estimated_hours: 12
-          status: "completed"
+          status: "pending"
           assignee: "UI/UX Developer"
           dependencies: ["Configuration UI", "Define UX and design baselines", "Implement Mirador Core API client"]
           deliverables:
@@ -251,7 +251,7 @@ phases:
           description: "Implement Lucene query validation and AST parsing"
           priority: "medium"
           estimated_hours: 10
-          status: "completed"
+          status: "pending"
           assignee: "Lead Developer"
           dependencies: ["Lucene query editor component"]
           deliverables:
@@ -267,7 +267,7 @@ phases:
           description: "Stand up fixtures/mocks for Mirador Core endpoints and prepare CI wiring"
           priority: "medium"
           estimated_hours: 8
-          status: "completed"
+          status: "pending"
           assignee: "QA Engineer"
           dependencies: ["Implement Mirador Core API client", "Initial unit test harness"]
           deliverables:
@@ -285,7 +285,7 @@ phases:
           description: "Add MetricsQL and Lucene-to-PromQL query support"
           priority: "high"
           estimated_hours: 12
-          status: "completed"
+          status: "pending"
           assignee: "Backend Integration Specialist"
           dependencies: ["Query validation and parsing"]
           deliverables:
@@ -301,7 +301,7 @@ phases:
           description: "Implement traces search with Lucene syntax"
           priority: "high"
           estimated_hours: 10
-          status: "completed"
+          status: "pending"
           assignee: "Backend Integration Specialist"
           dependencies: ["Metrics query support"]
           deliverables:
@@ -317,7 +317,7 @@ phases:
           description: "Add real-time log streaming via WebSocket"
           priority: "medium"
           estimated_hours: 8
-          status: "completed"
+          status: "pending"
           assignee: "Lead Developer"
           dependencies: ["Query validation and parsing"]
           deliverables:
@@ -333,7 +333,7 @@ phases:
           description: "Automate end-to-end smoke tests for core query paths"
           priority: "high"
           estimated_hours: 8
-          status: "completed"
+          status: "pending"
           assignee: "QA Engineer"
           dependencies: ["Metrics query support", "Traces query support", "API contract tests"]
           deliverables:
@@ -349,7 +349,7 @@ phases:
           description: "Hold sign-off review on data access capabilities"
           priority: "high"
           estimated_hours: 4
-          status: "completed"
+          status: "pending"
           assignee: "Architect"
           dependencies: ["Metrics query support", "Traces query support", "Integration smoke tests"]
           deliverables:
@@ -369,42 +369,47 @@ phases:
     end_week: 7
     
     milestones:
-      - name: "Discover interface MVP complete"
+      - name: "Onboarding page functional" 
+        due_date: "Week 5 - Day 5" 
+        status: "pending" 
+      - name: "Discover page MVP complete"
         due_date: "Week 6 - Day 3"
-        status: "completed"
+        status: "pending"
         
-      - name: "Field interaction and filtering working"
+      - name: "Reports page functional"
         due_date: "Week 7 - Day 5"
-        status: "completed"
+        status: "pending"
 
-      - name: "Phase 3 review & sign-off"
+      - name: "AI Insights page with RCA working"
         due_date: "Week 7 - Day 5"
-        status: "completed"
+        status: "pending"
     
     tasks:
       # Week 5 Tasks
       week_5:
         - name: "Discover page layout"
-          description: "Create main discover surface in the app plugin with responsive shell"
+          description: "Create main Discover page with responsive shell, tabbed interface for Metrics/Logs/Traces/Service Mesh, search bar, and time picker"
           priority: "high"
           estimated_hours: 12
-          status: "completed"
+          status: "pending"
           assignee: "UI/UX Developer"
           dependencies: ["WebSocket integration", "Define UX and design baselines", "Phase 2 review checkpoint"]
           deliverables:
             - "`app/src/pages/Discover/index.tsx` wiring breadcrumb, header, and layout primitives"
+            - "`app/src/components/discover/TabNavigation.tsx` for switching between Metrics/Logs/Traces/Service Mesh" 
             - "`app/src/components/discover/SearchBar.tsx` with query + time inputs"
             - "`app/src/components/discover/__tests__/DiscoverShell.test.tsx` capturing layout smoke"
           acceptance_criteria:
             - "Page layout responsive across Grafana breakpoints"
+            - "Tab navigation switches between Metrics/Logs/Traces/Service Mesh views" 
             - "Time picker integrates with Grafana time range context"
             - "Search bar emits debounced queries"
             
         - name: "Field list component"
-          description: "Build interactive field sidebar and wire real data state"
+          description: "Build interactive field sidebar for Discover page"
           priority: "high"
           estimated_hours: 14
-          status: "completed"
+          status: "pending"
           assignee: "UI/UX Developer"
           dependencies: ["Discover page layout"]
           deliverables:
@@ -416,27 +421,11 @@ phases:
             - "Field stats calculated against latest payload"
             - "Sidebar supports search, sort, and pinning"
 
-        - name: "UX heuristic review"
-          description: "Run heuristic evaluation on discover workflow design"
-          priority: "medium"
-          estimated_hours: 6
-          status: "completed"
-          assignee: "UI/UX Developer"
-          dependencies: ["Discover page layout", "Field list component"]
-          deliverables:
-            - "Annotated walkthrough in `dev/design/discover-heuristics.md`"
-            - "Prioritized UX improvement backlog captured in `dev/design/issues-phase3.md`"
-            - "Updated Figma export linked from repository"
-          acceptance_criteria:
-            - "Top UX issues documented with severity"
-            - "Backlog tickets created for improvements"
-            - "Design updates shared with team"
-
         - name: "Sample data & fixtures"
           description: "Capture representative log payloads for UI development"
           priority: "medium"
           estimated_hours: 6
-          status: "completed"
+          status: "pending"
           assignee: "QA Engineer"
           dependencies: ["Discover page layout"]
           deliverables:
@@ -447,14 +436,28 @@ phases:
             - "Mocks reflect current Mirador schema"
             - "Fixtures reusable by component tests"
             - "Storybook renders without runtime errors"
+        - name: "Onboarding page implementation" 
+          description: "Create Onboarding page with schema browsing and field definitions" 
+          priority: "high" 
+          estimated_hours: 12 
+          status: "pending" 
+          assignee: "UI/UX Developer" 
+          dependencies: ["Sample data & fixtures"] 
+          deliverables: 
+            - "`app/src/pages/Onboarding/index.tsx` with schema browser interface" 
+            - "`app/src/components/onboarding/SchemaViewer.tsx` for field definitions" 
+          acceptance_criteria: 
+            - "Schema definitions load and display" 
+            - "Field descriptions show in tooltips" 
+            - "Schema search functionality works" 
 
       # Week 6 Tasks  
       week_6:
         - name: "Document table view"
-          description: "Create log documents table with virtual scrolling"
+          description: "Create log documents table for Logs tab with virtual scrolling"
           priority: "high"
           estimated_hours: 16
-          status: "completed"
+          status: "pending"
           assignee: "Lead Developer"
           dependencies: ["Field list component", "Sample data & fixtures"]
           deliverables:
@@ -467,10 +470,10 @@ phases:
             - "Pinned fields highlighted consistently"
             
         - name: "Time histogram visualization"
-          description: "Add time-based histogram above log table"
+          description: "Add time-based histogram above log table in Logs tab"
           priority: "medium"
           estimated_hours: 10
-          status: "completed"
+          status: "pending"
           assignee: "UI/UX Developer"
           dependencies: ["Document table view"]
           deliverables:
@@ -482,13 +485,61 @@ phases:
             - "Clicking bars filters time range via query state"
             - "Visual updates occur within 250ms of new data"
 
+
+        - name: "Metrics tab implementation" 
+          description: "Implement Metrics tab with PromQL query support for querying metrics from mirador-core" 
+          priority: "high" 
+          estimated_hours: 14 
+          status: "pending" 
+          assignee: "Lead Developer" 
+          dependencies: ["Time histogram visualization"] 
+          deliverables: 
+            - "`app/src/components/discover/metrics/MetricsQueryEditor.tsx` with PromQL syntax highlighting" 
+            - "`app/src/components/discover/metrics/MetricsVisualization.tsx` for time series charts" 
+            - "`app/src/hooks/useMetricsQuery.ts` for PromQL execution" 
+          acceptance_criteria: 
+            - "PromQL queries execute against mirador-core metrics endpoint" 
+            - "Time series data displays in interactive charts" 
+            - "Query editor provides syntax validation and suggestions" 
+
+        - name: "Traces tab implementation" 
+          description: "Implement Traces tab with Lucene query support for querying traces from mirador-core" 
+          priority: "high" 
+          estimated_hours: 14 
+          status: "pending" 
+          assignee: "Lead Developer" 
+          dependencies: ["Metrics tab implementation"] 
+          deliverables: 
+            - "`app/src/components/discover/traces/TracesQueryEditor.tsx` with Lucene syntax for traces" 
+            - "`app/src/components/discover/traces/TracesVisualization.tsx` for trace timeline and spans" 
+            - "`app/src/hooks/useTracesQuery.ts` for trace data fetching" 
+          acceptance_criteria: 
+            - "Lucene queries execute against mirador-core traces endpoint" 
+            - "Trace data displays in timeline and span views" 
+            - "Query editor supports trace-specific Lucene syntax" 
+
+        - name: "Service Mesh tab implementation" 
+          description: "Implement Service Mesh tab with visual realtime diagram showing services and health based on servicegraphconnector metrics" 
+          priority: "high" 
+          estimated_hours: 16 
+          status: "pending" 
+          assignee: "UI/UX Developer" 
+          dependencies: ["Traces tab implementation"] 
+          deliverables: 
+            - "`app/src/components/discover/servicemesh/ServiceMeshDiagram.tsx` with interactive node-link visualization" 
+            - "`app/src/hooks/useServiceGraphData.ts` for fetching servicegraphconnector metrics" 
+            - "`app/src/components/discover/servicemesh/ServiceHealthIndicator.tsx` with color-coded health status" 
+          acceptance_criteria: 
+            - "Real-time service mesh diagram displays with nodes and connections" 
+            - "Service health indicated by colors based on metrics" 
+            - "Interactive diagram allows zooming, panning, and service selection" 
         - name: "UI regression tests"
-          description: "Implement component-level regression tests for Discover UI"
+          description: "Implement component-level regression tests for all Discover tabs (Metrics/Logs/Traces/Service Mesh)"
           priority: "high"
           estimated_hours: 10
-          status: "completed"
+          status: "pending"
           assignee: "QA Engineer"
-          dependencies: ["Document table view", "Time histogram visualization", "UX heuristic review"]
+          dependencies: ["Document table view", "Time histogram visualization", "Metrics tab implementation", "Traces tab implementation", "Service Mesh tab implementation", "UX heuristic review"]
           deliverables:
             - "Chromatic/Playwright setup under `dev/tests/ui-regression/`"
             - "Golden screenshots committed for core discover states"
@@ -500,85 +551,53 @@ phases:
 
       # Week 7 Tasks
       week_7:
-        - name: "Interactive field filtering"
-          description: "Implement click-to-filter field interactions"
+        - name: "Complete Discover page filtering"
+          description: "Finish interactive filtering and query management across all Discover tabs (Metrics/Logs/Traces/Service Mesh)"
           priority: "high"
           estimated_hours: 14
-          status: "completed"
+          status: "pending"
           assignee: "Lead Developer"
           dependencies: ["Time histogram visualization"]
           deliverables:
             - "`app/src/components/discover/FilterPillBar.tsx` with include/exclude actions"
-            - "`app/src/hooks/useDiscoverFilters.ts` syncing with datasource queries"
-            - "Integration tests in `app/src/components/discover/__tests__/FieldInteractions.test.tsx`"
-          acceptance_criteria:
-            - "Clicking field values creates filters"
-            - "Filters display as removable pills"
-            - "Query payload updates reflect combined filters"
+            - "`app/src/components/discover/FilterPillBar.tsx` with include/exclude actions for all tabs"
+            - "`app/src/hooks/useDiscoverFilters.ts` syncing filters with datasource queries across tabs"
+            - "Query history and saved searches integration for all data types"
+            - "Filtering works across all Discover tabs (Metrics/Logs/Traces/Service Mesh)"
+            - "Query history and saved searches available for all data types"
+            - "Cross-tab filter state management and persistence"
             
-        - name: "Field statistics overlay"
-          description: "Add field value distribution popover"
-          priority: "medium"
-          estimated_hours: 10
-          status: "completed"
-          assignee: "UI/UX Developer"
-          dependencies: ["Interactive field filtering"]
-          deliverables:
-            - "`app/src/components/discover/FieldStatsOverlay.tsx`"
-            - "Value distribution helper in `app/src/utils/fieldStats.ts`"
-            - "Accessibility checks documented in `dev/testing/a11y-discover.md`"
-          acceptance_criteria:
-            - "Field click shows statistics overlay"
-            - "Top values calculated correctly"
-            - "Overlay meets WCAG interaction standards"
-            
-        - name: "Advanced filters panel"
-          description: "Create comprehensive filtering interface"
-          priority: "medium"
-          estimated_hours: 12
-          status: "completed"
-          assignee: "Lead Developer"
-          dependencies: ["Field statistics overlay"]
-          deliverables:
-            - "`app/src/components/discover/AdvancedFiltersPanel.tsx` with AND/OR builders"
-            - "Saved filter management in `app/src/hooks/useSavedFilters.ts`"
-            - "E2E coverage in `dev/tests/e2e/discover-filters.spec.ts`"
-          acceptance_criteria:
-            - "Complex filters can be built visually"
-            - "Filter logic works correctly"
-            - "Filters persist across sessions"
-
-        - name: "Guided usability testing"
-          description: "Run moderated usability sessions with target users"
-          priority: "medium"
-          estimated_hours: 8
-          status: "completed"
-          assignee: "UI/UX Developer"
-          dependencies: ["Interactive field filtering", "Field statistics overlay", "UI regression tests"]
-          deliverables:
-            - "Usability session recordings and notes"
-            - "Affinity-mapped feedback"
-            - "Improvement backlog updates"
-          acceptance_criteria:
-            - "At least five users complete tasks"
-            - "Critical issues prioritized for fixes"
-            - "Action plan shared with team"
-
-        - name: "Phase 3 review checkpoint"
-          description: "Review Discover experience and approve move to advanced features"
+        - name: "Reports page implementation"
+          description: "Create Reports page with data visualization and custom report generation"
           priority: "high"
-          estimated_hours: 4
-          status: "completed"
-          assignee: "Architect"
-          dependencies: ["Advanced filters panel", "Guided usability testing"]
+          estimated_hours: 16
+          status: "pending"
+          assignee: "UI/UX Developer"
+          dependencies: ["Service Mesh tab implementation"]
           deliverables:
-            - "Review findings and approvals"
-            - "UX debt log with owners"
-            - "Sign-off to start phase 4"
+            - "`app/src/pages/Reports/index.tsx` with reporting interface"
+            - "`app/src/components/reports/DataVisualizer.tsx` for data visualization"
+            - "Custom report generation and scheduling components"
+            - "Data visualizations display correctly"
+            - "Custom reports can be generated"
+            - "Report scheduling functionality works"
+            - "Schema search functionality works"
+            
+        - name: "AI Insights page with RCA"
+          description: "Implement AI Insights page featuring Root Cause Analysis capabilities"
+          priority: "high"
+          estimated_hours: 18
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Reports page implementation"]
+          deliverables:
+            - "`app/src/pages/AIInsights/index.tsx` main page component"
+            - "`app/src/components/ai-insights/RCAViewer.tsx` for root cause analysis display"
+            - "AI insights API integration and data fetching"
           acceptance_criteria:
-            - "Stakeholders confirm Discover UX readiness"
-            - "Outstanding issues scheduled"
-            - "Phase 4 kickoff planned"
+            - "AI Insights page loads and displays RCA results"
+            - "RCA functionality works for identifying root causes"
+            - "Page integrates with Mirador Core AI endpoints"
 
   # ==== PHASE 4: ADVANCED FEATURES ====
   phase_4:
@@ -588,152 +607,153 @@ phases:
     end_week: 10
     
     milestones:
-      - name: "Schema integration complete"
+      - name: "Data export and saved searches working"
         due_date: "Week 9 - Day 3"
-        status: "completed"
+        status: "pending"
         
-      - name: "Export and save functionality working"
+      - name: "Query history and panel integration complete"
         due_date: "Week 10 - Day 5"
-        status: "completed"
+        status: "pending"
 
       - name: "Phase 4 review & sign-off"
         due_date: "Week 10 - Day 5"
-        status: "completed"
+        status: "pending"
     
     tasks:
       # Week 8 Tasks
-  week_8:
-        - name: "Schema browser integration"
-          description: "Add schema definitions display and management"
-          priority: "high"
-          estimated_hours: 14
-          status: "completed"
-          assignee: "Backend Integration Specialist"
-          dependencies: ["Advanced filters panel", "Phase 3 review checkpoint"]
-          deliverables:
-            - "Schema API integration"
-            - "Field definitions display"
-            - "Metric and trace schema browsing"
-          acceptance_criteria:
-            - "Schema definitions load and display"
-            - "Field descriptions show in tooltips"
-            - "Schema search functionality works"
-
-        - name: "Schema contract and caching tests"
-          description: "Validate schema endpoints and caching strategy"
-          priority: "medium"
-          estimated_hours: 8
-          status: "completed"
-          assignee: "QA Engineer"
-          dependencies: ["Schema browser integration", "API contract tests"]
-          deliverables:
-            - "Automated tests for schema endpoints"
-            - "Cache invalidation scenarios"
-            - "Load test baseline for schema calls"
-          acceptance_criteria:
-            - "Schema tests pass in CI"
-            - "Cache hits monitored with metrics"
-            - "Load test results shared with team"
-
-        - name: "Schema editor interface"
-          description: "Create UI for editing schema definitions"
-          priority: "medium"
-          estimated_hours: 12
-          status: "completed"
-          assignee: "UI/UX Developer"
-          dependencies: ["Schema browser integration"]
-          deliverables:
-            - "SchemaEditor.tsx component"
-            - "Form validation for schema entries"
-            - "Bulk CSV upload interface"
-          acceptance_criteria:
-            - "Schema definitions can be created/edited"
-            - "Form validation prevents errors"
-            - "CSV upload works smoothly"
-
-      # Week 9 Tasks
-  week_9:
-        - name: "Data export functionality"
-          description: "Implement CSV and JSON export for query results"
-          priority: "high"
-          estimated_hours: 10
-          status: "completed"
-          assignee: "Lead Developer"
-          dependencies: ["Schema editor interface"]
-          deliverables:
-            - "Export functionality for logs and traces"
-            - "Format selection (CSV, JSON)"
-            - "Large dataset streaming export"
-          acceptance_criteria:
-            - "Export works for large datasets"
-            - "Multiple format options available"
-            - "Export respects current filters"
-
-        - name: "Saved searches"
-          description: "Add ability to save and load search configurations"
-          priority: "medium"
-          estimated_hours: 12
-          status: "completed"
-          assignee: "Lead Developer"
-          dependencies: ["Data export functionality"]
-          deliverables:
-            - "Save search functionality"
-            - "Load saved searches"
-            - "Search organization and management"
-          acceptance_criteria:
-            - "Searches save with all filter state"
-            - "Saved searches easily accessible"
-            - "Search sharing between users works"
-
-      # Week 10 Tasks  
-  week_10:
-        - name: "Query history and favorites"
-          description: "Add query history tracking and favorite queries"
-          priority: "medium"
-          estimated_hours: 10
-          status: "completed"
-          assignee: "UI/UX Developer"
-          dependencies: ["Saved searches"]
-          deliverables:
-            - "QueryHistory.tsx component"
-            - "Recent queries tracking"
-            - "Favorite queries management"
-          acceptance_criteria:
-            - "Recent queries automatically saved"
-            - "Query history searchable"
-            - "Favorites easily accessible"
-
-        - name: "Panel integration"
-          description: "Create dedicated panel plugins for dashboards"
-          priority: "high"
-          estimated_hours: 14
-          status: "completed"
-          assignee: "Lead Developer"
-          dependencies: ["Query history and favorites"]
-          deliverables:
-            - "LogsExplorerPanel.tsx"
-            - "FieldStatsPanel.tsx"
-            - "Panel configuration options"
-          acceptance_criteria:
-            - "Panels work in Grafana dashboards"
-            - "Panel options configurable"
-            - "Panels respond to dashboard time range"
-
-        - name: "Phase 4 review checkpoint"
-          description: "Review advanced features, exports, and panel readiness"
-          priority: "high"
-          estimated_hours: 4
-          status: "pending"
-          assignee: "Architect"
-          dependencies: ["Saved searches", "Panel integration", "Schema contract and caching tests"]
-          deliverables:
-            - "Review approval notes"
-            - "Action items for polish phase"
-            - "Release readiness assessment"
-          acceptance_criteria:
-            - "Stakeholders confirm advanced feature completeness"
-            - "Outstanding tasks prioritized"
-            - "Phase 5 kickoff authorized"
+      week_8:
+            - name: "Data export functionality"
+              description: "Implement CSV and JSON export for query results across all pages"
+              priority: "high"
+              estimated_hours: 14
+              status: "pending"
+              assignee: "Lead Developer"
+              dependencies: ["AI Insights page with RCA"]
+              deliverables:
+                - "Export functionality for logs, metrics, traces, and RCA results"
+                - "Format selection (CSV, JSON) with streaming for large datasets"
+                - "Export respects current filters and page context"
+              acceptance_criteria:
+                - "Export works for large datasets from all pages"
+                - "Multiple format options available"
+                - "Export integrates with current query state"
+    
+            - name: "Saved searches and query management"
+              description: "Add ability to save and load search configurations"
+              priority: "medium"
+              estimated_hours: 12
+              status: "pending"
+              assignee: "Lead Developer"
+              dependencies: ["Data export functionality"]
+              deliverables:
+                - "Save search functionality across Discover, Reports, and AI Insights"
+                - "Load saved searches with filter state restoration"
+                - "Search organization and management interface"
+              acceptance_criteria:
+                - "Searches save with all filter state and page context"
+                - "Saved searches easily accessible from all pages"
+                - "Search sharing between users works"
+    
+            - name: "Query history tracking"
+              description: "Implement query history and favorites across pages"
+              priority: "medium"
+              estimated_hours: 10
+              status: "pending"
+              assignee: "UI/UX Developer"
+              dependencies: ["Saved searches and query management"]
+              deliverables:
+                - "QueryHistory component with recent queries tracking"
+                - "Favorites management for frequently used queries"
+                - "History searchable and filterable by page/type"
+              acceptance_criteria:
+                - "Recent queries automatically saved across all pages"
+                - "Query history searchable and organized"
+                - "Favorites easily accessible"
+    
+          # Week 9 Tasks
+      week_9:
+            - name: "Panel integration for dashboards"
+              description: "Create dedicated panel plugins for Grafana dashboards"
+              priority: "high"
+              estimated_hours: 16
+              status: "pending"
+              assignee: "Lead Developer"
+              dependencies: ["Query history tracking"]
+              deliverables:
+                - "LogsExplorerPanel.tsx for dashboard integration"
+                - "FieldStatsPanel.tsx for field statistics visualization"
+                - "AIInsightsPanel.tsx for dashboard RCA display"
+                - "Panel configuration options and editors"
+              acceptance_criteria:
+                - "Panels work in Grafana dashboards"
+                - "Panel options configurable for each page type"
+                - "Panels respond to dashboard time range and variables"
+    
+            - name: "Cross-page navigation and state management"
+              description: "Implement seamless navigation between pages with state preservation"
+              priority: "medium"
+              estimated_hours: 10
+              status: "pending"
+              assignee: "UI/UX Developer"
+              dependencies: ["Panel integration for dashboards"]
+              deliverables:
+                - "Navigation breadcrumbs and state preservation"
+                - "Deep linking support for specific queries/results"
+                - "Context sharing between Discover, Reports, and AI Insights"
+              acceptance_criteria:
+                - "Navigation preserves query state across pages"
+                - "Deep links work for sharing specific views"
+                - "Page transitions are smooth and intuitive"
+    
+          # Week 10 Tasks  
+      week_10:
+            - name: "Advanced AI Insights features"
+              description: "Enhance AI Insights page with additional RCA capabilities and insights"
+              priority: "high"
+              estimated_hours: 14
+              status: "pending"
+              assignee: "Backend Integration Specialist"
+              dependencies: ["Cross-page navigation and state management"]
+              deliverables:
+                - "Enhanced RCA visualization with interactive elements"
+                - "AI-powered insights and recommendations"
+                - "Integration with external AI services if needed"
+              acceptance_criteria:
+                - "RCA provides actionable insights"
+                - "AI features enhance troubleshooting workflow"
+                - "Performance meets requirements for complex analysis"
+    
+            - name: "Reports page enhancements"
+              description: "Add advanced reporting features and data visualization"
+              priority: "medium"
+              estimated_hours: 12
+              status: "pending"
+              assignee: "UI/UX Developer"
+              dependencies: ["Advanced AI Insights features"]
+              deliverables:
+                - "Advanced schema visualization and editing"
+                - "Custom report generation and scheduling"
+                - "Data quality metrics and validation"
+              acceptance_criteria:
+                - "Reports provide comprehensive data insights"
+                - "Schema management is user-friendly"
+                - "Report generation works reliably"
+    
+            - name: "Phase 4 review checkpoint"
+              description: "Review advanced features, exports, and panel readiness"
+              priority: "high"
+              estimated_hours: 4
+              status: "pending"
+              assignee: "Architect"
+              dependencies: ["Advanced AI Insights features", "Reports page enhancements"]
+              deliverables:
+                - "Review approval notes for all 4 pages"
+                - "Action items for polish phase"
+                - "Release readiness assessment"
+              acceptance_criteria:
+                - "All 4 pages (Onboarding, Discover, Reports, AI Insights) meet requirements"
+                - "Outstanding issues scheduled"
+                - "Phase 5 kickoff authorized"
 
   # ==== PHASE 5: POLISH & PERFORMANCE ====
   phase_5:
@@ -745,15 +765,15 @@ phases:
     milestones:
       - name: "Performance optimization complete"
         due_date: "Week 11 - Day 5"
-        status: "completed"
+        status: "pending"
         
       - name: "Plugin ready for production"
         due_date: "Week 12 - Day 5"
-        status: "completed"
+        status: "pending"
 
       - name: "Production go/no-go review complete"
         due_date: "Week 12 - Day 5"
-        status: "completed"
+        status: "pending"
     
     tasks:
       # Week 11 Tasks
@@ -762,7 +782,7 @@ phases:
           description: "Optimize rendering and data handling performance"
           priority: "high"
           estimated_hours: 16
-           status: "completed"
+           status: "pending"
           assignee: "Lead Developer"
           dependencies: ["Panel integration"]
           deliverables:
@@ -778,7 +798,7 @@ phases:
           description: "Implement comprehensive error handling"
           priority: "high"
           estimated_hours: 10
-           status: "completed"
+           status: "pending"
           assignee: "Backend Integration Specialist"
           dependencies: ["Performance optimization"]
           deliverables:
@@ -794,7 +814,7 @@ phases:
           description: "Assess authentication, authorization, and data handling"
           priority: "high"
           estimated_hours: 12
-           status: "completed"
+           status: "pending"
           assignee: "DevOps Engineer"
           dependencies: ["Error handling and resilience"]
           deliverables:
@@ -810,7 +830,7 @@ phases:
           description: "Validate accessibility and internationalization readiness"
           priority: "medium"
           estimated_hours: 10
-           status: "completed"
+           status: "pending"
           assignee: "UI/UX Developer"
           dependencies: ["UI regression tests", "Security and compliance audit"]
           deliverables:
@@ -826,7 +846,7 @@ phases:
           description: "Add usage analytics and error telemetry hooks"
           priority: "medium"
           estimated_hours: 8
-           status: "completed"
+           status: "pending"
           assignee: "Backend Integration Specialist"
           dependencies: ["Error handling and resilience", "Phase 4 review checkpoint"]
           deliverables:
@@ -837,6 +857,88 @@ phases:
             - "Telemetry events captured in monitoring stack"
             - "Dashboards reviewed with stakeholders"
             - "Alerts tested end-to-end"
+            
+        - name: "API alignment fixes"
+          description: "Address gaps in MIRADOR-CORE API alignment identified in code review"
+          priority: "high"
+          estimated_hours: 12
+          status: "pending"
+          assignee: "Backend Integration Specialist"
+          dependencies: ["Performance optimization"]
+          deliverables:
+            - "Update MiradorAPIClient.ts to enforce query_language default to 'lucene' and handle translation"
+            - "Fix WebSocket client to properly upgrade connections and stream JSON frames"
+            - "Add payload size validation (5MiB limit) and MIME checks for CSV uploads"
+            - "Implement confirm query param for schema deletions"
+          acceptance_criteria:
+            - "API calls match spec exactly, including headers and error handling"
+            - "WebSocket streams work without HTTP fallbacks"
+            - "CSV uploads reject oversized or invalid payloads"
+            - "Deletions require explicit confirmation"
+            
+        - name: "Type and schema alignment"
+          description: "Ensure TypeScript types and request/response structures align with OpenAPI spec"
+          priority: "high"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["API alignment fixes"]
+          deliverables:
+            - "Update types.ts to include optional tenantId in schema requests"
+            - "Handle additionalProperties flexibly in FlameNode and other objects"
+            - "Regenerate types from OpenAPI spec if needed"
+          acceptance_criteria:
+            - "All schemas match spec, including required fields and optionals"
+            - "TypeScript compilation passes without mismatches"
+            - "Multi-tenant support enforced"
+            
+        - name: "Query handling fixes"
+          description: "Fix Lucene query translation and time filter precedence"
+          priority: "high"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "Lead Developer"
+          dependencies: ["Type and schema alignment"]
+          deliverables:
+            - "Update LuceneQueryBuilder to prioritize _time over start/end in logs/traces"
+            - "Ensure no conflicting time filters in query payloads"
+            - "Add validation for query_language switching"
+          acceptance_criteria:
+            - "Lucene queries translate correctly to backend syntax"
+            - "Time filters work without conflicts"
+            - "Query editor handles edge cases gracefully"
+            
+        - name: "Multi-source and deprecation fixes"
+          description: "Support multi-source aggregation and avoid deprecated endpoints"
+          priority: "medium"
+          estimated_hours: 6
+          status: "pending"
+          assignee: "Backend Integration Specialist"
+          dependencies: ["Query handling fixes"]
+          deliverables:
+            - "Implement client-side aggregation for multiple VictoriaMetrics sources"
+            - "Replace deprecated /series and /labels with /metrics/series and /metrics/labels"
+            - "Add logging for aggregation results"
+          acceptance_criteria:
+            - "Multi-source queries aggregate without duplicates"
+            - "No deprecated endpoints used"
+            - "Performance maintained with multiple sources"
+            
+        - name: "Security and compliance updates"
+          description: "Enhance security checks and compliance"
+          priority: "high"
+          estimated_hours: 8
+          status: "pending"
+          assignee: "DevOps Engineer"
+          dependencies: ["Security and compliance audit"]
+          deliverables:
+            - "Add client-side quota checks for daily CSV uploads (429 handling)"
+            - "Ensure UTF-8 validation and CSV injection mitigation"
+            - "Update threat model for API-specific risks"
+          acceptance_criteria:
+            - "All security findings from audit addressed"
+            - "Compliance with spec limits enforced"
+            - "No new vulnerabilities introduced"
 
       # Week 12 Tasks
       week_12:
@@ -844,7 +946,7 @@ phases:
           description: "Complete test coverage and documentation"
           priority: "high"
           estimated_hours: 14
-           status: "completed"
+           status: "pending"
           assignee: "All team members"
           dependencies: ["Error handling and resilience"]
           deliverables:
@@ -860,7 +962,7 @@ phases:
           description: "Prepare plugin for distribution"
           priority: "high"
           estimated_hours: 8
-           status: "completed"
+           status: "pending"
           assignee: "Lead Developer"
           dependencies: ["Testing and documentation"]
           deliverables:
@@ -876,7 +978,7 @@ phases:
           description: "Conduct final user testing and feedback collection"
           priority: "medium"
           estimated_hours: 10
-           status: "completed"
+           status: "pending"
           assignee: "UI/UX Developer"
           dependencies: ["Plugin packaging and deployment"]
           deliverables:
@@ -892,7 +994,7 @@ phases:
           description: "Complete submission process for Grafana catalog"
           priority: "high"
           estimated_hours: 6
-           status: "completed"
+           status: "pending"
           assignee: "DevOps Engineer"
           dependencies: ["Plugin packaging and deployment", "Security and compliance audit"]
           deliverables:
@@ -908,7 +1010,7 @@ phases:
           description: "Prepare rollout assets, onboarding, and support guides"
           priority: "medium"
           estimated_hours: 8
-           status: "completed"
+           status: "pending"
           assignee: "Architect"
           dependencies: ["User acceptance testing", "Grafana marketplace submission"]
           deliverables:
@@ -924,7 +1026,7 @@ phases:
           description: "Hold production go/no-go meeting and finalize rollout plan"
           priority: "high"
           estimated_hours: 4
-           status: "completed"
+           status: "pending"
           assignee: "Architect"
           dependencies: ["Testing and documentation", "Grafana marketplace submission", "Customer enablement and support playbook"]
           deliverables:
@@ -935,6 +1037,22 @@ phases:
             - "All critical launch blockers closed"
             - "Monitoring coverage approved"
             - "Launch date confirmed"
+
+        - name: "Testing for fixes"
+          description: "Add tests for all alignment fixes and ensure coverage"
+          priority: "high"
+          estimated_hours: 10
+          status: "pending"
+          assignee: "QA Engineer"
+          dependencies: ["Testing and documentation"]
+          deliverables:
+            - "Unit tests for API client fixes, type alignments, and query handling"
+            - "Integration tests for multi-source aggregation and WebSocket"
+            - "Regression tests for schema operations and security checks"
+          acceptance_criteria:
+            - "Test coverage >85% for new fixes"
+            - "All fixes validated in CI"
+            - "No regressions in existing functionality"
 
 # ==== PROJECT TRACKING ====
 tracking:
@@ -973,12 +1091,12 @@ tracking:
     week_2: "Mirador connectivity proven with passing unit harness and Phase 1 review sign-off"
     week_3: "Lucene builder usable with contract tests automated for core endpoints"
     week_4: "Logs/metrics/traces queries live with real-time streaming and smoke tests gating merges"
-    week_5: "Discover shell usable end-to-end with heuristic feedback logged"
-    week_6: "High-volume log table + histogram shipped with UI regression suite protecting visuals"
-    week_7: "Interactive filtering validated via usability sessions and Phase 3 review approval"
-    week_8: "Schema browsing/editing live with cache tests green and data governance sign-off"
-    week_9: "Exports and saved searches persist reliably across sessions"
-    week_10: "Query history and dashboard panels production-ready with Phase 4 sign-off"
+    week_5: "Discover page layout with field sidebar and search functionality"
+    week_6: "Discover page complete with document table, histogram, and basic filtering"
+    week_7: "All 4 pages implemented: Onboarding (schema browser), Discover (with filtering), Reports, AI Insights (with RCA)"
+    week_8: "Data export and saved searches working across all pages"
+    week_9: "Panel integration and cross-page navigation implemented"
+    week_10: "Advanced AI Insights and Reports features complete, Phase 4 review approved"
     week_11: "Performance, resilience, security, accessibility, and telemetry targets hit"
     week_12: "Release assets packaged, marketplace submission filed, and go-live support ready"
 
