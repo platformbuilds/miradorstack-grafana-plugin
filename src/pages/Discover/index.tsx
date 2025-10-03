@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Button } from '@grafana/ui';
+import { useStyles2, Button, Switch } from '@grafana/ui';
 import { PluginPage } from '@grafana/runtime';
 import { SearchBar } from '../../components/discover/SearchBar';
+import { QueryBuilder } from '../../components/discover/QueryBuilder';
 import { TabNavigation } from '../../components/discover/TabNavigation';
 import { LogsTab } from '../../components/discover/tabs/LogsTab';
 import { MetricsTab } from '../../components/discover/tabs/MetricsTab';
@@ -17,6 +18,7 @@ import { useNavigation } from '../../contexts/NavigationContext';
 import NavigationBar from '../../components/NavigationBar';
 
 export type DiscoverTab = 'logs' | 'metrics' | 'traces' | 'service-mesh';
+export type QueryMode = 'raw' | 'builder';
 
 function DiscoverPage() {
   const s = useStyles2(getStyles);
@@ -27,6 +29,7 @@ function DiscoverPage() {
   const [currentQuery, setCurrentQuery] = useState(navigationState.query);
   const [currentFilters, setCurrentFilters] = useState<Record<string, any>>(navigationState.filters);
   const [currentTimeRange, setCurrentTimeRange] = useState(navigationState.timeRange);
+  const [queryMode, setQueryMode] = useState<QueryMode>('raw');
 
   // Sync local state with navigation state
   useEffect(() => {
@@ -84,21 +87,36 @@ function DiscoverPage() {
       <div className={s.container}>
         {/* Header with Search Bar */}
         <div className={s.header}>
-          <SearchBar />
-          <Button
-            variant="secondary"
-            onClick={() => setShowSavedSearches(true)}
-            className={s.savedSearchesButton}
-          >
-            Saved Searches
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => setShowQueryHistory(true)}
-            className={s.savedSearchesButton}
-          >
-            Query History
-          </Button>
+          <div className={s.searchControls}>
+            <SearchBar queryMode={queryMode} />
+            <div className={s.queryBuilderContainer}>
+              <QueryBuilder onQueryChange={setCurrentQuery} queryMode={queryMode} />
+            </div>
+          </div>
+          <div className={s.headerActions}>
+            <div className={s.toggleContainer}>
+              <span>Raw Query</span>
+              <Switch
+                value={queryMode === 'builder'}
+                onChange={() => setQueryMode(queryMode === 'raw' ? 'builder' : 'raw')}
+              />
+              <span>Query Builder</span>
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => setShowSavedSearches(true)}
+              className={s.headerButton}
+            >
+              Saved Searches
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setShowQueryHistory(true)}
+              className={s.headerButton}
+            >
+              Query History
+            </Button>
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -146,11 +164,33 @@ const getStyles = (theme: GrafanaTheme2) => ({
     border-bottom: 1px solid ${theme.colors.border.weak};
     background: ${theme.colors.background.secondary};
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: ${theme.spacing(2)};
   `,
-  savedSearchesButton: css`
-    margin-left: ${theme.spacing(2)};
+  searchControls: css`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: ${theme.spacing(1)};
+  `,
+  queryBuilderContainer: css`
+    width: 100%;
+  `,
+  headerActions: css`
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    gap: ${theme.spacing(2)};
+  `,
+  toggleContainer: css`
+    display: flex;
+    align-items: center;
+    gap: ${theme.spacing(1)};
+    font-size: ${theme.typography.size.sm};
+  `,
+  headerButton: css`
+    margin-left: ${theme.spacing(1)};
   `,
   tabNavigation: css`
     border-bottom: 1px solid ${theme.colors.border.weak};

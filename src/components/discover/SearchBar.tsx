@@ -3,8 +3,13 @@ import { css } from '@emotion/css';
 import { GrafanaTheme2, TimeRange, dateTime } from '@grafana/data';
 import { useStyles2, Input, Button, TimeRangePicker } from '@grafana/ui';
 import { useLogsQuery, useLogsTimeRange, useLogsContext } from '../../contexts/LogsContext';
+import { QueryMode } from '../../pages/Discover';
 
-export function SearchBar() {
+export interface SearchBarProps {
+  queryMode: QueryMode;
+}
+
+export function SearchBar({ queryMode }: SearchBarProps) {
   const s = useStyles2(getStyles);
   const { query, setQuery } = useLogsQuery();
   const { timeRange, setTimeRange } = useLogsTimeRange();
@@ -45,6 +50,7 @@ export function SearchBar() {
             onChange={handleQueryChange}
             prefix={<span>🔍</span>}
             width={60}
+            disabled={queryMode === 'builder'}
           />
         </div>
         <div className={s.timePicker}>

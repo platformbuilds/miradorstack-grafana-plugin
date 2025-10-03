@@ -141,6 +141,10 @@ export class MiradorAPIClient {
     }
   }
 
+  async getLogFields(): Promise<any> {
+    return this.request('/logs/fields', 'GET');
+  }
+
   async healthCheck(): Promise<any> {
     return this.request('/health');
   }

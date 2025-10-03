@@ -21,11 +21,6 @@
   },
   "includes": [
     {
-      "type": "datasource",
-      "name": "Mirador Core Connector",
-      "id": "mirador-core-connector"
-    },
-    {
       "type": "page",
       "name": "Onboarding",
       "path": "/a/%PLUGIN_ID%/onboarding",
@@ -50,8 +45,8 @@
     {
       "type": "page",
       "name": "AI Insights",
-      "path": "/a/%PLUGIN_ID%/ai-insights", 
-      "icon": "ai",
+      "path": "/a/%PLUGIN_ID%/ai-insights",
+      "icon": "robot",
       "addToNav": true
     }
   ],
