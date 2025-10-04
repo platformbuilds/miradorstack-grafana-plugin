@@ -10,6 +10,8 @@ import { QueryHistoryModal } from '../../components/QueryHistoryModal';
 import { queryHistoryManager } from '../../utils/queryHistory';
 import { useNavigation } from '../../contexts/NavigationContext';
 import NavigationBar from '../../components/NavigationBar';
+import { MiradorAPIClient } from '../../datasource/api/MiradorAPIClient';
+import { getDataSourceSrv } from '@grafana/runtime';
 
 type ReportType = 'logs' | 'metrics' | 'traces' | 'schema' | 'data-quality';
 
@@ -24,7 +26,7 @@ function ReportsPage() {
   const [showSavedSearches, setShowSavedSearches] = useState(false);
   const [showQueryHistory, setShowQueryHistory] = useState(false);
 
-  // Sync local state with navigation state
+  // Initialize local state from navigation state only on mount
   useEffect(() => {
     setQuery(navigationState.query);
     setTimeRange(navigationState.timeRange);
@@ -32,7 +34,8 @@ function ReportsPage() {
     if (navigationState.activeTab) {
       setActiveTab(navigationState.activeTab as ReportType);
     }
-  }, [navigationState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
   // Update navigation state when local state changes
   useEffect(() => {
@@ -53,11 +56,79 @@ function ReportsPage() {
     { label: 'Data Quality', value: 'data-quality' as ReportType },
   ];
 
-  const handleGenerateReport = () => {
-    // TODO: Implement actual data fetching from Mirador API
-    // For now, generate mock data
-    const mockData = generateMockData(activeTab);
-    setReportData(mockData);
+
+  // Helper to get Mirador Core Connector datasource config
+  async function getMiradorApiClient() {
+    const dataSourceSrv = getDataSourceSrv();
+    const ds: any = await dataSourceSrv.get('Mirador Core Connector');
+    if (!ds) throw new Error('Mirador Core Connector data source not found. Please configure the data source in Grafana.');
+    // Try to extract config from datasource instance
+    const url = ds.instanceSettings?.jsonData?.url || '';
+    const bearerToken = ds.instanceSettings?.secureJsonData?.bearerToken || '';
+    const tenantId = ds.instanceSettings?.jsonData?.tenantId;
+    return new MiradorAPIClient({ baseUrl: url, bearerToken, tenantId });
+  }
+
+  // Helper to parse time range string (e.g., 'last 1h') to timestamps
+  function parseTimeRange(range: string): { start: number, end: number } {
+    // Simple support for 'last Xh' or 'last Xm'
+    const now = Date.now();
+    const hMatch = range.match(/last (\d+)h/i);
+    if (hMatch && hMatch[1]) {
+      const hours = parseInt(hMatch[1], 10);
+      return { start: now - hours * 3600 * 1000, end: now };
+    }
+    const mMatch = range.match(/last (\d+)m/i);
+    if (mMatch && mMatch[1]) {
+      const mins = parseInt(mMatch[1], 10);
+      return { start: now - mins * 60 * 1000, end: now };
+    }
+    // Default: last 1h
+    return { start: now - 3600 * 1000, end: now };
+  }
+
+  const handleGenerateReport = async () => {
+    let data: any[] = [];
+    try {
+      const apiClient = await getMiradorApiClient();
+      if (activeTab === 'logs') {
+        const { start, end } = parseTimeRange(timeRange);
+        const resp = await apiClient.queryLogs({
+          query: query || '*',
+          query_language: 'lucene',
+          start,
+          end,
+          limit: 1000,
+        });
+        data = resp?.data?.logs || [];
+      } else if (activeTab === 'metrics') {
+        const resp = await apiClient.queryMetrics({
+          query: query || '*',
+          query_language: 'lucene',
+          time: new Date().toISOString(),
+        });
+        data = resp?.data?.metrics || [];
+      } else if (activeTab === 'traces') {
+        const { start, end } = parseTimeRange(timeRange);
+        const resp = await apiClient.searchTraces({
+          query: query || '*',
+          query_language: 'lucene',
+          search_engine: 'lucene',
+          start: new Date(start).toISOString(),
+          end: new Date(end).toISOString(),
+          limit: 100,
+        });
+        data = resp?.data?.traces || [];
+      } else {
+        // For schema/data-quality, keep using mock for now
+        data = generateMockData(activeTab);
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to fetch report data:', err);
+      data = [];
+    }
+    setReportData(data);
   };
 
   const generateMockData = (type: ReportType) => {
