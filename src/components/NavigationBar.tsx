@@ -17,13 +17,6 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ currentPage }) => {
 
   const navigationItems = [
     {
-      id: 'discover',
-      label: 'Discover',
-      route: ROUTES.Discover,
-      icon: 'search',
-      description: 'Explore and search your data',
-    },
-    {
       id: 'reports',
       label: 'Reports',
       route: ROUTES.Reports,

@@ -195,23 +195,6 @@ export interface LuceneQuery {
 }
 
 // UI State Types
-export interface DiscoverState {
-  selectedFields: string[];
-  availableFields: string[];
-  query: string;
-  timeRange: {
-    from: string;
-    to: string;
-  };
-  filters: FilterState[];
-  sortField: string;
-  sortDirection: 'asc' | 'desc';
-  pageSize: number;
-  currentPage: number;
-  viewMode: 'table' | 'json' | 'raw';
-  autoRefresh: boolean;
-  refreshInterval: number;
-}
 
 export interface FilterState {
   field: string;

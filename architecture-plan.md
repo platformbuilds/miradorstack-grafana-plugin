@@ -180,17 +180,6 @@ interface MetricsQuery extends MiradorQuery {
 
 ### UI State Management
 ```typescript
-interface DiscoverState {
-  selectedFields: string[];
-  filters: Filter[];
-  timeRange: TimeRange;
-  query: string;
-  sortField: string;
-  sortDirection: 'asc' | 'desc';
-  pageSize: number;
-  currentPage: number;
-  viewMode: 'table' | 'json' | 'raw';
-}
 ```
 
 ## File Structure

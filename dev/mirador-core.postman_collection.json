@@ -4736,7 +4736,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query_language\": \"lucene\",\n  \"query\": \"_time:5m AND service:web AND level:error\",\n  \"limit\": 100\n}"
+              "raw": "{\n  \"query_language\": \"lucene\",\n  \"search_engine\": \"lucene\",\n  \"query\": \"_time:5m AND service:web AND level:error\",\n  \"limit\": 100\n}"
             },
             "description": "Logs query via VictoriaLogs; Lucene is translated server-side."
           }
@@ -4756,7 +4756,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query_language\": \"lucene\",\n  \"query\": \"_time:15m level:error\",\n  \"limit\": 200\n}"
+              "raw": "{\n  \"query_language\": \"lucene\",\n  \"search_engine\": \"lucene\",\n  \"query\": \"_time:15m level:error\",\n  \"limit\": 200\n}"
             }
           }
         },
@@ -5757,7 +5757,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query_language\": \"lucene\",\n  \"query\": \"_time:[now-15m TO now] AND service:{{traceService}} AND duration:[10ms TO *]\",\n  \"limit\": 10\n}"
+              "raw": "{\n  \"query_language\": \"lucene\",\n  \"search_engine\": \"lucene\",\n  \"query\": \"_time:[now-15m TO now] AND service:{{traceService}} AND duration:[10ms TO *]\",\n  \"limit\": 10\n}"
             }
           }
         },

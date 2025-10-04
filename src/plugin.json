@@ -29,13 +29,6 @@
       "defaultNav": true
     },
     {
-      "type": "page", 
-      "name": "Discover",
-      "path": "/a/%PLUGIN_ID%/discover",
-      "icon": "search",
-      "addToNav": true
-    },
-    {
       "type": "page",
       "name": "Reports", 
       "path": "/a/%PLUGIN_ID%/reports",

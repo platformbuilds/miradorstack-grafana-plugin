@@ -7,7 +7,7 @@ import { queryHistoryManager } from '../utils/queryHistory';
 interface QueryHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentPage: 'discover' | 'reports' | 'ai-insights';
+  currentPage: 'reports' | 'ai-insights';
   onLoadQuery: (query: QueryHistoryItem) => void;
 }
 
@@ -20,7 +20,7 @@ export const QueryHistoryModal: React.FC<QueryHistoryModalProps> = ({
   const styles = useStyles2(getStyles);
   const [history, setHistory] = useState<QueryHistoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterPage, setFilterPage] = useState<'all' | 'discover' | 'reports' | 'ai-insights'>('all');
+  const [filterPage, setFilterPage] = useState<'all' | 'reports' | 'ai-insights'>('all');
   const [showFavorites, setShowFavorites] = useState(false);
 
   const loadHistory = useCallback(() => {
@@ -113,7 +113,6 @@ export const QueryHistoryModal: React.FC<QueryHistoryModalProps> = ({
             <Select
               options={[
                 { label: 'All Pages', value: 'all' },
-                { label: 'Discover', value: 'discover' },
                 { label: 'Reports', value: 'reports' },
                 { label: 'AI Insights', value: 'ai-insights' },
               ]}

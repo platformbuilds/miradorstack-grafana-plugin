@@ -6,7 +6,6 @@ export const testIds = {
   },
   pageOne: {
     container: 'data-testid pg-one-container',
-    navigateToDiscover: 'data-testid navigate-to-discover',
     navigateToFour: 'data-testid navigate-to-four',
   },
   pageTwo: {

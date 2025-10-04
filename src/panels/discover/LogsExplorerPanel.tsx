@@ -14,15 +14,29 @@ export const LogsExplorerPanel: React.FC<Props> = ({ options, data, width, heigh
   const [timeRange, setTimeRange] = useState(options.timeRange);
 
   const processData = useCallback((data: any) => {
-    // Process Grafana data format into logs
-    return data.series.flatMap((series: any) =>
-      series.fields[0]?.values.map((value: any, index: number) => ({
-        timestamp: series.fields.find((f: any) => f.name === 'timestamp')?.values[index] || new Date().toISOString(),
-        level: series.fields.find((f: any) => f.name === 'level')?.values[index] || 'INFO',
-        message: value,
-        service: series.fields.find((f: any) => f.name === 'service')?.values[index] || 'unknown',
-      }))
-    ).slice(0, options.maxResults);
+    // Process Grafana data format into logs, mapping all fields
+    return data.series.flatMap((series: any) => {
+      const fieldNames = series.fields.map((f: any) => f.name);
+      const len = series.fields[0]?.values.length || 0;
+      return Array.from({ length: len }).map((_, index) => {
+        const log: Record<string, any> = {};
+        fieldNames.forEach((name: string) => {
+          log[name] = series.fields.find((f: any) => f.name === name)?.values[index];
+        });
+        // Prefer 'body' over 'message' for main content
+        log.displayMessage = log.body || log.message || log._msg || '';
+        // Fallbacks for common fields
+        log.timestamp = log.timestamp || log._time || new Date().toISOString();
+        log.level = log.severity || log.level || 'INFO';
+        log.service = log.service || 'unknown';
+        log.id = log.id || `${index}`;
+        // Parse labels if present and stringified
+        if (typeof log.labels === 'string') {
+          try { log.labels = JSON.parse(log.labels); } catch {}
+        }
+        return log;
+      });
+    }).slice(0, options.maxResults);
   }, [options.maxResults]);
 
   const generateMockLogs = useCallback(() => {
@@ -101,7 +115,7 @@ export const LogsExplorerPanel: React.FC<Props> = ({ options, data, width, heigh
               <div className={styles.empty}>No logs found</div>
             ) : (
               logs.map((log, index) => (
-                <div key={index} className={styles.logEntry}>
+                <div key={log.id || index} className={styles.logEntry}>
                   {options.showTimestamp && (
                     <span className={styles.timestamp}>
                       {new Date(log.timestamp).toLocaleString()}
@@ -118,7 +132,25 @@ export const LogsExplorerPanel: React.FC<Props> = ({ options, data, width, heigh
                   {options.showService && (
                     <span className={styles.service}>{log.service}</span>
                   )}
-                  <span className={styles.message}>{log.message}</span>
+                  <span className={styles.message}>{log.displayMessage}</span>
+                  {/* Show extra fields/tags if present */}
+                  {Object.keys(log).filter(k => !['timestamp','level','service','displayMessage','id'].includes(k)).map(k => (
+                    log[k] && typeof log[k] !== 'object' ? (
+                      <span key={k} className={styles.extraField}>
+                        <b>{k}:</b> {String(log[k])}
+                      </span>
+                    ) : null
+                  ))}
+                  {/* Show labels as tags if present */}
+                  {log.labels && typeof log.labels === 'object' && (
+                    <span className={styles.labels}>
+                      {Object.entries(log.labels).map(([lk, lv]) => (
+                        <span key={lk} className={styles.labelTag}>
+                          <b>{lk}:</b> {String(lv)}
+                        </span>
+                      ))}
+                    </span>
+                  )}
                 </div>
               ))
             )}
@@ -130,6 +162,28 @@ export const LogsExplorerPanel: React.FC<Props> = ({ options, data, width, heigh
 };
 
 const getStyles = (theme: any) => ({
+  extraField: css`
+    margin-left: ${theme.spacing(1)};
+    color: ${theme.colors.text.secondary};
+    font-size: ${theme.typography.size.xs};
+    background: ${theme.colors.background.secondary};
+    border-radius: ${theme.shape.borderRadius()};
+    padding: 0 ${theme.spacing(0.5)};
+  `,
+  labels: css`
+    margin-left: ${theme.spacing(1)};
+    display: flex;
+    gap: ${theme.spacing(0.5)};
+    flex-wrap: wrap;
+  `,
+  labelTag: css`
+    background: ${theme.colors.background.secondary};
+    color: ${theme.colors.text.secondary};
+    border-radius: ${theme.shape.borderRadius()};
+    padding: 0 ${theme.spacing(0.5)};
+    font-size: ${theme.typography.size.xs};
+    margin-right: ${theme.spacing(0.5)};
+  `,
   container: css`
     display: flex;
     flex-direction: column;

@@ -5,7 +5,7 @@ export interface SavedSearch {
   query: string;
   filters: Record<string, any>;
   timeRange: string;
-  page: 'discover' | 'reports' | 'ai-insights';
+  page: 'reports' | 'ai-insights';
   createdAt: string;
   updatedAt: string;
   tags?: string[];
@@ -16,7 +16,7 @@ export interface QueryHistoryItem {
   query: string;
   filters: Record<string, any>;
   timeRange: string;
-  page: 'discover' | 'reports' | 'ai-insights';
+  page: 'reports' | 'ai-insights';
   timestamp: string;
   resultCount?: number;
   executionTime?: number;

@@ -3,22 +3,24 @@ ARG grafana_image=grafana
 
 FROM grafana/${grafana_image}:${grafana_version}
 
-ARG anonymous_auth_enabled=true
-ARG development=false
 ARG TARGETARCH
+ARG development=false
+# Define anonymous_auth_enabled with a default value
+ARG anonymous_auth_enabled=true
 
 ARG GO_VERSION=1.21.6
 ARG GO_ARCH=${TARGETARCH:-amd64}
 
-ENV DEV "${development}"
+ENV DEV=${development}
 
 # Make it as simple as possible to access the grafana instance for development purposes
 # Do NOT enable these settings in a public facing / production grafana instance
-ENV GF_AUTH_ANONYMOUS_ORG_ROLE "Admin"
-ENV GF_AUTH_ANONYMOUS_ENABLED "${anonymous_auth_enabled}"
-ENV GF_AUTH_BASIC_ENABLED "false"
+# Using key=value format to fix linting errors
+ENV GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+ENV GF_AUTH_ANONYMOUS_ENABLED=${anonymous_auth_enabled}
+ENV GF_AUTH_BASIC_ENABLED=false
 # Set development mode so plugins can be loaded without the need to sign
-ENV GF_DEFAULT_APP_MODE "development"
+ENV GF_DEFAULT_APP_MODE=development
 
 
 LABEL maintainer="Grafana Labs <hello@grafana.com>"

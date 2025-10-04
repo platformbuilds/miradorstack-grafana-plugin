@@ -1,8 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
+// Helper to generate histogram data from logs
+function generateHistogramFromLogs(logs: LogEntry[], start: number, end: number): HistogramDataPoint[] {
+  const bucketSize = 5 * 60 * 1000; // 5 minutes
+  const buckets: { [key: number]: number } = {};
+  logs.forEach(log => {
+    let timestamp: number;
+    if (typeof log.timestamp === 'string') {
+      timestamp = new Date(log.timestamp).getTime();
+    } else if (typeof log.timestamp === 'number') {
+      timestamp = log.timestamp;
+    } else {
+      return;
+    }
+    const bucket = Math.floor(timestamp / bucketSize) * bucketSize;
+    buckets[bucket] = (buckets[bucket] || 0) + 1;
+  });
+  return Object.entries(buckets)
+    .map(([time, count]) => ({ time: parseInt(time, 10), count }))
+    .sort((a, b) => a.time - b.time);
+}
 import { getDataSourceSrv } from '@grafana/runtime';
 import { dateTime } from '@grafana/data';
-import { LogEntry } from '../components/discover/DocumentTable';
-import { HistogramDataPoint } from '../components/discover/TimeHistogram';
+
+// Temporary local types to replace removed Discover types
+type LogEntry = Record<string, any>;
+type HistogramDataPoint = { time: number; count: number };
 
 export interface LogsQueryParams {
   query: string;
@@ -10,16 +32,19 @@ export interface LogsQueryParams {
   end: number;
   limit?: number;
   queryLanguage?: 'lucene' | 'logsql';
+  cacheBuster?: number;
 }
 
 export interface UseLogsDataResult {
   logs: LogEntry[];
   histogram: HistogramDataPoint[];
   loading: boolean;
+// Move this helper function above fetchLogs so it's available
   error: string | null;
   refetch: (params?: Partial<LogsQueryParams>) => void;
   totalCount: number;
 }
+
 
 
 export function useLogsData(initialParams: LogsQueryParams): UseLogsDataResult {
@@ -28,42 +53,36 @@ export function useLogsData(initialParams: LogsQueryParams): UseLogsDataResult {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
-  const [currentParams, setCurrentParams] = useState<LogsQueryParams>(initialParams);
+  const [params, setParams] = useState<LogsQueryParams>({ ...initialParams, cacheBuster: Date.now() });
 
-  const fetchLogs = useCallback(async (params: LogsQueryParams) => {
-    setLoading(true);
-    setError(null); // Clear previous errors at the start of a new fetch
-
+  const fetchLogs = useCallback(async (fetchParams: LogsQueryParams) => {
     try {
-      
-      // Get the Mirador data source
+      setLoading(true);
+      setError(null);
+      setLogs([]);
+      setHistogram([]);
       const dataSourceSrv = getDataSourceSrv();
       const dataSource = await dataSourceSrv.get('Mirador Core Connector');
-
       if (!dataSource) {
         throw new Error('Mirador Core Connector data source not found. Please configure the data source in Grafana.');
       }
-
-      // Create a query for logs
       const query = {
         queryType: 'logs',
-        query: params.query || '',
-        queryLanguage: params.queryLanguage || 'lucene',
-        start: params.start,
-        end: params.end,
-        limit: params.limit || 1000,
+        query: fetchParams.query || '',
+        queryLanguage: fetchParams.queryLanguage || 'lucene',
+        start: fetchParams.start,
+        end: fetchParams.end,
+        limit: fetchParams.limit || 1000,
         refId: 'logs-query',
       };
-
-      // Execute the query
       const queryResult = dataSource.query({
         targets: [query],
         range: {
-          from: dateTime(params.start),
-          to: dateTime(params.end),
+          from: dateTime(fetchParams.start),
+          to: dateTime(fetchParams.end),
           raw: {
-            from: dateTime(params.start),
-            to: dateTime(params.end),
+            from: dateTime(fetchParams.start),
+            to: dateTime(fetchParams.end),
           },
         },
         requestId: `logs-${Date.now()}`,
@@ -74,79 +93,44 @@ export function useLogsData(initialParams: LogsQueryParams): UseLogsDataResult {
         app: 'mirador-plugin',
         startTime: Date.now(),
       });
-
       const response = await new Promise<any>((resolve, reject) => {
         if (queryResult instanceof Promise) {
           queryResult.then(resolve).catch(reject);
         } else {
-          // It's an Observable
           queryResult.subscribe({
             next: (result: any) => resolve(result),
             error: (err: any) => reject(err),
           });
         }
       });
-
       if (!response || !response.data) {
-        console.log('No data in response');
         setLogs([]);
         setHistogram([]);
         setTotalCount(0);
         return;
       }
-
-      console.log('Response data:', JSON.stringify(response.data).substring(0, 200) + '...');
-
-      // Process the response data
-      const logsData: LogEntry[] = [];
-      let totalCount = 0;
-      
-      console.log('Processing response:', response);
-      
-      // Handle different response formats
+      // --- NEW: Extract logs from DataFrames returned by Grafana data source ---
+      let logsData: LogEntry[] = [];
+      let total = 0;
       if (Array.isArray(response.data)) {
-        // Process each frame in the array
         response.data.forEach((frame: any) => {
-          // Check if the frame has a direct logs property (from our custom processing)
           if (frame.logs && Array.isArray(frame.logs)) {
-            console.log(`Found direct logs array with ${frame.logs.length} entries`);
-            logsData.push(...frame.logs as LogEntry[]);
-            totalCount += frame.logs.length;
-          }
-          // Traditional Grafana DataFrame format with fields
-          else if (frame.fields && frame.fields.length > 0) {
-            console.log('Processing traditional DataFrame format');
-            const rows = frame.length || 0;
-            
-            for (let i = 0; i < rows; i++) {
-              const logEntry: any = {};
-              frame.fields.forEach((field: any, fieldIndex: number) => {
-                logEntry[field.name] = field.values[i];
-              });
-              logsData.push(logEntry as LogEntry);
-            }
-            
-            totalCount += rows;
+            logsData.push(...frame.logs.map((log: any) => ({ ...log })));
+            total += frame.logs.length;
           }
         });
-      } 
-      // Direct API response without DataFrame wrapping
-      else if (response.data && response.data.logs && Array.isArray(response.data.logs)) {
-        console.log(`Processing direct API response with ${response.data.logs.length} logs`);
-        logsData.push(...response.data.logs as LogEntry[]);
-        totalCount = response.data.logs.length;
+      } else if (response.data?.logs && Array.isArray(response.data.logs)) {
+        logsData = response.data.logs.map((log: any) => ({ ...log }));
+        total = logsData.length;
+      } else if (response.data?.data?.logs && Array.isArray(response.data.data.logs)) {
+        logsData = response.data.data.logs.map((log: any) => ({ ...log }));
+        total = logsData.length;
       }
-
-      setLogs(logsData);
-      setTotalCount(totalCount);
-
-      // Generate histogram data from the logs
-      const histogramData = generateHistogramFromLogs(logsData, params.start, params.end);
-      setHistogram(histogramData);
-
+      setLogs([...logsData]);
+      setTotalCount(total);
+      setHistogram(generateHistogramFromLogs(logsData, fetchParams.start, fetchParams.end));
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch logs from Mirador API';
-      setError(errorMessage);
+      setError(err instanceof Error ? err.message : 'Failed to fetch logs from Mirador API');
       setLogs([]);
       setHistogram([]);
       setTotalCount(0);
@@ -155,17 +139,20 @@ export function useLogsData(initialParams: LogsQueryParams): UseLogsDataResult {
     }
   }, []);
 
-  const refetch = useCallback((params?: Partial<LogsQueryParams>) => {
-    const newParams = { ...currentParams, ...params };
-    setCurrentParams(newParams);
-    fetchLogs(newParams);
-  }, [currentParams, fetchLogs]);
-
-  // Initial fetch
+  // Fetch logs when params change
   useEffect(() => {
-    fetchLogs(currentParams);
+    fetchLogs(params);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
+  }, [params]);
+
+  // Expose a refetch function
+  const refetch = (newParams?: Partial<LogsQueryParams>) => {
+    setParams(prev => ({
+      ...prev,
+      ...newParams,
+      cacheBuster: Date.now(), // always change to force fetch
+    }));
+  };
 
   return {
     logs,
@@ -175,36 +162,4 @@ export function useLogsData(initialParams: LogsQueryParams): UseLogsDataResult {
     refetch,
     totalCount,
   };
-}
-
-function generateHistogramFromLogs(logs: LogEntry[], start: number, end: number): HistogramDataPoint[] {
-  if (logs.length === 0) {
-    return [];
-  }
-
-  // Create time buckets (5-minute intervals)
-  const bucketSize = 5 * 60 * 1000; // 5 minutes in milliseconds
-  const buckets: { [key: number]: number } = {};
-
-  logs.forEach(log => {
-    let timestamp: number;
-    if (typeof log.timestamp === 'string') {
-      timestamp = new Date(log.timestamp).getTime();
-    } else if (typeof log.timestamp === 'number') {
-      timestamp = log.timestamp;
-    } else {
-      return; // Skip invalid timestamps
-    }
-
-    const bucket = Math.floor(timestamp / bucketSize) * bucketSize;
-    buckets[bucket] = (buckets[bucket] || 0) + 1;
-  });
-
-  // Convert to histogram data points
-  return Object.entries(buckets)
-    .map(([time, count]) => ({
-      time: parseInt(time, 10),
-      count,
-    }))
-    .sort((a, b) => a.time - b.time);
 }

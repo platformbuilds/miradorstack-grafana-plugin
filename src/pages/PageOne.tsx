@@ -16,11 +16,7 @@ function ExplorerPage() {
         <h1>Mirador Explorer</h1>
         <p>Welcome to the Mirador Core data exploration interface.</p>
         <p>Use the panels to explore logs, metrics, traces, and perform RCA.</p>
-        <div className={s.marginTop}>
-          <LinkButton data-testid={testIds.pageOne.navigateToDiscover} href={prefixRoute(ROUTES.Discover)}>
-            Go to Discover
-          </LinkButton>
-        </div>
+        {/* Discover page removed */}
         <div className={s.marginTop}>
           <LinkButton href={prefixRoute(ROUTES.Reports)}>
             Go to Reports

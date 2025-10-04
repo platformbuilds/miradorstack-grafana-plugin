@@ -374,7 +374,7 @@ phases:
       - name: "Onboarding page functional" 
         due_date: "Week 5 - Day 5" 
         status: "completed" 
-      - name: "Discover page MVP complete"
+  # Discover page removed
         due_date: "Week 6 - Day 3"
         status: "completed"
         
@@ -389,185 +389,18 @@ phases:
     tasks:
       # Week 5 Tasks
       week_5:
-        - name: "Discover page layout"
-          description: "Create main Discover page with responsive shell, tabbed interface for Metrics/Logs/Traces/Service Mesh, search bar, and time picker"
-          priority: "high"
-          estimated_hours: 12
-          status: "completed"
-          assignee: "UI/UX Developer"
-          dependencies: ["WebSocket integration", "Define UX and design baselines", "Phase 2 review checkpoint"]
-          deliverables:
-            - "`app/src/pages/Discover/index.tsx` wiring breadcrumb, header, and layout primitives"
-            - "`app/src/components/discover/TabNavigation.tsx` for switching between Metrics/Logs/Traces/Service Mesh" 
-            - "`app/src/components/discover/SearchBar.tsx` with query + time inputs"
-            - "`app/src/components/discover/__tests__/DiscoverShell.test.tsx` capturing layout smoke"
-          acceptance_criteria:
-            - "Page layout responsive across Grafana breakpoints"
-            - "Tab navigation switches between Metrics/Logs/Traces/Service Mesh views" 
-            - "Time picker integrates with Grafana time range context"
-            - "Search bar emits debounced queries"
-            
-        - name: "Field list component"
-          description: "Build interactive field sidebar for Discover page"
-          priority: "high"
-          estimated_hours: 14
-          status: "completed"
-          assignee: "UI/UX Developer"
-          dependencies: ["Discover page layout"]
-          deliverables:
-            - "`app/src/components/discover/FieldSidebar.tsx` with collapsible groups"
-            - "`app/src/components/discover/__tests__/FieldSidebar.test.tsx` covering sorting + filtering"
-            - "Mirador field stats transformer in `app/src/utils/fieldStats.ts`"
-          acceptance_criteria:
-            - "Fields populate from datasource response mocks"
-            - "Field stats calculated against latest payload"
-            - "Sidebar supports search, sort, and pinning"
 
-        - name: "Sample data & fixtures"
-          description: "Capture representative log payloads for UI development"
-          priority: "medium"
-          estimated_hours: 6
-          status: "completed"
-          assignee: "QA Engineer"
-          dependencies: ["Discover page layout"]
-          deliverables:
-            - "`app/src/mocks/logSamples.json` sourced from Mirador"
-            - "`app/src/mocks/__tests__/logSamples.test.ts` validating schema shape"
-            - "Storybook stories bootstrapped with sample data"
-          acceptance_criteria:
-            - "Mocks reflect current Mirador schema"
-            - "Fixtures reusable by component tests"
-            - "Storybook renders without runtime errors"
-        - name: "Onboarding page implementation" 
-          description: "Create Onboarding page with schema browsing and field definitions" 
-          priority: "high" 
-          estimated_hours: 12 
-          status: "completed" 
-          assignee: "UI/UX Developer" 
-          dependencies: ["Sample data & fixtures"] 
-          deliverables: 
-            - "`app/src/pages/Onboarding/index.tsx` with schema browser interface" 
-            - "`app/src/components/onboarding/SchemaViewer.tsx` for field definitions" 
-          acceptance_criteria: 
-            - "Schema definitions load and display" 
-            - "Field descriptions show in tooltips" 
-            - "Schema search functionality works" 
 
       # Week 6 Tasks  
       week_6:
-        - name: "Document table view"
-          description: "Create log documents table for Logs tab with virtual scrolling"
-          priority: "high"
-          estimated_hours: 16
-          status: "completed"
-          assignee: "Lead Developer"
-          dependencies: ["Field list component", "Sample data & fixtures"]
-          deliverables:
-            - "`app/src/components/discover/DocumentTable.tsx` using React Virtualized/Grid"
-            - "Row expander component `DocumentRowDetails.tsx`"
-            - "Performance harness in `app/src/components/discover/__tests__/DocumentTable.performance.test.tsx`"
-          acceptance_criteria:
-            - "Large datasets render smoothly (<=16ms frame budget)"
-            - "Log entries expand to show structured view"
-            - "Pinned fields highlighted consistently"
             
-        - name: "Time histogram visualization"
-          description: "Add time-based histogram above log table in Logs tab"
-          priority: "medium"
-          estimated_hours: 10
-          status: "completed"
-          assignee: "UI/UX Developer"
-          dependencies: ["Document table view"]
-          deliverables:
-            - "`app/src/components/discover/TimeHistogram.tsx` leveraging Grafana `<GraphNG>`"
-            - "Hooks in `app/src/hooks/useHistogramQuery.ts`"
-            - "Interaction tests in `app/src/components/discover/__tests__/TimeHistogram.test.tsx`"
-          acceptance_criteria:
-            - "Histogram shows log distribution over time"
-            - "Clicking bars filters time range via query state"
-            - "Visual updates occur within 250ms of new data"
 
 
-        - name: "Metrics tab implementation" 
-          description: "Implement Metrics tab with PromQL query support for querying metrics from mirador-core" 
-          priority: "high" 
-          estimated_hours: 14 
-          status: "completed" 
-          assignee: "Lead Developer" 
-          dependencies: ["Time histogram visualization"] 
-          deliverables: 
-            - "`app/src/components/discover/metrics/MetricsQueryEditor.tsx` with PromQL syntax highlighting" 
-            - "`app/src/components/discover/metrics/MetricsVisualization.tsx` for time series charts" 
-            - "`app/src/hooks/useMetricsQuery.ts` for PromQL execution" 
-          acceptance_criteria: 
-            - "PromQL queries execute against mirador-core metrics endpoint" 
-            - "Time series data displays in interactive charts" 
-            - "Query editor provides syntax validation and suggestions" 
 
-        - name: "Traces tab implementation" 
-          description: "Implement Traces tab with Lucene query support for querying traces from mirador-core" 
-          priority: "high" 
-          estimated_hours: 14 
-          status: "completed" 
-          assignee: "Lead Developer" 
-          dependencies: ["Metrics tab implementation"] 
-          deliverables: 
-            - "`app/src/components/discover/traces/TracesQueryEditor.tsx` with Lucene syntax for traces" 
-            - "`app/src/components/discover/traces/TracesVisualization.tsx` for trace timeline and spans" 
-            - "`app/src/hooks/useTracesQuery.ts` for trace data fetching" 
-          acceptance_criteria: 
-            - "Lucene queries execute against mirador-core traces endpoint" 
-            - "Trace data displays in timeline and span views" 
-            - "Query editor supports trace-specific Lucene syntax" 
 
-        - name: "Service Mesh tab implementation" 
-          description: "Implement Service Mesh tab with visual realtime diagram showing services and health based on servicegraphconnector metrics" 
-          priority: "high" 
-          estimated_hours: 16 
-          status: "completed" 
-          assignee: "UI/UX Developer" 
-          dependencies: ["Traces tab implementation"] 
-          deliverables: 
-            - "`app/src/components/discover/servicemesh/ServiceMeshDiagram.tsx` with interactive node-link visualization" 
-            - "`app/src/hooks/useServiceGraphData.ts` for fetching servicegraphconnector metrics" 
-            - "`app/src/components/discover/servicemesh/ServiceHealthIndicator.tsx` with color-coded health status" 
-          acceptance_criteria: 
-            - "Real-time service mesh diagram displays with nodes and connections" 
-            - "Service health indicated by colors based on metrics" 
-            - "Interactive diagram allows zooming, panning, and service selection" 
-        - name: "UI regression tests"
-          description: "Implement component-level regression tests for all Discover tabs (Metrics/Logs/Traces/Service Mesh)"
-          priority: "high"
-          estimated_hours: 10
-          status: "completed"
-          assignee: "QA Engineer"
-          dependencies: ["Document table view", "Time histogram visualization", "Metrics tab implementation", "Traces tab implementation", "Service Mesh tab implementation", "UX heuristic review"]
-          deliverables:
-            - "Chromatic/Playwright setup under `dev/tests/ui-regression/`"
-            - "Golden screenshots committed for core discover states"
-            - "Snapshot review checklist in `dev/testing/ui-regression.md`"
-          acceptance_criteria:
-            - "Regression suite runs in CI"
-            - "Snapshots reviewed and baselined"
-            - "Visual diffs gated before merge"
 
       # Week 7 Tasks
       week_7:
-        - name: "Complete Discover page filtering"
-          description: "Finish interactive filtering and query management across all Discover tabs (Metrics/Logs/Traces/Service Mesh)"
-          priority: "high"
-          estimated_hours: 14
-          status: "completed"
-          assignee: "Lead Developer"
-          dependencies: ["Time histogram visualization"]
-          deliverables:
-            - "`app/src/components/discover/FilterPillBar.tsx` with include/exclude actions"
-            - "`app/src/components/discover/FilterPillBar.tsx` with include/exclude actions for all tabs"
-            - "`app/src/hooks/useDiscoverFilters.ts` syncing filters with datasource queries across tabs"
-            - "Query history and saved searches integration for all data types"
-            - "Filtering works across all Discover tabs (Metrics/Logs/Traces/Service Mesh)"
-            - "Query history and saved searches available for all data types"
-            - "Cross-tab filter state management and persistence"
             
         - name: "Reports page implementation"
           description: "Create Reports page with data visualization and custom report generation"
@@ -648,7 +481,7 @@ phases:
               assignee: "Lead Developer"
               dependencies: ["Data export functionality"]
               deliverables:
-                - "Save search functionality across Discover, Reports, and AI Insights"
+                - "Save search functionality across Reports and AI Insights"
                 - "Load saved searches with filter state restoration"
                 - "Search organization and management interface"
               acceptance_criteria:
@@ -701,7 +534,7 @@ phases:
               deliverables:
                 - "Navigation breadcrumbs and state preservation"
                 - "Deep linking support for specific queries/results"
-                - "Context sharing between Discover, Reports, and AI Insights"
+                - "Context sharing between Reports and AI Insights"
               acceptance_criteria:
                 - "Navigation preserves query state across pages"
                 - "Deep links work for sharing specific views"
@@ -753,7 +586,7 @@ phases:
                 - "Action items for polish phase"
                 - "Release readiness assessment"
               acceptance_criteria:
-                - "All 4 pages (Onboarding, Discover, Reports, AI Insights) meet requirements"
+                - "All 3 pages (Onboarding, Reports, AI Insights) meet requirements"
                 - "Outstanding issues scheduled"
                 - "Phase 5 kickoff authorized"
 
@@ -1096,9 +929,9 @@ tracking:
     week_2: "Mirador connectivity proven with passing unit harness and Phase 1 review sign-off"
     week_3: "Lucene builder usable with contract tests automated for core endpoints"
     week_4: "Logs/metrics/traces queries live with real-time streaming and smoke tests gating merges"
-    week_5: "Discover page layout with field sidebar and search functionality"
-    week_6: "Discover page complete with document table, histogram, and basic filtering"
-    week_7: "All 4 pages implemented: Onboarding (schema browser), Discover (with filtering), Reports, AI Insights (with RCA)"
+  # Discover page removed
+  # Discover page removed
+  week_7: "All 3 pages implemented: Onboarding (schema browser), Reports, AI Insights (with RCA)"
     week_8: "Data export and saved searches working across all pages"
     week_9: "Panel integration and cross-page navigation implemented"
     week_10: "Advanced AI Insights and Reports features complete, Phase 4 review approved"

@@ -37,33 +37,23 @@ This document provides a comprehensive walkthrough of the codebase, mapping feat
 - **Schema Integration**
   - `app/src/api/schema.ts`: Fetches and manages schema data.
   - `app/src/pages/Schema/`: Schema browser UI.
-- **Discover Library**
-  - `app/src/hooks/useDiscoverLibrary.ts`: Custom hook for discover page logic.
-  - `app/src/pages/Discover/`: Main discover page with advanced filtering.
 - **Panel Plugins**
   - `app/src/panels/logsExplorer/LogsExplorerPanel.tsx`: Custom panel for log exploration.
 - **Accessibility & Test IDs**
   - `app/src/components/testIds.ts`: Centralized test IDs for accessibility and testing.
-- **Performance**
-  - Virtual scrolling in `app/src/components/discover/DocumentTable.tsx`.
 - **Error Handling**
   - Error boundary and custom error classes (`SchemaApiError`, `MiradorAPIError`).
 
----
+----
 
 ## Phase 4: Export, History, and Polish
 
-- **Export/Save Functionality**
-  - `app/src/utils/export.ts`: CSV/JSON export logic for discover results.
-  - UI integration in `app/src/pages/Discover/index.tsx`.
-- **Query History**
-  - Query history logic in `app/src/pages/Discover/index.tsx` and supporting hooks.
 - **Advanced Filtering**
-  - `app/src/components/discover/AdvancedFiltersPanel.tsx`: UI for complex filters.
+  # Discover components removed
 - **Panel Integration**
   - Multiple panels for different data views, integrated in main plugin UI.
 - **Comprehensive Testing**
-  - Test files in `app/src/components/discover/__tests__/` and `datasource/src/api/__tests__/`.
+  # Discover test files removed
 
 ---
 
@@ -97,16 +87,13 @@ This document provides a comprehensive walkthrough of the codebase, mapping feat
 | Datasource Integration       | datasource/pkg/plugin/, datasource/pkg/mirador/     |
 | Frontend UI                  | app/src/module.tsx, app/src/pages/                  |
 | Schema Integration           | app/src/api/schema.ts, app/src/pages/Schema/        |
-| Discover Library             | app/src/hooks/useDiscoverLibrary.ts, app/src/pages/Discover/ |
-| Export/Save                  | app/src/utils/export.ts, app/src/pages/Discover/    |
-| Query History                | app/src/pages/Discover/index.tsx                    |
-| Advanced Filtering           | app/src/components/discover/AdvancedFiltersPanel.tsx|
+| Advanced Filtering           | (removed) |
 | Panel Plugins                | app/src/panels/logsExplorer/                        |
 | Error Handling               | app/src/api/schema.ts, app/src/utils/fieldStats.ts  |
-| Performance                  | app/src/components/discover/DocumentTable.tsx       |
+| Performance                  | (removed) |
 | Accessibility                | app/src/components/testIds.ts, UI components        |
-| Telemetry                    | app/src/pages/Discover/index.tsx, backend hooks     |
-| Testing                      | app/src/components/discover/__tests__/, datasource/src/api/__tests__/ |
+| Telemetry                    | backend hooks     |
+| Testing                      | datasource/src/api/__tests__/ |
 | Packaging/Deployment         | README.md, plugin.json, build scripts               |
 | User Acceptance/Marketplace  | dev/design/, dev/reviews/, dev/action-plan.yaml     |
 | Enablement/Go/No-Go          | dev/design/, dev/action-plan.yaml                   |

@@ -7,7 +7,7 @@ import { savedSearchManager } from '../utils/savedSearches';
 interface SavedSearchesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentPage: 'discover' | 'reports' | 'ai-insights';
+  currentPage: 'reports' | 'ai-insights';
   currentQuery: string;
   currentFilters: Record<string, any>;
   currentTimeRange: string;
