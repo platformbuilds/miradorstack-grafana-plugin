@@ -1,0 +1,1 @@
+main.pluginID=platformbuilds-miradorstackgrafanaplugin-app
