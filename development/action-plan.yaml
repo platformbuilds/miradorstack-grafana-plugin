@@ -50,7 +50,7 @@ phases:
           description: "Scaffold main app plugin and data source plugin"
           priority: "high"
           estimated_hours: 8
-          status: "yet to start"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: []
           deliverables:
@@ -66,7 +66,7 @@ phases:
           description: "Configure Docker, dependencies, and build tools"
           priority: "high"
           estimated_hours: 6
-          status: "yet to start"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Create project structure"]
           deliverables:
@@ -82,7 +82,7 @@ phases:
           description: "Define interfaces for Mirador Core API integration"
           priority: "medium"
           estimated_hours: 4
-          status: "yet to start"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Create project structure"]
           deliverables:
@@ -148,7 +148,7 @@ phases:
           description: "Integrate Mirador Core API client into datasource and implement query routing"
           priority: "high"
           estimated_hours: 10
-          status: "yet to start"
+          status: "completed"
           assignee: "Lead Developer"
           dependencies: ["Implement Mirador Core API client"]
           deliverables:
@@ -166,7 +166,7 @@ phases:
           description: "Create data source configuration interface"
           priority: "medium"
           estimated_hours: 6
-          status: "yet to start"
+          status: "completed"
           assignee: "UI/UX Developer"
           dependencies: ["Basic data source implementation", "Define UX and design baselines", "Establish test strategy and tooling"]
           deliverables:
@@ -182,7 +182,7 @@ phases:
           description: "Author first wave of unit tests covering scaffolding and config"
           priority: "medium"
           estimated_hours: 6
-          status: "yet to start"
+          status: "completed"
           assignee: "QA Engineer"
           dependencies: ["Establish test strategy and tooling", "Configuration UI"]
           deliverables:

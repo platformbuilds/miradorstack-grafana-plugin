@@ -1,16 +1,21 @@
+version: '3.8'
+
 services:
   grafana:
     image: grafana/grafana:12.2.0
     container_name: miradorstack-grafana
     network_mode: host
     environment:
-      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=platformbuilds-miradorstackconnect-app,miradorstack-datasource
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=platformbuilds-miradorstackgrafanaplugin-app
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_LOG_LEVEL=debug
+      - GF_AUTH_ANONYMOUS_ENABLED=true
     volumes:
-      - ./app/dist:/var/lib/grafana/plugins/platformbuilds-miradorstackconnect-app
-      - ./datasource/dist:/var/lib/grafana/plugins/miradorstack-datasource
+      - ./platformbuilds-miradorstackgrafanaplugin-app/dist:/var/lib/grafana/plugins/platformbuilds-miradorstackgrafanaplugin-app
       - grafana-storage:/var/lib/grafana
+    restart: unless-stopped
 
 volumes:
   grafana-storage:
+    driver: local

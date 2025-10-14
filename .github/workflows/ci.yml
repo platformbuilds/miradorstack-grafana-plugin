@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+        
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.24'
+        
+    - name: Install frontend dependencies
+      run: npm ci
+      
+    - name: Run frontend tests
+      run: npm test -- --coverage
+      
+    - name: Build frontend
+      run: npm run build
+      
+    - name: Run backend tests
+      run: |
+        cd platformbuilds-miradorstackgrafanaplugin-app
+        go test -v ./...
+        
+    - name: Upload test coverage
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage/
+
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Run npm audit
+      run: npm audit
+      
+    - name: Run Go security scan
+      uses: securego/gosec@master
+      with:
+        args: ./...

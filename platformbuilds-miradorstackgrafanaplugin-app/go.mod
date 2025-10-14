@@ -2,9 +2,10 @@ module github.com/platformbuilds/miradorstack-grafana-plugin
 
 go 1.24.6
 
-toolchain go1.24.9
-
-require github.com/grafana/grafana-plugin-sdk-go v0.280.0
+require (
+	github.com/grafana/grafana-plugin-sdk-go v0.280.0
+	github.com/magefile/mage v1.15.0
+)
 
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
@@ -36,7 +37,6 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
-	github.com/magefile/mage v1.15.0 // indirect
 	github.com/mattetti/filebuffer v1.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

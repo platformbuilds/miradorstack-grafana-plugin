@@ -1,10 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "app",
-  "name": "Miradorstack-Grafana-Plugin",
+  "name": "Mirador Stack",
   "id": "platformbuilds-miradorstackgrafanaplugin-app",
   "backend": true,
   "executable": "gpx_miradorstack_grafana_plugin",
+  "category": "cloud",
   "info": {
     "keywords": ["app"],
     "description": "",
