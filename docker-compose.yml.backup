@@ -1,0 +1,16 @@
+services:
+  grafana:
+    image: grafana/grafana:12.2.0
+    container_name: miradorstack-grafana
+    network_mode: host
+    environment:
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=platformbuilds-miradorstackconnect-app,miradorstack-datasource
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./app/dist:/var/lib/grafana/plugins/platformbuilds-miradorstackconnect-app
+      - ./datasource/dist:/var/lib/grafana/plugins/miradorstack-datasource
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage:

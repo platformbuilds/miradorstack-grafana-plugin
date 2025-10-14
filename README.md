@@ -69,36 +69,96 @@ Mirador Explorer is a Grafana app plugin bundled with a dedicated Mirador Core d
 
 ## Getting Started
 
-Install dependencies for both packages:
+### Quick Start
 
+**Option 1: Automated Setup (Recommended)**
 ```bash
-npm install --prefix app
-npm install --prefix datasource
+git clone https://github.com/platformbuilds/miradorstack-grafana-plugin
+cd miradorstack-grafana-plugin
+
+# Run the automated setup script
+./localdev-up.sh
 ```
 
-Build the plugins once to generate initial `dist/` bundles:
+**Option 2: Manual Setup**
+1. **Clone and install dependencies:**
+   ```bash
+   git clone https://github.com/platformbuilds/miradorstack-grafana-plugin
+   cd miradorstack-grafana-plugin
+
+   # Install dependencies for both plugins
+   npm install --prefix app
+   npm install --prefix datasource
+   ```
+
+2. **Build plugins for development:**
+   ```bash
+   # Build both plugins (required for Docker mounting)
+   npm run build --prefix app
+   npm run build --prefix datasource
+   ```
+
+3. **Start Grafana with plugins:**
+   ```bash
+   # Start Grafana with both plugins mounted
+   docker compose up --build
+   ```
+
+4. **Access Grafana:**
+   - Open http://localhost:3000
+   - Login with `admin` / `admin`
+   - Configure the Mirador Core Connector datasource
+     - **URL**: Use `http://host.docker.internal:8080` (Docker provides this alias to reach services on the host)
+   - Access Mirador Explorer from the navigation menu
+
+### Development Workflow
+
+For active development with hot reloading:
+
+1. **Start development watchers** (in separate terminals):
+   ```bash
+   # Terminal 1: App plugin development
+   npm run dev --prefix app
+
+   # Terminal 2: Datasource plugin development
+   npm run dev --prefix datasource
+   ```
+
+2. **Start Grafana** (in a third terminal):
+   ```bash
+   docker compose up --build
+   ```
+
+The development watchers will automatically rebuild plugins when you make changes, and Grafana will hot-reload the updated plugins.
+
+### Manual Build Commands
 
 ```bash
+# Build app plugin for production
 npm run build --prefix app
+
+# Build datasource plugin for production
 npm run build --prefix datasource
+
+# Build both plugins
+npm run build --prefix app && npm run build --prefix datasource
 ```
 
-Run the development watchers in separate shells:
+### Development Server Options
 
 ```bash
-npm run dev --prefix app
-npm run dev --prefix datasource
+# Start Grafana with specific version
+GRAFANA_VERSION=12.2.0 docker compose up --build
+
+# Start Grafana in detached mode
+docker compose up -d --build
+
+# View logs
+docker compose logs -f grafana
+
+# Stop Grafana
+docker compose down
 ```
-
-Start Grafana with both plugins mounted from the repository root:
-
-```bash
-docker compose up --build
-```
-
-Grafana will be available at `http://localhost:3000` with anonymous admin access for development convenience.
-
-Within Grafana, open **Configuration → Mirador Explorer** and supply the Mirador Core API URL, API key, and the UID of your Mirador Core Connector datasource. The Schema Browser relies on these settings to call the backend schema resources.
 
 ### Dashboard panel
 
@@ -146,36 +206,229 @@ After deployment:
 
 ## Testing
 
-- Lint & type-check: `npm run lint --prefix <package>` / `npm run typecheck --prefix <package>`
-- Unit tests: `npm run test:ci --prefix <package>`
-- Playwright E2E scaffolding is available via `npm run e2e` (Chromium profile).
-- Backend Go tests: `go test ./...` from `datasource/`
-- Combined smoke suite (datasource): `dev/tests/smoke.sh`
+This project includes comprehensive testing across multiple layers: TypeScript unit tests, Go backend tests, and end-to-end tests.
 
-See `dev/testing/strategy.md` for the evolving quality plan and `dev/design/baselines.md` for UX foundations.
+### Unit Testing
 
-## Local Docker setup on Apple Silicon (M1/M2)
+#### App Plugin Tests
+```bash
+# Run tests in watch mode (recommended for development)
+npm run test --prefix app
 
-This repository includes a ready-to-run Docker Compose setup that works on arm64 Macs.
+# Run tests once (CI mode)
+npm run test:ci --prefix app
 
-Quick start:
+# Run with coverage
+npm run test:ci --prefix app -- --coverage
+```
 
-1. Install dependencies and build once (host):
-   - `npm ci --prefix app`
-   - `npm ci --prefix datasource`
-   - `npm run build --prefix app`
-   - `npm run build --prefix datasource`
-2. From the repo root, start Grafana:
-   - `docker compose up --build`
-3. (Optional) In separate terminals, enable live rebuilding:
-   - `npm run dev --prefix app`
-   - `npm run dev --prefix datasource`
+#### Datasource Plugin Tests
+```bash
+# Run tests in watch mode (recommended for development)
+npm run test --prefix datasource
 
-Notes:
-- A `docker-compose.override.yaml` sets `platform: linux/arm64` for Apple Silicon so multi-arch images pull correctly.
-- The container in development mode installs Node.js, Go, mage, and Delve to support live builds and Go debug attach.
-- Anonymous auth and unsigned plugin loading are enabled for local development only.
-- If you prefer x86 emulation, remove the `platform:` line and turn on Rosetta emulation in Docker Desktop.
+# Run tests once (CI mode)
+npm run test:ci --prefix datasource
+
+# Run with coverage
+npm run test:ci --prefix datasource -- --coverage
+```
+
+#### Backend Go Tests
+```bash
+# Run all Go tests
+cd datasource
+go test ./...
+
+# Run tests with verbose output
+go test -v ./...
+
+# Run tests with coverage
+go test -cover ./...
+```
+
+### Code Quality Checks
+
+#### Linting and Type Checking
+```bash
+# Lint app plugin
+npm run lint --prefix app
+
+# Auto-fix linting issues
+npm run lint:fix --prefix app
+
+# Type check app plugin
+npm run typecheck --prefix app
+
+# Lint datasource plugin
+npm run lint --prefix datasource
+
+# Auto-fix linting issues
+npm run lint:fix --prefix datasource
+
+# Type check datasource plugin
+npm run typecheck --prefix datasource
+```
+
+### End-to-End Testing
+
+#### Playwright E2E Tests
+```bash
+# Install Playwright browsers (first time only)
+npm run e2e:install --prefix app
+
+# Run E2E tests
+npm run e2e --prefix app
+
+# Run E2E tests in headed mode (see browser)
+npm run e2e --prefix app -- --headed
+
+# Run specific test
+npm run e2e --prefix app -- --grep "test name"
+```
+
+### Smoke Testing
+
+Run the comprehensive smoke test suite that validates the entire datasource plugin:
+
+```bash
+# Run smoke tests (includes unit tests, type checking, and Go tests)
+./dev/tests/smoke.sh
+```
+
+### Testing in Development
+
+For the best development experience, run tests in watch mode while developing:
+
+```bash
+# Terminal 1: App tests in watch mode
+npm run test --prefix app
+
+# Terminal 2: Datasource tests in watch mode
+npm run test --prefix datasource
+
+# Terminal 3: Go tests (rerun manually as needed)
+cd datasource && go test ./...
+```
+
+### Test Coverage
+
+Current test coverage includes:
+- **TypeScript Unit Tests**: 57+ tests covering components, utilities, API clients, and live streaming
+- **Go Backend Tests**: Integration tests for API endpoints and data handling
+- **E2E Tests**: Playwright tests for critical user workflows
+- **Code Quality**: ESLint, TypeScript strict mode, and Go best practices
+
+### CI/CD Testing
+
+All tests run automatically on:
+- Pull requests
+- Pushes to main branch
+- Manual workflow dispatch
+
+See `dev/testing/strategy.md` for detailed testing strategy and coverage goals.
+
+## Local Docker Setup
+
+This repository includes a ready-to-run Docker Compose setup that works on both Intel and Apple Silicon Macs.
+
+### Quick Development Setup
+
+1. **Prerequisites:**
+   - Docker Desktop installed and running
+   - Node.js 22+ and npm 11.5+ (for local development)
+
+2. **One-time setup:**
+   ```bash
+   # Install dependencies
+   npm install --prefix app
+   npm install --prefix datasource
+
+   # Build plugins (required for Docker mounting)
+   npm run build --prefix app
+   npm run build --prefix datasource
+   ```
+
+3. **Start development environment:**
+   ```bash
+   # Start Grafana with plugins
+   docker compose up --build
+   ```
+
+4. **Enable hot reloading** (optional, in separate terminals):
+   ```bash
+   # App plugin hot reload
+   npm run dev --prefix app
+
+   # Datasource plugin hot reload
+   npm run dev --prefix datasource
+   ```
+
+### Automated Development Setup
+
+For a streamlined experience, use the provided automation scripts:
+
+```bash
+# Automated setup (builds plugins, starts Grafana, verifies setup)
+./localdev-up.sh
+
+# Clean shutdown
+./localdev-down.sh
+
+# Clean shutdown with Docker resource cleanup
+./localdev-down.sh --clean
+
+# Full cleanup including build artifacts
+./localdev-down.sh --clean --clean-build --full
+```
+
+This script will:
+- Check prerequisites (Node.js, npm, Docker)
+- Install plugin dependencies
+- Build both plugins
+- Start Grafana with Docker Compose
+- Wait for Grafana to be ready
+- Verify plugin loading
+- Display access information and next steps
+
+### Apple Silicon Notes
+
+- The Docker Compose configuration automatically detects and uses the correct platform
+- Multi-arch images are pulled automatically
+- No additional configuration needed for M1/M2 Macs
+- If you encounter issues, ensure Docker Desktop is updated to the latest version
+
+### Development Container Features
+
+The development container includes:
+- Grafana 12.2.0 with plugin support
+- Anonymous admin access (`admin`/`admin`)
+- Unsigned plugin loading enabled
+- Hot reload support when using `npm run dev`
+- Persistent storage for Grafana data
+- **Host gateway access** via `host.docker.internal` for connecting to services running on the host machine
+
+### Troubleshooting
+
+```bash
+# View container logs
+docker compose logs -f
+
+# Restart Grafana
+docker compose restart
+
+# Clean rebuild
+docker compose down
+docker compose up --build --force-recreate
+
+# Check plugin loading
+docker compose exec grafana grafana-cli plugins ls
+
+# Quick environment management
+./localdev-up.sh    # Start environment
+./localdev-down.sh  # Stop environment
+./localdev-down.sh --clean  # Stop and clean resources
+```
 
 ## Production Deployment
 
